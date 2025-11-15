@@ -1,1 +1,59 @@
-<p>apartamento works!</p>
+<!-- CONTAINER GERAL DO FORMULÁRIO -->
+<div class="form-wrapper container-fluid px-4">
+
+  <!-- Título -->
+  <h1 class="mb-3">
+    {{ titulo }} Apartamento
+  </h1>
+
+  <!-- CARD PRINCIPAL -->
+  <div class="card shadow-sm p-4">
+
+    <form [formGroup]="form">
+
+      <div class="row g-3">
+
+        <!-- CAMPO DESCRIÇÃO -->
+        <div class="col-12 col-md-8">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Descrição</mat-label>
+            <input matInput formControlName="descricao">
+
+            <mat-error *ngIf="form.controls['descricao'].touched && form.controls['descricao'].invalid">
+              Descrição é obrigatória.
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- CAMPO NÚMERO -->
+        <div class="col-12 col-md-4">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Número</mat-label>
+            <input matInput type="number" formControlName="numero">
+
+            <mat-error *ngIf="form.controls['numero'].hasError('required')">
+              Número é obrigatório.
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+      </div>
+
+      <!-- LINHA DOS BOTÕES -->
+      <div class="row mt-3">
+        <div class="col d-flex gap-2">
+          <button mat-raised-button color="primary" (click)="salvar()">Salvar</button>
+          <button mat-raised-button color="warn">Cancelar</button>
+        </div>
+
+        <div class="col d-flex justify-content-end">
+          <button mat-raised-button color="primary" routerLink="/apartamento/listar">
+            Listar
+          </button>
+        </div>
+      </div>
+
+    </form>
+
+  </div>
+</div>

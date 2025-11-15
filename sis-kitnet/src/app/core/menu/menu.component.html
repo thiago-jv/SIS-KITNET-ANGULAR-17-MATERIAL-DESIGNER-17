@@ -1,34 +1,49 @@
-<button mat-button class="menu-item" routerLink="/locacao">
-  <mat-icon>home_work</mat-icon>
+<!--
+  BOTÃO DO MENU LATERAL
+  • class="w-100" → Bootstrap: o botão ocupa 100% da largura da coluna/menu
+  • class="d-flex" → Bootstrap: transforma o botão em um container flexível
+      Isso permite organizar ícone + texto lado a lado.
+  • class="align-items-center" → alinha ícone e texto verticalmente no centro
+      Sem isso, o ícone poderia ficar um pouco mais alto ou mais baixo.
+
+  Em resumo:
+  Esse conjunto de classes garante que:
+    – O botão fique largo no desktop e no mobile
+    – Ícone e texto fiquem alinhados corretamente
+    – A aparência seja homogênea em qualquer resolução
+-->
+
+<button mat-button class="menu-item w-100 d-flex align-items-center" routerLink="/locacao">
+  <mat-icon class="me-2">home_work</mat-icon>
   Locação
 </button>
 
-<button mat-button class="menu-item" routerLink="/apartamento">
-  <mat-icon>apartment</mat-icon>
+<button mat-button class="menu-item w-100 d-flex align-items-center" routerLink="/apartamento">
+  <mat-icon class="me-2">apartment</mat-icon>
   Apartamento
 </button>
 
-<button mat-button class="menu-item" routerLink="/predio">
-  <mat-icon>location_city</mat-icon>
+<button mat-button class="menu-item w-100 d-flex align-items-center" routerLink="/predio">
+  <mat-icon class="me-2">location_city</mat-icon>
   Prédio
 </button>
 
-<button mat-button class="menu-item" routerLink="/inquilino">
-  <mat-icon>engineering</mat-icon>
+<button mat-button class="menu-item w-100 d-flex align-items-center" routerLink="/inquilino">
+  <mat-icon class="me-2">engineering</mat-icon>
   Inquilino
 </button>
 
-<button mat-button class="menu-item" routerLink="/diario">
-  <mat-icon>event</mat-icon>
+<button mat-button class="menu-item w-100 d-flex align-items-center" routerLink="/diario">
+  <mat-icon class="me-2">event</mat-icon>
   Diário
 </button>
 
-<button mat-button class="menu-item" routerLink="/valor">
-  <mat-icon>attach_money</mat-icon>
+<button mat-button class="menu-item w-100 d-flex align-items-center" routerLink="/valor">
+  <mat-icon class="me-2">attach_money</mat-icon>
   Valor
 </button>
 
-<button mat-button class="menu-item" routerLink="/usuario">
-  <mat-icon>person</mat-icon>
+<button mat-button class="menu-item w-100 d-flex align-items-center" routerLink="/usuario">
+  <mat-icon class="me-2">person</mat-icon>
   Usuário
 </button>

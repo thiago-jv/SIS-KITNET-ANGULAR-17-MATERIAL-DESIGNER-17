@@ -29,13 +29,8 @@
         </button>
       }
 
-      <!-- Título (centralizado — some no mobile quando o sidenav estiver aberto) -->
-      @if (!isMobile || !sidenav.opened) {
-        <span class="header-title">SIS KITNET</span>
-      }
-
       <!-- Usuário -->
-      <div class="user-card">
+      <div class="user-card ms-auto"> <!-- Bootstrap: empurra para direita -->
         <div class="user-info">
           <div class="user-name">THIAGO.SILVA</div>
         </div>
@@ -43,14 +38,16 @@
 
     </mat-toolbar>
 
-    <!-- CONTEÚDO DA PÁGINA -->
-    <div class="content">
+    <!-- CONTEÚDO DA PÁGINA COM BOOTSTRAP -->
+    <div class="content px-4 py-4">
+      <!-- container = centraliza e define largura -->
+      <!-- py-4 = espaçamento vertical -->
       <router-outlet></router-outlet>
     </div>
 
     <!-- RODAPÉ -->
-    <mat-toolbar class="footer" color="primary">
-      Feito com 💙 usando Angular 17, Material Design e muita cafeína.
+    <mat-toolbar class="footer mt-auto" color="primary">
+      Feito com Angular 17, Material Design, Bootstrap e muita cafeína.
     </mat-toolbar>
 
   </mat-sidenav-content>

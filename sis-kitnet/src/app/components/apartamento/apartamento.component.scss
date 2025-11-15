@@ -1,0 +1,17 @@
+/* Wrapper geral do formulário */
+.form-wrapper {
+  margin-top: 20px;
+  max-width: 1400px;
+  margin-left: 0;
+}
+
+/* Estilo do card */
+.card {
+  border-radius: 10px;
+  background: #fff;
+}
+
+/* Ajuste do texto de erro do Material */
+mat-error {
+  font-size: 12px;
+}
