@@ -1,0 +1,58 @@
+<mat-sidenav-container class="layout-container">
+
+  <!-- MENU LATERAL -->
+  <mat-sidenav
+    #sidenav
+    class="menu"
+    [mode]="isMobile ? 'over' : 'side'"
+    [opened]="!isMobile"
+  >
+    <div class="menu-content">
+      <app-menu></app-menu>
+    </div>
+  </mat-sidenav>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <mat-sidenav-content>
+
+    <!-- HEADER -->
+    <mat-toolbar class="header" color="primary">
+
+      <!-- Botão Hamburguer -->
+      @if (isMobile) {
+        <button
+          mat-icon-button
+          class="hamburger-box"
+          (click)="sidenav.toggle()"
+        >
+          <mat-icon>menu</mat-icon>
+        </button>
+      }
+
+      <!-- Título (centralizado — some no mobile quando o sidenav estiver aberto) -->
+      @if (!isMobile || !sidenav.opened) {
+        <span class="header-title">SIS KITNET</span>
+      }
+
+      <!-- Usuário -->
+      <div class="user-card">
+        <div class="user-info">
+          <div class="user-name">THIAGO.SILVA</div>
+        </div>
+      </div>
+
+    </mat-toolbar>
+
+    <!-- CONTEÚDO DA PÁGINA -->
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+
+    <!-- RODAPÉ -->
+    <mat-toolbar class="footer" color="primary">
+      Feito com 💙 usando Angular 17, Material Design e muita cafeína.
+    </mat-toolbar>
+
+  </mat-sidenav-content>
+
+</mat-sidenav-container>
