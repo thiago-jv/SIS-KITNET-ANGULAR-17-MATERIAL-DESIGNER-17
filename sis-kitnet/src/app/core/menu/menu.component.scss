@@ -1,22 +1,22 @@
 .menu-item {
-  background: #fafafa;          /* fundo suave */
-  border: none;                 /* remove as bordas pretas */
-  border-radius: 6px;           /* mais moderno */
-  padding: 12px 16px;           /* mais conforto */
-  justify-content: flex-start;  /* alinha o texto com o ícone */
+  background: #fafafa;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 16px;
+  justify-content: flex-start;
   text-align: left;
-  color: #444;                  /* texto mais suave */
+  color: #444;
   transition: background 0.25s ease;
 }
 
 .menu-item mat-icon {
-  color: #5a68c7;               /* azul suave (similar ao toolbar) */
+  color: #5a68c7;
   font-size: 22px;
 }
 
 /* Hover suave */
 .menu-item:hover {
-  background: #e9ecf8;          /* azul claro suave */
+  background: #e9ecf8;
 }
 
 /* Quando a rota está ativa */

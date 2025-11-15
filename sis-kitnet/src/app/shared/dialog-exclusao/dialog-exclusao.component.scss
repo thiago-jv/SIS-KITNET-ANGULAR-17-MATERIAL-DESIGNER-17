@@ -1,0 +1,25 @@
+:host {
+  display: block;
+  max-width: 420px;
+}
+
+.dialog-title {
+  display: flex;
+  align-items: center;
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.dialog-content {
+  font-size: 16px;
+  padding-bottom: 10px;
+}
+
+mat-dialog-actions {
+  padding: 8px 0 0 0;
+
+  button {
+    min-width: 90px;
+  }
+}

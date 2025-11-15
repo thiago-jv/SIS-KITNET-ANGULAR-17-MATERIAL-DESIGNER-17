@@ -8,6 +8,18 @@ export const routes: Routes = [
         .then(c => c.ApartamentoComponent)
   },
   {
+    path: 'apartamento/:id',
+    loadComponent: () =>
+      import('./components/apartamento/apartamento.component')
+        .then(c => c.ApartamentoComponent)
+  },
+  {
+    path: 'listar-apartamento',
+    loadComponent: () =>
+      import('./components/apartamento/listar-apartamento/listar-apartamento.component')
+        .then(c => c.ListarApartamentoComponent)
+  },
+  {
     path: 'diario',
     loadComponent: () =>
       import('./components/diario/diario.component')
