@@ -1,6 +1,3 @@
-/* ================================
-   IMPORTS DO SASS — DEVEM VIR PRIMEIRO
-   ================================ */
    @use '@angular/material' as mat;
 
    /* ================================
@@ -10,9 +7,7 @@
    $primary-color: mat.define-palette(mat.$green-palette, 600);  // Verde
    $accent-color:  mat.define-palette(mat.$pink-palette, 500);   // Rosa
    $warn-color:    mat.define-palette(mat.$red-palette, 600);    // Vermelho
-
-   /* Azul Material padrão (opcional para classes customizadas) */
-   $blue-color:    mat.define-palette(mat.$indigo-palette, 500);
+   $blue-color:    mat.define-palette(mat.$indigo-palette, 500); // azul
 
    /* Tema Material */
    $custom-theme: mat.define-light-theme((
