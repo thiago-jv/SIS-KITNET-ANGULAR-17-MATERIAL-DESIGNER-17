@@ -8,3 +8,12 @@ table {
   }
 }
 
+.flex-spacer {
+  flex: 1 1 auto;
+}
+
+.acoes-cell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}

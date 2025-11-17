@@ -1,4 +1,46 @@
-/* You can add global styles to this file, and also import other style files */
+/* ================================
+   IMPORTS DO SASS — DEVEM VIR PRIMEIRO
+   ================================ */
+   @use '@angular/material' as mat;
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+   /* ================================
+      TEMA MATERIAL PERSONALIZADO
+      ================================ */
+
+   $primary-color: mat.define-palette(mat.$green-palette, 600);  // Verde
+   $accent-color:  mat.define-palette(mat.$pink-palette, 500);   // Rosa
+   $warn-color:    mat.define-palette(mat.$red-palette, 600);    // Vermelho
+
+   /* Azul Material padrão (opcional para classes customizadas) */
+   $blue-color:    mat.define-palette(mat.$indigo-palette, 500);
+
+   /* Tema Material */
+   $custom-theme: mat.define-light-theme((
+     color: (
+       primary: $primary-color,
+       accent: $accent-color,
+       warn: $warn-color
+     )
+   ));
+
+   @include mat.all-component-themes($custom-theme);
+
+   /* ================================
+      GLOBAL STYLES
+      ================================ */
+
+   html,
+   body {
+     height: 100%;
+   }
+
+   body {
+     margin: 0;
+     font-family: Roboto, "Helvetica Neue", sans-serif;
+   }
+
+/* Toolbar azul customizada */
+.mat-toolbar.btn-blue {
+  background-color: mat.get-color-from-palette($blue-color) !important;
+  color: white !important;
+}

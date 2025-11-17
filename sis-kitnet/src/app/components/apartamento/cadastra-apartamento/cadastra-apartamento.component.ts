@@ -9,6 +9,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 
 @Component({
@@ -24,7 +25,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatNativeDateModule,
     MatButtonModule,
     RouterLink,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatToolbarModule
   ],
   templateUrl: './cadastra-apartamento.component.html',
   styleUrl: './cadastra-apartamento.component.scss'

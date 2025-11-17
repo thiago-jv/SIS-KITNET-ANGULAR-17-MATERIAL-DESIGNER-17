@@ -1,51 +1,59 @@
-    <form [formGroup]="form">
+<form [formGroup]="form">
 
-      <div class="row g-3">
+  <mat-toolbar  class="mb-4 btn-blue">
 
-        <!-- CAMPO DESCRIÇÃO -->
-        <div class="col-12 col-md-8">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Descrição</mat-label>
-            <input matInput formControlName="descricao">
+    <div class="container-fluid px-0 w-100">
 
-            <mat-error *ngIf="form.controls['descricao'].touched && form.controls['descricao'].invalid">
-              Descrição é obrigatória.
-            </mat-error>
-          </mat-form-field>
-        </div>
+      <div class="row w-100">
 
-        <!-- CAMPO NÚMERO -->
-        <div class="col-12 col-md-4">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Número</mat-label>
-            <input matInput type="number" formControlName="numero">
-
-            <mat-error *ngIf="form.controls['numero'].hasError('required')">
-              Número é obrigatório.
-            </mat-error>
-          </mat-form-field>
-        </div>
-
-      </div>
-
-      <!-- LINHA DOS BOTÕES -->
-      <div class="row mt-3">
-
-        <!-- COLUNA DOS BOTÕES DE AÇÃO -->
         <div class="col-12 col-md-6 d-flex flex-wrap gap-2">
-          <button mat-raised-button color="primary" (click)="salvar()">Salvar</button>
-          <button mat-raised-button color="warn" type="button" (click)="cancelar()">Cancelar</button>
+          <button mat-raised-button color="primary" (click)="salvar()">
+            Salvar
+          </button>
+
+          <button mat-raised-button color="warn" type="button" (click)="cancelar()">
+            Cancelar
+          </button>
         </div>
 
-        <!-- COLUNA DO BOTÃO LISTAR -->
         <div class="col-12 col-md-6 d-flex justify-content-md-end mt-2 mt-md-0">
-          <button mat-raised-button color="primary" routerLink="/listar-apartamento" type="button">
+          <button mat-raised-button color="accent" routerLink="/listar-apartamento" type="button">
             Listar
           </button>
         </div>
 
       </div>
 
+    </div>
 
-    </form>
+  </mat-toolbar>
 
+
+  <!-- CAMPOS DO FORMULÁRIO -->
+  <div class="row g-3">
+
+    <div class="col-12 col-md-8">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Descrição</mat-label>
+        <input matInput formControlName="descricao" />
+
+        <mat-error *ngIf="form.controls['descricao'].touched && form.controls['descricao'].invalid">
+          Descrição é obrigatória.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Número</mat-label>
+        <input matInput type="number" formControlName="numero" />
+
+        <mat-error *ngIf="form.controls['numero'].hasError('required')">
+          Número é obrigatório.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+  </div>
+
+</form>
