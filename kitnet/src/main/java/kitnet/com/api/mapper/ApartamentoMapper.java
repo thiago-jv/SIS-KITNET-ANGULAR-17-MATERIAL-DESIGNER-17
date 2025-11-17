@@ -17,7 +17,7 @@ public class ApartamentoMapper {
 
     public ApartamentoResponseDTO toApartamentoResponse(Apartamento apartamento) {
         return new ApartamentoResponseDTO(apartamento.getId(), apartamento.getDescricao(),
-                apartamento.getDescricao());
+                apartamento.getNumero());
     }
 
     public Apartamento toApartamento(ApartamentoPostDTO apartamentoPost) {

@@ -13,6 +13,6 @@ public class ApartamentoResponseDTO {
 
     private Long id;
     private String descricao;
-    private String numero;
+    private Long numero;
 
 }

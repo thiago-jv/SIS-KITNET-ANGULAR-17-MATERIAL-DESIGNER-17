@@ -26,13 +26,11 @@ public class Apartamento implements Serializable {
     private Long id;
 
     @NotNull
-    @Size(min = 1, max = 100)
-    @Column(name = "DESCRICAO", nullable = false)
+    @Column(name = "DESCRICAO", nullable = false, length = 100, unique = true)
     private String descricao;
 
     @NotNull
-    @Size(min = 1, max = 5)
     @Column(name = "NUMERO", nullable = false)
-    private String numero;
+    private Long numero;
 
 }

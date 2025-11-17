@@ -16,9 +16,7 @@ public class ApartamentoPostDTO {
     private String descricao;
 
     @NotNull
-    @NotBlank
-    @Size(max=5)
-    private String numero;
+    private Long numero;
 
 
 }

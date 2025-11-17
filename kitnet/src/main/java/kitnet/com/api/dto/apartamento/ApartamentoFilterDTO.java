@@ -5,9 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ApartamentoPutDTO {
+public class ApartamentoFilterDTO {
 
-    private Long id;
     private String descricao;
     private Long numero;
 
