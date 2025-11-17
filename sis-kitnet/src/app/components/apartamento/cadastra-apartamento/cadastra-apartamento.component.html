@@ -49,6 +49,11 @@
         <mat-error *ngIf="form.controls['numero'].hasError('required')">
           Número é obrigatório.
         </mat-error>
+
+        <mat-error *ngIf="form.controls['numero'].hasError('min')">
+          Número deve ser maior que zero.
+        </mat-error>
+
       </mat-form-field>
     </div>
 

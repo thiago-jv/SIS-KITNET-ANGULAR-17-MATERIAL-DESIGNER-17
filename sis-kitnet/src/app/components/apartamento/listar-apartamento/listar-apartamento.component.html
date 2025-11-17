@@ -4,13 +4,13 @@
 
   <div class="card shadow-sm p-4">
 
-  <mat-toolbar class="btn-blue mb-4">
-    <span class="flex-spacer"></span>
+    <mat-toolbar class="btn-blue mb-4">
+      <span class="flex-spacer"></span>
 
-    <button mat-raised-button color="accent" routerLink="/apartamento">
-      Novo
-    </button>
-  </mat-toolbar>
+      <button mat-raised-button color="accent" routerLink="/apartamento">
+        Novo
+      </button>
+    </mat-toolbar>
 
     <div class="row g-3 mb-3">
 
@@ -24,14 +24,13 @@
       <div class="col-12 col-md-4">
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Filtrar por Número</mat-label>
-          <input matInput type="number"
-                 (input)="filtrarNumero(getValorNumero($event))">
+          <input matInput type="number" (input)="filtrarNumero(getValorNumero($event))">
         </mat-form-field>
       </div>
 
     </div>
 
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z1 w-100">
+    <table mat-table [dataSource]="apartamentos()" class="mat-elevation-z1 w-100">
 
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef>Cód.</th>
@@ -69,14 +68,14 @@
     </table>
 
     <mat-paginator
-      [length]="dataSource.filteredData.length"
-      [pageSize]="5"
+      [length]="totalRegistros()"
+      [pageSize]="itensPorPagina()"
       [pageSizeOptions]="[5, 10, 20]"
       showFirstLastButtons>
     </mat-paginator>
 
     <div class="mt-2">
-      Página {{ paginator?.pageIndex! + 1 }} de {{ totalPaginas }}
+      Página {{ paginaAtual() + 1 }}
     </div>
 
   </div>

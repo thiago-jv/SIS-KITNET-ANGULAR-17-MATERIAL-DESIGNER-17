@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,6 +10,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import {ApartamentoService} from "../../../service/apartamento.service";
+import {ApartamentoPostDTO } from "../../../core/model/dto/apartamento/apartamentoPostDTO";
+import {Constants} from "../../../util/constantes";
 
 
 @Component({
@@ -31,11 +34,11 @@ import { MatToolbarModule } from '@angular/material/toolbar';
   templateUrl: './cadastra-apartamento.component.html',
   styleUrl: './cadastra-apartamento.component.scss'
 })
-export class CadastraApartamentoComponent {
+export class CadastraApartamentoComponent implements OnInit {
 
-  constructor(
-    private route: ActivatedRoute,
-    private snack: MatSnackBar) {}
+  private apartamentoService = inject(ApartamentoService);
+  private route = inject(ActivatedRoute);
+  private snack = inject(MatSnackBar);
 
   form = new FormGroup({
     descricao: new FormControl('', Validators.required),
@@ -53,17 +56,29 @@ export class CadastraApartamentoComponent {
     }
   }
 
-  salvar(): void {
+  async salvar(): Promise<void> {
     if (this.form.valid) {
+      const dados = this.form.value as unknown as ApartamentoPostDTO;
 
-      console.log('Dados enviados:', this.form.value);
+      try {
+        const response = await this.apartamentoService.createApartamento(dados);
+        this.snack.open(Constants.SALVO_COM_SUCESSO, 'OK', {
+          duration: 5000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-success']
+        });
 
-      this.snack.open('Apartamento salvo com sucesso!', 'OK', {
-        duration: 5000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        panelClass: ['snackbar-success']
-      });
+        this.form.reset();
+
+      } catch (error) {
+        this.snack.open(Constants.ERRO_AO_SALVAR_RECURSO, 'OK', {
+          duration: 5000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['snackbar-error']
+        });
+      }
 
     } else {
       this.form.markAllAsTouched();
@@ -75,6 +90,7 @@ export class CadastraApartamentoComponent {
   }
 
   carregarDados(id: number): void {
+    // Mock de dados
     const dadosMock = {
       descricao: `Apto ${id}`,
       numero: 100 + id
