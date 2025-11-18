@@ -1,31 +1,20 @@
 <form [formGroup]="form">
 
-  <mat-toolbar  class="mb-4 btn-blue">
-
+  <mat-toolbar class="mb-4 btn-blue">
     <div class="container-fluid px-0 w-100">
-
       <div class="row w-100">
 
         <div class="col-12 col-md-6 d-flex flex-wrap gap-2">
-          <button mat-raised-button color="primary" (click)="salvar()">
-            Salvar
-          </button>
-
-          <button mat-raised-button color="warn" type="button" (click)="cancelar()">
-            Cancelar
-          </button>
+          <button mat-raised-button color="primary" (click)="salvar()">Salvar</button>
+          <button mat-raised-button color="warn" type="button" (click)="cancelar()">Cancelar</button>
         </div>
 
         <div class="col-12 col-md-6 d-flex justify-content-md-end mt-2 mt-md-0">
-          <button mat-raised-button color="accent" routerLink="/listar-apartamento" type="button">
-            Listar
-          </button>
+          <button mat-raised-button color="accent" routerLink="/listar-apartamento" type="button">Listar</button>
         </div>
 
       </div>
-
     </div>
-
   </mat-toolbar>
 
   <div class="row g-3">
@@ -35,7 +24,7 @@
         <mat-label>Descrição</mat-label>
         <input matInput formControlName="descricao" />
 
-        <mat-error *ngIf="form.controls['descricao'].touched && form.controls['descricao'].invalid">
+        <mat-error *ngIf="(form.controls['descricao'].touched || formSubmitted) && form.controls['descricao'].invalid">
           Descrição é obrigatória.
         </mat-error>
       </mat-form-field>
@@ -46,14 +35,13 @@
         <mat-label>Número</mat-label>
         <input matInput type="number" formControlName="numero" />
 
-        <mat-error *ngIf="form.controls['numero'].hasError('required')">
+        <mat-error *ngIf="(form.controls['numero'].touched || formSubmitted) && form.controls['numero'].hasError('required')">
           Número é obrigatório.
         </mat-error>
 
-        <mat-error *ngIf="form.controls['numero'].hasError('min')">
+        <mat-error *ngIf="(form.controls['numero'].touched || formSubmitted) && form.controls['numero'].hasError('min')">
           Número deve ser maior que zero.
         </mat-error>
-
       </mat-form-field>
     </div>
 

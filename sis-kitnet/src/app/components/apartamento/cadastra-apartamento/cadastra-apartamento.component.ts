@@ -41,6 +41,7 @@ export class CadastraApartamentoComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private snack = inject(MatSnackBar);
   id: number | null = null;
+  formSubmitted = false;
 
   form = new FormGroup({
     descricao: new FormControl('', Validators.required),
@@ -59,6 +60,7 @@ export class CadastraApartamentoComponent implements OnInit {
   }
 
   async salvar(): Promise<void> {
+    this.formSubmitted = true;
     if (!this.form.valid) {
       this.form.markAllAsTouched();
       return;
@@ -85,6 +87,7 @@ export class CadastraApartamentoComponent implements OnInit {
         });
 
         this.form.reset();
+        this.formSubmitted = false;
       }
 
     } catch (error) {
