@@ -1,6 +1,6 @@
 import { Component, ViewChild, AfterViewInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,8 +8,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+
 import { ApartamentoService } from '../../../service/apartamento.service';
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
+import { ApartamentoResponseDTO } from '../../../core/model/dto/apartamento/apartamentoResponseDTO';
 
 @Component({
   selector: 'app-listar-apartamento',
@@ -22,10 +25,11 @@ import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-
     MatFormFieldModule,
     MatInputModule,
     MatPaginatorModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatSortModule
   ],
   templateUrl: './listar-apartamento.component.html',
-  styleUrl: './listar-apartamento.component.scss'
+  styleUrls: ['./listar-apartamento.component.scss']
 })
 export class ListarApartamentoComponent implements AfterViewInit {
 
@@ -33,8 +37,11 @@ export class ListarApartamentoComponent implements AfterViewInit {
   private dialog = inject(MatDialog);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
 
-  apartamentos = signal<any[]>([]);
+  // MatTableDataSource para integração com MatSort
+  dataSource = new MatTableDataSource<ApartamentoResponseDTO>();
+
   totalRegistros = signal(0);
 
   // Filtros
@@ -45,52 +52,82 @@ export class ListarApartamentoComponent implements AfterViewInit {
   paginaAtual = signal(0);
   itensPorPagina = signal(5);
 
+  // Ordenação
+  ordemCampo = signal<string | null>(null);
+  ordemDirecao = signal<'asc' | 'desc' | ''>('');
+
   displayedColumns = ['id', 'descricao', 'numero', 'acoes'];
 
   ngAfterViewInit() {
+    // Vincula MatSort à dataSource
+    this.dataSource.sort = this.sort;
+
     this.carregarDados();
 
+    // Paginação
     this.paginator.page.subscribe(page => {
       this.paginaAtual.set(page.pageIndex);
       this.itensPorPagina.set(page.pageSize);
       this.carregarDados();
     });
+
+    // Ordenação
+    this.sort.sortChange.subscribe((sort: Sort) => {
+      this.ordemCampo.set(sort.active);
+      this.ordemDirecao.set(sort.direction as 'asc' | 'desc' | '');
+      this.paginaAtual.set(0);
+      this.carregarDados();
+    });
   }
 
-  async carregarDados() {
+  private async carregarDados() {
     const filtro = {
       pagina: this.paginaAtual(),
-      intensPorPagina: this.itensPorPagina(),
+      itensPorPagina: this.itensPorPagina(),
       descricao: this.descricaoFiltro() || undefined,
-      numero: this.numeroFiltro() || undefined
+      numero: this.numeroFiltro() || undefined,
+      sortField: this.ordemCampo() || undefined,
+      sortDirection: this.ordemDirecao() || undefined
     };
 
-    const result = await this.service.filter(filtro);
-    this.apartamentos.set(result.apartamentos);
-    this.totalRegistros.set(result.total);
+    try {
+      const result = await this.service.filter(filtro);
+      this.dataSource.data = result.apartamentos;
+      this.totalRegistros.set(result.total);
+    } catch (error) {
+      console.error('Erro ao carregar apartamentos:', error);
+    }
+  }
+
+  private atualizarFiltro() {
+    this.paginaAtual.set(0);
+    this.carregarDados();
   }
 
   filtrarDescricao(valor: string) {
     this.descricaoFiltro.set(valor);
-    this.paginaAtual.set(0);
-    this.carregarDados();
+    this.atualizarFiltro();
   }
 
   filtrarNumero(valor: number | null) {
     this.numeroFiltro.set(valor);
-    this.paginaAtual.set(0);
-    this.carregarDados();
+    this.atualizarFiltro();
   }
 
-  excluir(id: number) {
+  async excluir(id: number) {
     const ref = this.dialog.open(DialogExclusaoComponent, {
       width: '450px',
       data: { dado: 'apartamento ' + id }
     });
 
-    ref.afterClosed().subscribe(confirmado => {
+    ref.afterClosed().subscribe(async confirmado => {
       if (confirmado) {
-        console.warn('TODO: implementar delete no backend');
+        try {
+          await this.service.deleteApartamento(id);
+          this.carregarDados();
+        } catch (error) {
+          console.error('Erro ao excluir apartamento:', error);
+        }
       }
     });
   }

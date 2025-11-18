@@ -1,7 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { environment } from '../../environments/environment.dev';
 
-import { firstValueFrom } from 'rxjs';
+import {firstValueFrom, Observable} from 'rxjs';
 import {ApartamentoResponseDTO} from "../core/model/dto/apartamento/apartamentoResponseDTO";
 import {ApartamentoPostDTO} from "../core/model/dto/apartamento/apartamentoPostDTO";
 import {HttpClient, HttpParams} from "@angular/common/http";
@@ -26,13 +26,15 @@ export class ApartamentoService {
   }
 
   async filter(filter: ApartamentoFilterDTO): Promise<{ apartamentos: ApartamentoResponseDTO[], total: number }> {
-
     let params = new HttpParams()
       .set('page', filter.pagina)
-      .set('size', filter.intensPorPagina);
+      .set('size', filter.itensPorPagina);
 
     if (filter.descricao) params = params.set('descricao', filter.descricao);
     if (filter.numero) params = params.set('numero', filter.numero);
+    if (filter.sortField && filter.sortDirection) {
+      params = params.set('sort', `${filter.sortField},${filter.sortDirection}`);
+    }
 
     const response: any = await firstValueFrom(
       this.http.get(`${this.apartamentoUrl}/filter`, { params })
@@ -42,6 +44,20 @@ export class ApartamentoService {
       apartamentos: response.content,
       total: response.totalElements
     };
+  }
+
+  getById(id: number): Observable<ApartamentoResponseDTO> {
+    return this.http.get<ApartamentoResponseDTO>(`${this.apartamentoUrl}/${id}`);
+  }
+
+  updateApartamento(id: number, dados: ApartamentoPostDTO): Observable<ApartamentoResponseDTO> {
+    return this.http.put<ApartamentoResponseDTO>(`${this.apartamentoUrl}/${id}`, dados);
+  }
+
+  async deleteApartamento(id: number): Promise<void> {
+    await firstValueFrom(
+      this.http.delete(`${this.apartamentoUrl}/${id}`)
+    );
   }
 
 }

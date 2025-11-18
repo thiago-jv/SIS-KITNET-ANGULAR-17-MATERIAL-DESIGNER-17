@@ -20,10 +20,11 @@ export class ApartamentoComponent {
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.titulo = 'Editar';
-    }
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      this.titulo = id ? 'Editar' : 'Salvar';
+    });
   }
+
 
 }

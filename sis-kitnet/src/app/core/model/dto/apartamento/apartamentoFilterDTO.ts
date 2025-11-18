@@ -1,7 +1,8 @@
 export interface ApartamentoFilterDTO {
   pagina: number;
-  intensPorPagina: number;
-  id?: number;
+  itensPorPagina: number;
   descricao?: string;
   numero?: number;
+  sortField?: string;
+  sortDirection?: 'asc' | 'desc' | '';
 }
