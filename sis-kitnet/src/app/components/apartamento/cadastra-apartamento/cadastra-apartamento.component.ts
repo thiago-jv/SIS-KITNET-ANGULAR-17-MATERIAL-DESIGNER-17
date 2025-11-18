@@ -7,7 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import {ApartamentoService} from "../../../service/apartamento.service";
@@ -40,6 +40,8 @@ export class CadastraApartamentoComponent implements OnInit {
   private apartamentoService = inject(ApartamentoService);
   private route = inject(ActivatedRoute);
   private snack = inject(MatSnackBar);
+  private router = inject(Router);
+
   id: number | null = null;
   formSubmitted = false;
 
@@ -52,10 +54,11 @@ export class CadastraApartamentoComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
+    const routeId = this.route.snapshot.paramMap.get('id');
 
-    if (id) {
-      this.carregarDados(Number(id));
+    if (routeId) {
+      this.id = Number(routeId);
+      this.carregarDados(this.id);
     }
   }
 
@@ -99,9 +102,13 @@ export class CadastraApartamentoComponent implements OnInit {
   }
 
   cancelar(): void {
-    this.form.reset();
+    if (this.id) {
+       this.router.navigate(['/listar-apartamento']);
+    } else {
+      this.form.reset();
+      this.formSubmitted = false;
+    }
   }
-
 
   carregarDados(id: number): void {
     this.apartamentoService.getById(id)
