@@ -1,4 +1,6 @@
+.dockerignore: keep build output except the final jar so image build can copy it
 target/
+!target/kitnet-backend.jar
 .mvn/
 .idea/
 .git/
