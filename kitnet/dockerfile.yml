@@ -1,0 +1,14 @@
+# Usar uma imagem base do OpenJDK
+FROM openjdk:17-jdk-slim
+  
+  # Definir o diretório de trabalho dentro do container
+WORKDIR /app
+  
+  # Copiar o arquivo JAR gerado pelo Spring Boot para o container
+COPY target/kitnet-backend.jar app.jar
+  
+  # Expor a porta 8080
+EXPOSE 8080
+  
+  # Comando para executar a aplicação
+ENTRYPOINT ["java", "-jar", "app.jar"]
