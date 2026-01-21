@@ -57,6 +57,3 @@ jobs:
           echo "Docker image was built and pushed to Docker Hub."
           echo "Skipping docker-compose deploy on CI runner."
           echo "To deploy locally, run: docker compose -f kitnet/docker-compose.yml up --build -d"
-
-      - name: Check pushed image
-        run: echo "Pushed image: ${{ env.DOCKERHUB_USERNAME }}/kitnet-backend:latest"
