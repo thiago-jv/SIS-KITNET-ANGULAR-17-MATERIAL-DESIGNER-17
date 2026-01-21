@@ -1,9 +1,12 @@
+# Workflow para build do backend kitnet e push da imagem no Docker Hub
 name: Build and Run Spring Boot App in Docker
+
 run-name: ${{ github.actor }} is building the kitnet backend
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -44,7 +47,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/kitnet-backend:latest
 
-      - name: Note: deploy skipped in CI
+      - name: "Note: deploy skipped in CI"
         run: |
           echo "Docker image was built and pushed to Docker Hub."
           echo "Skipping docker-compose deploy on CI runner."
