@@ -1,12 +1,9 @@
-# Workflow para build do backend kitnet e deploy local via Docker Compose
 name: Build and Run Spring Boot App in Docker
-
 run-name: ${{ github.actor }} is building the kitnet backend
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -14,17 +11,18 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
 
       - name: Build backend (Maven)
         run: |
-          mvn -f kitnet/pom.xml clean package -DskipTests
+          chmod +x ./kitnet/mvnw || true
+          ./kitnet/mvnw -f kitnet/pom.xml clean package -DskipTests
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -42,16 +40,15 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: kitnet
-          file: kitnet/Dockerfile
+          file: Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/kitnet-backend:latest
 
       - name: Note: deploy skipped in CI
         run: |
-          echo "Docker image was built and pushed to Docker Hub." 
-          echo "Skipping docker-compose deploy on CI runner (compose-action resolution failed in this environment)."
-          echo "To deploy locally, run: docker compose -f kitnet/docker-compose.yml up --build -d" 
+          echo "Docker image was built and pushed to Docker Hub."
+          echo "Skipping docker-compose deploy on CI runner."
+          echo "To deploy locally, run: docker compose -f kitnet/docker-compose.yml up --build -d"
 
       - name: Check pushed image
-        run: |
-          echo "Pushed image: ${{ secrets.DOCKERHUB_USERNAME }}/kitnet-backend:latest"
+        run: echo "Pushed image: ${{ secrets.DOCKERHUB_USERNAME }}/kitnet-backend:latest"
