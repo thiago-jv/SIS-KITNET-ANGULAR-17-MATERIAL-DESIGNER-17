@@ -29,7 +29,10 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db-postgresql:5432/bdkitnet
       SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATASOURCE_PASSWORD: admin
+      # password will be provided as a Docker secret at runtime
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    secrets:
+      - db_password
     networks:
       - network-new-bdkitnet
 
@@ -39,3 +42,7 @@ volumes:
 networks:
   network-new-bdkitnet:
     driver: bridge
+
+secrets:
+  db_password:
+    file: ./kitnet/db_password.txt

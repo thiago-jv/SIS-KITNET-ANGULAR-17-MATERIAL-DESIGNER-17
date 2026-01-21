@@ -46,6 +46,27 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/kitnet-backend:latest
 
+      - name: Create secret file for Docker Compose
+        if: ${{ secrets.DB_PASSWORD != '' }}
+        run: |
+          printf '%s' "${{ secrets.DB_PASSWORD }}" > kitnet/db_password.txt
+          chmod 600 kitnet/db_password.txt
+
+      - name: Deploy with Docker Compose
+        uses: docker/compose-action@v2
+        with:
+          files: kitnet/docker-compose.yml
+          args: up -d --build
+
+      - name: Remove secret file
+        if: always()
+        run: |
+          if command -v shred >/dev/null 2>&1; then
+            shred -u kitnet/db_password.txt || true
+          else
+            rm -f kitnet/db_password.txt || true
+          fi
+
       - name: Check pushed image
         run: |
           echo "Pushed image: ${{ secrets.DOCKERHUB_USERNAME }}/kitnet-backend:latest"
