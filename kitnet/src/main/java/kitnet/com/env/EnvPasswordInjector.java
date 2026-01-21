@@ -26,7 +26,30 @@ public class EnvPasswordInjector implements EnvironmentPostProcessor, Ordered {
     public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
         String secret = System.getenv(ENV_NAME);
         if (secret == null || secret.isEmpty()) {
+            // try reading from environment property
             secret = environment.getProperty(ENV_NAME);
+        }
+        if (secret == null || secret.isEmpty()) {
+            // try env var pointing to a file (convention: SPRING_DATASOURCE_PASSWORD_FILE)
+            String fileEnv = System.getenv(ENV_NAME + "_FILE");
+            if (fileEnv == null || fileEnv.isEmpty()) {
+                fileEnv = System.getenv(ENV_NAME + "_FILE");
+            }
+            if (fileEnv == null || fileEnv.isEmpty()) {
+                fileEnv = environment.getProperty(ENV_NAME + "_FILE");
+            }
+            // default fallback path for Docker secrets
+            if (fileEnv == null || fileEnv.isEmpty()) {
+                fileEnv = "/run/secrets/db_password";
+            }
+            try {
+                java.nio.file.Path p = java.nio.file.Paths.get(fileEnv);
+                if (java.nio.file.Files.exists(p)) {
+                    secret = new String(java.nio.file.Files.readAllBytes(p)).trim();
+                }
+            } catch (Exception ex) {
+                // ignore, we'll handle missing secret later
+            }
         }
         if (secret == null || secret.isEmpty()) {
             System.out.println("[env-injector] No " + ENV_NAME + " provided; no substitution performed.");

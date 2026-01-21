@@ -69,3 +69,17 @@ jobs:
           echo "Docker image was built and pushed to Docker Hub."
           echo "Skipping docker-compose deploy on CI runner."
           echo "To deploy locally, run: docker compose -f kitnet/docker-compose.yml up --build -d"
+
+      - name: Deploy to Docker host via SSH
+        if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' && secrets.DEPLOY_SSH_KEY != '' }}
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            # create or update docker secret from GitHub secret (ignore error if exists)
+            echo -n "${{ secrets.SPRING_DATASOURCE_PASSWORD }}" | docker secret create db_password - || true
+            # deploy stack using the repository's prod compose
+            docker stack deploy -c kitnet/docker-compose.prod.yml kitnet
