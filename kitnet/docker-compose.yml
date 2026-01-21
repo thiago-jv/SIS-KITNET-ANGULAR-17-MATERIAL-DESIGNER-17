@@ -3,7 +3,7 @@ version: '3.8'
 services:
   db-postgresql:
     container_name: db-postgresql
-    image: postgres:15-alpine
+    image: postgres:17-alpine
     restart: always
     environment:
       POSTGRES_USER: admin
@@ -25,12 +25,15 @@ services:
     depends_on:
       - db-postgresql
     ports:
-      - "8080:8080"
+      - "8089:8089"
     environment:
+      SPRING_PROFILES_ACTIVE: prod
       SPRING_DATASOURCE_URL: jdbc:postgresql://db-postgresql:5432/bdkitnet
       SPRING_DATASOURCE_USERNAME: admin
       # password will be provided as a Docker secret at runtime
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      # JVM options example
+      JAVA_OPTS: "-Xms256m -Xmx512m"
     secrets:
       - db_password
     networks:
@@ -45,4 +48,4 @@ networks:
 
 secrets:
   db_password:
-    file: ./kitnet/db_password.txt
+    file: db_password.txt
