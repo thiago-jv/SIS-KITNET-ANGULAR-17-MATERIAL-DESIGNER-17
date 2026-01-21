@@ -46,29 +46,11 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/kitnet-backend:latest
 
-      - name: Create secret file for Docker Compose
-        # reference secret via env to avoid workflow validation error
-        env:
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        if: ${{ env.DB_PASSWORD != '' }}
+      - name: Note: deploy skipped in CI
         run: |
-          printf '%s' "${DB_PASSWORD}" > kitnet/db_password.txt
-          chmod 600 kitnet/db_password.txt
-
-      - name: Deploy with Docker Compose
-        uses: docker/compose-action@v2
-        with:
-          files: kitnet/docker-compose.yml
-          args: up -d --build
-
-      - name: Remove secret file
-        if: always()
-        run: |
-          if command -v shred >/dev/null 2>&1; then
-            shred -u kitnet/db_password.txt || true
-          else
-            rm -f kitnet/db_password.txt || true
-          fi
+          echo "Docker image was built and pushed to Docker Hub." 
+          echo "Skipping docker-compose deploy on CI runner (compose-action resolution failed in this environment)."
+          echo "To deploy locally, run: docker compose -f kitnet/docker-compose.yml up --build -d" 
 
       - name: Check pushed image
         run: |
