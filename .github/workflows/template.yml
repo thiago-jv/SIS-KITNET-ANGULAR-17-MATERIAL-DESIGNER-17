@@ -59,4 +59,4 @@ jobs:
           echo "To deploy locally, run: docker compose -f kitnet/docker-compose.yml up --build -d"
 
       - name: Check pushed image
-        run: echo "Pushed image: ${{ secrets.DOCKERHUB_USERNAME }}/kitnet-backend:latest"
+        run: echo "Pushed image: ${{ env.DOCKERHUB_USERNAME }}/kitnet-backend:latest"
