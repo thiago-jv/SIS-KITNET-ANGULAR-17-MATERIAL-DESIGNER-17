@@ -31,7 +31,7 @@ export class ApartamentoService {
       .set('size', filter.itensPorPagina);
 
     if (filter.descricao) params = params.set('descricao', filter.descricao);
-    if (filter.numero) params = params.set('numero', filter.numero);
+    if (filter.numeroApartamento) params = params.set('numeroApartamento', filter.numeroApartamento);
     if (filter.sortField && filter.sortDirection) {
       params = params.set('sort', `${filter.sortField},${filter.sortDirection}`);
     }

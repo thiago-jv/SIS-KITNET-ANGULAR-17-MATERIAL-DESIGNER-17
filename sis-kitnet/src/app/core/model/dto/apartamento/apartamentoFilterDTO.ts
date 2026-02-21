@@ -2,7 +2,7 @@ export interface ApartamentoFilterDTO {
   pagina: number;
   itensPorPagina: number;
   descricao?: string;
-  numero?: number;
+  numeroApartamento?: string;
   sortField?: string;
   sortDirection?: 'asc' | 'desc' | '';
 }
