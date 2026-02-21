@@ -1,4 +1,11 @@
+export interface PredioIdDTO {
+  id: number;
+}
+
 export interface ApartamentoPostDTO {
+  numeroApartamento: string;
   descricao: string;
-  numero: number;
+  medidor?: string;
+  statusApartamento?: string;
+  predio: PredioIdDTO;
 }

@@ -45,6 +45,27 @@
       </mat-form-field>
     </div>
 
+   <mat-form-field appearance="outline" class="w-100">
+  <mat-label>Prédio</mat-label>
+
+  <mat-select
+    formControlName="predioId">
+
+    <mat-option *ngFor="let p of predios" [value]="p.id">
+      {{ p.descricao }}
+    </mat-option>
+
+  </mat-select>
+
+  <mat-error *ngIf="(form.controls['predioId'].touched || formSubmitted)
+                    && form.controls['predioId'].invalid">
+    Prédio é obrigatório
+  </mat-error>
+</mat-form-field>
+
+
+
+
   </div>
 
 </form>

@@ -44,6 +44,18 @@ export const routes: Routes = [
         .then(c => c.PredioComponent)
   },
   {
+    path: 'predio/:id',
+    loadComponent: () =>
+      import('./components/predio/predio.component')
+        .then(c => c.PredioComponent)
+  },
+  {
+    path: 'listar-predio',
+    loadComponent: () =>
+      import('./components/predio/listar-predio/listar-predio.component')
+        .then(c => c.ListarPredioComponent)
+  },
+  {
     path: 'usuario',
     loadComponent: () =>
       import('./components/usuario/usuario.component')

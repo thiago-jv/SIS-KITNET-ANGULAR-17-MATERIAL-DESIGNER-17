@@ -13,3 +13,15 @@ mat-error {
   background-color: #4CAF50 !important;
   color: white !important;
 }
+
+card {
+  overflow: visible;
+}
+
+.cdk-overlay-pane {
+  z-index: 10000 !important;
+}
+
+.select-panel-fix {
+  z-index: 10000 !important;
+}

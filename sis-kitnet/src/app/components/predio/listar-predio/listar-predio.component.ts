@@ -10,12 +10,12 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 
-import { ApartamentoService } from '../../../service/apartamento.service';
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
-import { ApartamentoResponseDTO } from '../../../core/model/dto/apartamento/apartamentoResponseDTO';
+import { PredioService } from '../../../service/predio.service';
+import { PredioResponseDTO } from '../../../core/model/dto/predio/predioResponseDTO';
 
 @Component({
-  selector: 'app-listar-apartamento',
+  selector: 'app-listar-predio',
   standalone: true,
   imports: [
     CommonModule,
@@ -28,25 +28,25 @@ import { ApartamentoResponseDTO } from '../../../core/model/dto/apartamento/apar
     MatToolbarModule,
     MatSortModule
   ],
-  templateUrl: './listar-apartamento.component.html',
-  styleUrls: ['./listar-apartamento.component.scss']
+  templateUrl: './listar-predio.component.html',
+  styleUrl: './listar-predio.component.scss'
 })
-export class ListarApartamentoComponent implements AfterViewInit {
+export class ListarPredioComponent implements AfterViewInit {
 
-  private service = inject(ApartamentoService);
+  private service = inject(PredioService);
   private dialog = inject(MatDialog);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   // MatTableDataSource para integração com MatSort
-  dataSource = new MatTableDataSource<ApartamentoResponseDTO>();
+  dataSource = new MatTableDataSource<PredioResponseDTO>();
 
   totalRegistros = signal(0);
 
   // Filtros
   descricaoFiltro = signal('');
-  numeroFiltro = signal<number | null>(null);
+  numeroFiltro = signal<string | null>(null);
 
   // Paginação
   paginaAtual = signal(0);
@@ -56,7 +56,7 @@ export class ListarApartamentoComponent implements AfterViewInit {
   ordemCampo = signal<string | null>(null);
   ordemDirecao = signal<'asc' | 'desc' | ''>('');
 
-  displayedColumns = ['id', 'descricao', 'numeroApartamento', 'idPredio', 'acoes'];
+  displayedColumns = ['id', 'descricao', 'numero', 'acoes'];
 
   ngAfterViewInit() {
     // Vincula MatSort à dataSource
@@ -85,17 +85,17 @@ export class ListarApartamentoComponent implements AfterViewInit {
       pagina: this.paginaAtual(),
       itensPorPagina: this.itensPorPagina(),
       descricao: this.descricaoFiltro() || undefined,
-      numeroApartamento: this.numeroFiltro() || undefined,
+      numero: this.numeroFiltro() || undefined,
       sortField: this.ordemCampo() || undefined,
       sortDirection: this.ordemDirecao() || undefined
     };
 
     try {
       const result = await this.service.filter(filtro);
-      this.dataSource.data = result.apartamentos;
+      this.dataSource.data = result.predios;
       this.totalRegistros.set(result.total);
     } catch (error) {
-      console.error('Erro ao carregar apartamentos:', error);
+      console.error('Erro ao carregar predios:', error);
     }
   }
 
@@ -109,7 +109,7 @@ export class ListarApartamentoComponent implements AfterViewInit {
     this.atualizarFiltro();
   }
 
-  filtrarNumero(valor: number | null) {
+  filtrarNumero(valor: string | null) {
     this.numeroFiltro.set(valor);
     this.atualizarFiltro();
   }
@@ -117,16 +117,16 @@ export class ListarApartamentoComponent implements AfterViewInit {
   async excluir(id: number) {
     const ref = this.dialog.open(DialogExclusaoComponent, {
       width: '450px',
-      data: { dado: 'apartamento ' + id }
+      data: { dado: 'predio ' + id }
     });
 
     ref.afterClosed().subscribe(async confirmado => {
       if (confirmado) {
         try {
-          await this.service.deleteApartamento(id);
+          await this.service.deletePredio(id);
           this.carregarDados();
         } catch (error) {
-          console.error('Erro ao excluir apartamento:', error);
+          console.error('Erro ao excluir predio:', error);
         }
       }
     });
@@ -136,8 +136,5 @@ export class ListarApartamentoComponent implements AfterViewInit {
     return (event.target as HTMLInputElement).value;
   }
 
-  getValorNumero(event: Event): number | null {
-    const v = (event.target as HTMLInputElement).value;
-    return v ? Number(v) : null;
-  }
 }
+

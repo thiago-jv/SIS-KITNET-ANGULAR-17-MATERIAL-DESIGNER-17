@@ -50,9 +50,11 @@ export class ApartamentoService {
     return this.http.get<ApartamentoResponseDTO>(`${this.apartamentoUrl}/${id}`);
   }
 
-  updateApartamento(id: number, dados: ApartamentoPostDTO): Observable<ApartamentoResponseDTO> {
-    return this.http.put<ApartamentoResponseDTO>(`${this.apartamentoUrl}/${id}`, dados);
+  async updateApartamento(id: number, dados: ApartamentoPostDTO): Promise<ApartamentoResponseDTO> {
+   return await firstValueFrom(
+    this.http.put<ApartamentoResponseDTO>(`${this.apartamentoUrl}/${id}`, dados));
   }
+
 
   async deleteApartamento(id: number): Promise<void> {
     await firstValueFrom(
