@@ -87,7 +87,8 @@ export class CadastraApartamentoComponent implements OnInit {
         if (!dados) {
           this.snack.open(Constants.RECURSO_NAO_ENCONTRADO, 'OK', {
             duration: 3000,
-            panelClass: ['snackbar-error']
+            panelClass: ['snackbar-error'],
+            verticalPosition: 'top'
           });
           return;
         }
@@ -104,7 +105,8 @@ export class CadastraApartamentoComponent implements OnInit {
       error: () => {
         this.snack.open(Constants.ERRO_AO_CARREGAR_DADOS_DO_RECURSO, 'OK', {
           duration: 3000,
-          panelClass: ['snackbar-error']
+          panelClass: ['snackbar-error'],
+          verticalPosition: 'top'
         });
       }
     });
@@ -118,7 +120,8 @@ export class CadastraApartamentoComponent implements OnInit {
         if (!predio) {
           this.snack.open(Constants.RECURSO_NAO_ENCONTRADO, 'OK', {
             duration: 3000,
-            panelClass: ['snackbar-error']
+            panelClass: ['snackbar-error'],
+            verticalPosition: 'top'
           });
           return;
         }
@@ -135,7 +138,8 @@ export class CadastraApartamentoComponent implements OnInit {
       error: () => {
         this.snack.open(Constants.ERRO_AO_CARREGAR_DADOS_DO_RECURSO, 'OK', {
           duration: 3000,
-          panelClass: ['snackbar-error']
+          panelClass: ['snackbar-error'],
+          verticalPosition: 'top'
         });
       }
     });
@@ -152,7 +156,8 @@ export class CadastraApartamentoComponent implements OnInit {
 
     this.snack.open('Não foi possível carregar os prédios.', 'OK', {
       duration: 4000,
-      panelClass: ['snackbar-error']
+      panelClass: ['snackbar-error'],
+      verticalPosition: 'top'
     });
    }
   }
@@ -180,17 +185,26 @@ export class CadastraApartamentoComponent implements OnInit {
     try {
       if (this.id) {
         await this.apartamentoService.updateApartamento(this.id, dados);
-        this.snack.open(Constants.ATUALIZADO_COM_SUCESSO, 'OK', { duration: 4000 });
+        this.snack.open(Constants.ATUALIZADO_COM_SUCESSO, 'OK', { 
+          duration: 4000,
+          verticalPosition: 'top',
+          panelClass: ['snackbar-success']
+        });
+        this.router.navigate(['/listar-apartamento']);
       } else {
         await this.apartamentoService.createApartamento(dados);
-        this.snack.open(Constants.SALVO_COM_SUCESSO, 'OK', { duration: 4000 });
-        this.form.reset();
-        this.formSubmitted = false;
+        this.snack.open(Constants.SALVO_COM_SUCESSO, 'OK', { 
+          duration: 4000,
+          verticalPosition: 'top',
+          panelClass: ['snackbar-success']
+        });
+        this.router.navigate(['/listar-apartamento']);
       }
     } catch {
       this.snack.open(Constants.ERRO_AO_SALVAR_OU_ATUALIZAR_RECURSO, 'OK', {
         duration: 4000,
-        panelClass: ['snackbar-error']
+        panelClass: ['snackbar-error'],
+        verticalPosition: 'top'
       });
     }
   }

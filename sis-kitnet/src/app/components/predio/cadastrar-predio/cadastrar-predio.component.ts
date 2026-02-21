@@ -78,34 +78,31 @@ export class CadastrarPredioComponent {
 
     try {
       if (this.id) {
-        console.log('Atualizando prédio id=', this.id, 'payload=', dados);
         const resp = await this.predioService.updatePredio(this.id, dados);
-        console.log('Resposta updatePredio:', resp);
 
         this.snack.open(Constants.ATUALIZADO_COM_SUCESSO, 'OK', {
           duration: 4000,
-          panelClass: ['snackbar-success']
+          panelClass: ['snackbar-success'],
+          verticalPosition: 'top'
         });
+        this.router.navigate(['/listar-predio']);
 
       } else {
-        console.log('Criando novo prédio, payload=', dados);
         const resp = await this.predioService.createPredio(dados);
-        console.log('Resposta createPredio:', resp);
 
         this.snack.open(Constants.SALVO_COM_SUCESSO, 'OK', {
           duration: 4000,
-          panelClass: ['snackbar-success']
+          panelClass: ['snackbar-success'],
+          verticalPosition: 'top'
         });
-
-        this.form.reset();
-        this.formSubmitted = false;
+        this.router.navigate(['/listar-predio']);
       }
 
     } catch (error) {
-      console.error('Erro ao salvar/atualizar prédio:', error);
       this.snack.open(Constants.ERRO_AO_SALVAR_OU_ATUALIZAR_RECURSO, 'OK', {
         duration: 4000,
-        panelClass: ['snackbar-error']
+        panelClass: ['snackbar-error'],
+        verticalPosition: 'top'
       });
     }
   }
@@ -127,7 +124,8 @@ export class CadastrarPredioComponent {
           if (!dados) {
             this.snack.open(Constants.RECURSO_NAO_ENCONTRADO, "OK", {
               duration: 3000,
-              panelClass: ['snackbar-error']
+              panelClass: ['snackbar-error'],
+              verticalPosition: 'top'
             });
             return;
           }
@@ -138,7 +136,8 @@ export class CadastrarPredioComponent {
         error: () => {
           this.snack.open(Constants.ERRO_AO_CARREGAR_DADOS_DO_RECURSO, "OK", {
             duration: 3000,
-            panelClass: ['snackbar-error']
+            panelClass: ['snackbar-error'],
+            verticalPosition: 'top'
           });
         }
       });

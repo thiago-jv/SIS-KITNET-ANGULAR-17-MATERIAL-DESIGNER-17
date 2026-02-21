@@ -90,8 +90,12 @@ export class ListarPredioComponent implements AfterViewInit {
       sortDirection: this.ordemDirecao() || undefined
     };
 
+    console.log('🔍 Filtro aplicado:', filtro);
+    console.log('📊 Número filtro atual:', this.numeroFiltro());
+
     try {
       const result = await this.service.filter(filtro);
+      console.log('✅ Resultado recebido:', result);
       this.dataSource.data = result.predios;
       this.totalRegistros.set(result.total);
     } catch (error) {
@@ -109,8 +113,11 @@ export class ListarPredioComponent implements AfterViewInit {
     this.atualizarFiltro();
   }
 
-  filtrarNumero(valor: string | null) {
-    this.numeroFiltro.set(valor);
+  filtrarNumero(valor: string) {
+    // Se o valor está vazio, limpa o filtro
+    const numeroLimpo = valor.trim();
+    console.log('🔢 Filtrar número chamado com:', valor, '-> limpo:', numeroLimpo);
+    this.numeroFiltro.set(numeroLimpo || null);
     this.atualizarFiltro();
   }
 

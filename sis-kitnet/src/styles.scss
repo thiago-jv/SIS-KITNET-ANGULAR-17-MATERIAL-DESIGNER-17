@@ -39,3 +39,45 @@
   background-color: mat.get-color-from-palette($blue-color) !important;
   color: white !important;
 }
+
+/* Snackbar personalizado */
+.mat-mdc-snack-bar-container {
+  &.snackbar-success,
+  &.snackbar-error {
+    margin-top: 20px !important;
+  }
+}
+
+.snackbar-success {
+  --mdc-snackbar-container-color: #4caf50 !important;
+  --mat-snack-bar-button-color: #fff !important;
+  
+  .mdc-snackbar__surface {
+    background-color: #4caf50 !important;
+  }
+  
+  .mat-mdc-snack-bar-label {
+    color: white !important;
+  }
+  
+  .mat-mdc-button {
+    color: white !important;
+  }
+}
+
+.snackbar-error {
+  --mdc-snackbar-container-color: #f44336 !important;
+  --mat-snack-bar-button-color: #fff !important;
+  
+  .mdc-snackbar__surface {
+    background-color: #f44336 !important;
+  }
+  
+  .mat-mdc-snack-bar-label {
+    color: white !important;
+  }
+  
+  .mat-mdc-button {
+    color: white !important;
+  }
+}

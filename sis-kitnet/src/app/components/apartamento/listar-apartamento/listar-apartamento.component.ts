@@ -46,7 +46,7 @@ export class ListarApartamentoComponent implements AfterViewInit {
 
   // Filtros
   descricaoFiltro = signal('');
-  numeroFiltro = signal<number | null>(null);
+  numeroApartamentoFiltro = signal('');
 
   // Paginação
   paginaAtual = signal(0);
@@ -85,7 +85,7 @@ export class ListarApartamentoComponent implements AfterViewInit {
       pagina: this.paginaAtual(),
       itensPorPagina: this.itensPorPagina(),
       descricao: this.descricaoFiltro() || undefined,
-      numeroApartamento: this.numeroFiltro() || undefined,
+      numeroApartamento: this.numeroApartamentoFiltro() || undefined,
       sortField: this.ordemCampo() || undefined,
       sortDirection: this.ordemDirecao() || undefined
     };
@@ -109,8 +109,8 @@ export class ListarApartamentoComponent implements AfterViewInit {
     this.atualizarFiltro();
   }
 
-  filtrarNumero(valor: number | null) {
-    this.numeroFiltro.set(valor);
+  filtrarNumeroApartamento(valor: string) {
+    this.numeroApartamentoFiltro.set(valor);
     this.atualizarFiltro();
   }
 

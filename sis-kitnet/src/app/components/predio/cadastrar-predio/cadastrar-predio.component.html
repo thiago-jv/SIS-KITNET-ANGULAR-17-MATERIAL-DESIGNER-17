@@ -1,0 +1,88 @@
+<form [formGroup]="form">
+
+  <mat-toolbar class="mb-4 btn-blue">
+    <div class="container-fluid px-0 w-100">
+      <div class="row w-100">
+
+        <div class="col-12 col-md-6 d-flex flex-wrap gap-2">
+          <button mat-raised-button color="primary" (click)="salvar()">Salvar</button>
+          <button mat-raised-button color="warn" type="button" (click)="cancelar()">Cancelar</button>
+        </div>
+
+        <div class="col-12 col-md-6 d-flex justify-content-md-end mt-2 mt-md-0">
+          <button mat-raised-button color="accent" routerLink="/listar-predio" type="button">Listar</button>
+        </div>
+
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <div class="row g-3">
+
+    <div class="col-12 col-md-8">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Descrição</mat-label>
+        <input matInput formControlName="descricao" />
+
+        <mat-error *ngIf="(form.controls['descricao'].touched || formSubmitted) && form.controls['descricao'].invalid">
+          Descrição é obrigatória.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Número</mat-label>
+        <input matInput formControlName="numero" />
+
+        <mat-error *ngIf="(form.controls['numero'].touched || formSubmitted) && form.controls['numero'].invalid">
+          Número é obrigatório.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-4">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>CEP</mat-label>
+        <input matInput formControlName="cep" />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-8">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Logradouro</mat-label>
+        <input matInput formControlName="logradouro" />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Complemento</mat-label>
+        <input matInput formControlName="complemento" />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Bairro</mat-label>
+        <input matInput formControlName="bairro" />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Cidade</mat-label>
+        <input matInput formControlName="localidade" />
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>UF</mat-label>
+        <input matInput formControlName="uf" />
+      </mat-form-field>
+    </div>
+
+  </div>
+
+</form>
