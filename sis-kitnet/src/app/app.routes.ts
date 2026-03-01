@@ -84,5 +84,23 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/valor/listar-valor/listar-valor.component')
         .then(c => c.ListarValorComponent)
+  },
+  {
+    path: 'controle-lancamento',
+    loadComponent: () =>
+      import('./components/controle-lancamento/controle-lancamento.component')
+        .then(c => c.ControleLancamentoComponent)
+  },
+  {
+    path: 'controle-lancamento/:id',
+    loadComponent: () =>
+      import('./components/controle-lancamento/controle-lancamento.component')
+        .then(c => c.ControleLancamentoComponent)
+  },
+  {
+    path: 'listar-controle-lancamento',
+    loadComponent: () =>
+      import('./components/controle-lancamento/listar-controle-lancamento/listar-controle-lancamento.component')
+        .then(c => c.ListarControleLancamentoComponent)
   }
 ];

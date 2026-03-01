@@ -50,6 +50,13 @@ export class ApartamentoService {
     return this.http.get<ApartamentoResponseDTO>(`${this.apartamentoUrl}/${id}`);
   }
 
+  async getAllApartamentos(): Promise<ApartamentoResponseDTO[]> {
+    const response = await firstValueFrom(
+      this.http.get<ApartamentoResponseDTO[]>(`${this.apartamentoUrl}/todos`)
+    );
+    return response;
+  }
+
   async updateApartamento(id: number, dados: ApartamentoPostDTO): Promise<ApartamentoResponseDTO> {
    return await firstValueFrom(
     this.http.put<ApartamentoResponseDTO>(`${this.apartamentoUrl}/${id}`, dados));

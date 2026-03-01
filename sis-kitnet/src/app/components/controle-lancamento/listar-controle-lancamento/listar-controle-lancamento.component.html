@@ -1,0 +1,168 @@
+<!-- listar-controle-lancamento.component.html -->
+<div class="table-responsive-mobile">
+  <h1 class="mb-3">Listar Controles de Lançamento</h1>
+  <div class="card shadow-sm p-4">
+
+    <mat-toolbar class="btn-blue mb-4">
+      <span class="flex-spacer"></span>
+      <div class="d-flex justify-content-end w-100">
+        <button mat-raised-button color="accent" routerLink="/controle-lancamento">Novo</button>
+      </div>
+    </mat-toolbar>
+
+    <h3 class="mb-3">Lançamentos</h3>
+
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Data pagamento de:</mat-label>
+          <input matInput [matDatepicker]="pickerDataPagamentoDe" (dateChange)="filtrarDataPagamentoDe($event)">
+          <mat-datepicker-toggle matIconSuffix [for]="pickerDataPagamentoDe"></mat-datepicker-toggle>
+          <mat-datepicker #pickerDataPagamentoDe></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Data pagamento até:</mat-label>
+          <input matInput [matDatepicker]="pickerDataPagamentoAte" [min]="minDateAte()" (dateChange)="filtrarDataPagamentoAte($event)">
+          <mat-datepicker-toggle matIconSuffix [for]="pickerDataPagamentoAte"></mat-datepicker-toggle>
+          <mat-datepicker #pickerDataPagamentoAte></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Pagou?</mat-label>
+          <mat-select [formControl]="statusApartamentoControl">
+            <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Entregou Luz?</mat-label>
+          <mat-select [formControl]="entregaLuzControl">
+            <mat-option *ngFor="let option of entregaLuzOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Pagou Luz?</mat-label>
+          <mat-select [formControl]="statusLuzControl">
+            <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1 w-100">
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Id</th>
+        <td mat-cell *matCellDef="let item">{{ item.id }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="inquilino">
+        <th mat-header-cell *matHeaderCellDef>Inquilino</th>
+        <td mat-cell *matCellDef="let item">{{ item.inquilino?.id }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="apartamento">
+        <th mat-header-cell *matHeaderCellDef>Ap</th>
+        <td mat-cell *matCellDef="let item">{{ item.apartamento?.id }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="dataEntrada">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>De</th>
+        <td mat-cell *matCellDef="let item">{{ item.dataEntrada | date: 'dd/MM/yyyy' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="dataPagamento">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Até</th>
+        <td mat-cell *matCellDef="let item">{{ item.dataPagamento ? (item.dataPagamento | date: 'dd/MM/yyyy') : '-' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="statusApartamePagamento">
+        <th mat-header-cell *matHeaderCellDef>Pagou?</th>
+        <td mat-cell *matCellDef="let item" [style.background-color]="item.status?.statusApartamePagamento === 'PAGO' ? '#90EE90' : '#FF6B6B'">
+          {{ item.status?.statusApartamePagamento }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="valorApartamento">
+        <th mat-header-cell *matHeaderCellDef>R$ Valor<br>Locação Mês</th>
+        <td mat-cell *matCellDef="let item">{{ item.valores?.valorApartamento | number:'1.2-2' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="valorDebitoApartamento">
+        <th mat-header-cell *matHeaderCellDef>R$ Débito<br>apartamento</th>
+        <td mat-cell *matCellDef="let item">{{ item.valores?.valorDebitoApartamento | number:'1.2-2' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="statusProximoPagamento">
+        <th mat-header-cell *matHeaderCellDef>Status Prox.<br>Pagamento</th>
+        <td mat-cell *matCellDef="let item" [style.background-color]="item.status?.statusProximoPagamento === 'PAGO' ? '#90EE90' : '#FF6B6B'">
+          {{ item.status?.statusProximoPagamento }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="entragaContaLuz">
+        <th mat-header-cell *matHeaderCellDef>Entregou<br>Luz?</th>
+        <td mat-cell *matCellDef="let item">{{ item.status?.entragaContaLuz }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="statusApartamePagamentoLuz">
+        <th mat-header-cell *matHeaderCellDef>Pagou<br>Luz?</th>
+        <td mat-cell *matCellDef="let item" [style.background-color]="item.status?.statusApartamePagamentoLuz === 'PAGO' ? '#90EE90' : '#FF6B6B'">
+          {{ item.status?.statusApartamePagamentoLuz }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="statusControle">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let item">
+          <span [style.color]="item.status?.statusControle ? '#1976d2' : '#666'">
+            {{ item.status?.statusControle ? 'Aberto' : 'Fechado' }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="acoes">
+        <th mat-header-cell *matHeaderCellDef>Ações</th>
+        <td mat-cell *matCellDef="let item" class="acoes-cell">
+          <button mat-raised-button color="primary" [routerLink]="['/controle-lancamento', item.id]">Editar</button>
+          <button mat-raised-button color="accent" (click)="baixarRelatorio(item.id)" matTooltip="Baixar PDF">
+            <mat-icon>picture_as_pdf</mat-icon>
+          </button>
+          <button mat-raised-button color="warn" (click)="excluir(item.id)">Excluir</button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <div class="paginator-container">
+    <mat-paginator
+      [length]="totalRegistros()"
+      [pageSize]="itensPorPagina()"
+      [pageSizeOptions]="[5, 10, 20]"
+      showFirstLastButtons>
+    </mat-paginator>
+    </div>
+
+    <div class="mt-2">
+      Página {{ paginaAtual() + 1 }}
+    </div>
+
+  </div>
+</div>

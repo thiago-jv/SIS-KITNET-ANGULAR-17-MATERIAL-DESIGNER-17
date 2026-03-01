@@ -1,0 +1,199 @@
+<form [formGroup]="form">
+
+  <mat-toolbar class="mb-4 btn-blue">
+    <div class="container-fluid px-0 w-100">
+      <div class="row w-100">
+
+        <div class="col-12 col-md-6 d-flex flex-wrap gap-2">
+          <button mat-raised-button color="primary" (click)="salvar()">Salvar</button>
+          <button mat-raised-button color="warn" type="button" (click)="cancelar()">Cancelar</button>
+        </div>
+
+        <div class="col-12 col-md-6 d-flex justify-content-md-end mt-2 mt-md-0">
+          <button mat-raised-button color="accent" routerLink="/listar-controle-lancamento" type="button">Listar</button>
+        </div>
+
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <!-- Entrada -->
+  <mat-card class="mb-3">
+    <mat-card-header>
+      <mat-card-title>Entrada</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="row g-3">
+
+        <div class="col-12 col-md-4">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Inquilinos</mat-label>
+            <mat-select formControlName="inquilinoId">
+              <mat-option *ngFor="let inquilino of inquilinos" [value]="inquilino.id">
+                {{ inquilino.nome }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="(form.controls['inquilinoId'].touched || formSubmitted) && form.controls['inquilinoId'].invalid">
+              Inquilino é obrigatório.
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Apartamentos</mat-label>
+            <mat-select formControlName="apartamentoId">
+              <mat-option *ngFor="let apartamento of apartamentos" [value]="apartamento.id">
+                {{ apartamento.numeroApartamento }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="(form.controls['apartamentoId'].touched || formSubmitted) && form.controls['apartamentoId'].invalid">
+              Apartamento é obrigatório.
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Valores</mat-label>
+            <mat-select formControlName="valorId">
+              <mat-option *ngFor="let valor of valores" [value]="valor.id">
+                {{ valor.valor | number:'1.2-2' }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="(form.controls['valorId'].touched || formSubmitted) && form.controls['valorId'].invalid">
+              Valor é obrigatório.
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Dt. Entrada</mat-label>
+            <input matInput [matDatepicker]="pickerDataEntrada" formControlName="dataEntrada" />
+            <mat-datepicker-toggle matIconSuffix [for]="pickerDataEntrada"></mat-datepicker-toggle>
+            <mat-datepicker #pickerDataEntrada></mat-datepicker>
+            <mat-error *ngIf="(form.controls['dataEntrada'].touched || formSubmitted) && form.controls['dataEntrada'].invalid">
+              Data de entrada é obrigatória.
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Dt. Prox. Pagamento</mat-label>
+            <input matInput [matDatepicker]="pickerDataPagamento" [min]="minDatePagamento" formControlName="dataPagamento" />
+            <mat-datepicker-toggle matIconSuffix [for]="pickerDataPagamento"></mat-datepicker-toggle>
+            <mat-datepicker #pickerDataPagamento></mat-datepicker>
+          </mat-form-field>
+        </div>
+
+        <div class="col-12">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Observacao</mat-label>
+            <textarea matInput formControlName="observacao" rows="3"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="col-12">
+          <label class="mb-2 d-block">Status próximo pagamento</label>
+          <mat-button-toggle-group formControlName="statusProximoPagamento" class="w-100">
+            <mat-button-toggle *ngFor="let status of statusProximoPagamento" [value]="status.value" class="flex-fill">
+              {{ status.label }}
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Aba Luz -->
+  <mat-card class="mb-3">
+    <mat-card-header>
+      <mat-card-title>Aba Luz</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="row g-3">
+
+        <div class="col-12 col-md-6">
+          <label class="mb-2 d-block">Entregou conta de luz</label>
+          <mat-button-toggle-group formControlName="entragaContaLuz" class="w-100">
+            <mat-button-toggle *ngFor="let opcao of entragaContaLuz" [value]="opcao.value" class="flex-fill">
+              {{ opcao.label }}
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="mb-2 d-block">Status Luz</label>
+          <mat-button-toggle-group formControlName="statusApartamePagamentoLuz" class="w-100">
+            <mat-button-toggle *ngFor="let status of statusApartamePagamentoLuz" [value]="status.value" class="flex-fill">
+              {{ status.label }}
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Aba Apartamento -->
+  <mat-card class="mb-3">
+    <mat-card-header>
+      <mat-card-title>Aba Apartamento</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="row g-3">
+
+        <div class="col-12 col-md-2">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>R$ Apartamento</mat-label>
+            <input matInput formControlName="valorApartamento" appCurrencyBr readonly />
+          </mat-form-field>
+        </div>
+
+        <div class="col-12 col-md-2">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Dias</mat-label>
+            <input matInput type="number" formControlName="dia" readonly />
+          </mat-form-field>
+        </div>
+
+        <div class="col-12 col-md-2">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>R$ Diária</mat-label>
+            <input matInput formControlName="valorDiaria" appCurrencyBr readonly />
+          </mat-form-field>
+        </div>
+
+        <div class="col-12 col-md-2">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>R$ Total</mat-label>
+            <input matInput formControlName="valorTotalDiaria" appCurrencyBr readonly />
+          </mat-form-field>
+        </div>
+
+        <div class="col-12 col-md-2">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>R$ Informe valor pago pelo cliente</mat-label>
+            <input matInput formControlName="valorPagoApartamento" appCurrencyBr 
+                   style="background-color: chartreuse;" />
+            <mat-error *ngIf="(form.controls['valorPagoApartamento'].touched || formSubmitted) && form.controls['valorPagoApartamento'].invalid">
+              Valor pago é obrigatório.
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="col-12 col-md-2">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>R$ Debito</mat-label>
+            <input matInput formControlName="valorDebitoApartamento" appCurrencyBr readonly />
+          </mat-form-field>
+        </div>
+
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+</form>
