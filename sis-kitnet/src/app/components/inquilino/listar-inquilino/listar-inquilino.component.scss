@@ -1,0 +1,25 @@
+table {
+  th {
+    font-weight: bold;
+  }
+
+  td, th {
+    padding: 12px 8px;
+  }
+}
+
+.flex-spacer {
+  flex: 1 1 auto;
+}
+
+.acoes-cell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.paginator-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}

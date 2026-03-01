@@ -1,0 +1,96 @@
+<!-- listar-inquilino.component.html -->
+<div class="table-responsive-mobile">
+  <h1 class="mb-3">Listar Inquilinos</h1>
+  <div class="card shadow-sm p-4">
+
+    <mat-toolbar class="btn-blue mb-4">
+      <span class="flex-spacer"></span>
+      <div class="d-flex justify-content-end w-100">
+        <button mat-raised-button color="accent" routerLink="/inquilino">Novo</button>
+      </div>
+    </mat-toolbar>
+
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Filtrar por Nome</mat-label>
+          <input matInput (input)="filtrarNome(getNomeInput($event))">
+        </mat-form-field>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Filtrar por CPF</mat-label>
+          <input matInput (input)="filtrarCpf(getCpfInput($event))">
+        </mat-form-field>
+      </div>
+
+      <div class="col-12 col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Filtrar por Status</mat-label>
+          <mat-select (selectionChange)="filtrarStatus($event.value)">
+            <mat-option value="">Todos</mat-option>
+            <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1 w-100">
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Cód.</th>
+        <td mat-cell *matCellDef="let item">{{ item.id }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="nome">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Nome</th>
+        <td mat-cell *matCellDef="let item">{{ item.nome }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="nomeAbreviado">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Nome Abreviado</th>
+        <td mat-cell *matCellDef="let item">{{ item.nomeAbreviado }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+        <td mat-cell *matCellDef="let item">{{ item.email }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="cpf">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>CPF</th>
+        <td mat-cell *matCellDef="let item">{{ item.cpf }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+        <td mat-cell *matCellDef="let item">{{ item.status }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="acoes">
+        <th mat-header-cell *matHeaderCellDef>Ações</th>
+        <td mat-cell *matCellDef="let item" class="acoes-cell">
+          <button mat-raised-button color="primary" [routerLink]="['/inquilino', item.id]">Editar</button>
+          <button mat-raised-button color="warn" (click)="excluir(item.id)">Excluir</button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <div class="paginator-container">
+    <mat-paginator
+      [length]="totalRegistros()"
+      [pageSize]="itensPorPagina()"
+      [pageSizeOptions]="[5, 10, 20]"
+      showFirstLastButtons>
+    </mat-paginator>
+    </div>
+
+    <div class="mt-2">
+      Página {{ paginaAtual() + 1 }}
+    </div>
+
+  </div>
+</div>

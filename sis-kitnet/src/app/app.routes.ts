@@ -26,6 +26,18 @@ export const routes: Routes = [
         .then(c => c.InquilinoComponent)
   },
   {
+    path: 'inquilino/:id',
+    loadComponent: () =>
+      import('./components/inquilino/inquilino.component')
+        .then(c => c.InquilinoComponent)
+  },
+  {
+    path: 'listar-inquilino',
+    loadComponent: () =>
+      import('./components/inquilino/listar-inquilino/listar-inquilino.component')
+        .then(c => c.ListarInquilinoComponent)
+  },
+  {
     path: 'locacao',
     loadComponent: () =>
       import('./components/locacao/locacao.component')

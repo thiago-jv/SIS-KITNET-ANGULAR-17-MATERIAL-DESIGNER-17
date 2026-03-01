@@ -1,0 +1,105 @@
+<form [formGroup]="form">
+
+  <mat-toolbar class="mb-4 btn-blue">
+    <div class="container-fluid px-0 w-100">
+      <div class="row w-100">
+
+        <div class="col-12 col-md-6 d-flex flex-wrap gap-2">
+          <button mat-raised-button color="primary" (click)="salvar()">Salvar</button>
+          <button mat-raised-button color="warn" type="button" (click)="cancelar()">Cancelar</button>
+        </div>
+
+        <div class="col-12 col-md-6 d-flex justify-content-md-end mt-2 mt-md-0">
+          <button mat-raised-button color="accent" routerLink="/listar-inquilino" type="button">Listar</button>
+        </div>
+
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <div class="row g-3">
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Nome</mat-label>
+        <input matInput formControlName="nome" />
+
+        <mat-error *ngIf="(form.controls['nome'].touched || formSubmitted) && form.controls['nome'].invalid">
+          Nome é obrigatório.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Nome Abreviado</mat-label>
+        <input matInput formControlName="nomeAbreviado" />
+
+        <mat-error *ngIf="(form.controls['nomeAbreviado'].touched || formSubmitted) && form.controls['nomeAbreviado'].invalid">
+          Nome abreviado é obrigatório.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" />
+
+        <mat-error *ngIf="(form.controls['email'].touched || formSubmitted) && form.controls['email'].invalid">
+          Email válido é obrigatório.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Contato</mat-label>
+        <input matInput formControlName="contato" />
+
+        <mat-error *ngIf="(form.controls['contato'].touched || formSubmitted) && form.controls['contato'].invalid">
+          Contato é obrigatório.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>CPF</mat-label>
+        <input matInput formControlName="cpf" />
+
+        <mat-error *ngIf="(form.controls['cpf'].touched || formSubmitted) && form.controls['cpf'].invalid">
+          CPF é obrigatório.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
+        </mat-select>
+
+        <mat-error *ngIf="(form.controls['status'].touched || formSubmitted) && form.controls['status'].invalid">
+          Status é obrigatório.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Gênero</mat-label>
+        <mat-select formControlName="genero">
+          <mat-option *ngFor="let genero of generoOptions" [value]="genero">{{ genero }}</mat-option>
+        </mat-select>
+
+        <mat-error *ngIf="(form.controls['genero'].touched || formSubmitted) && form.controls['genero'].invalid">
+          Gênero é obrigatório.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+  </div>
+
+</form>
