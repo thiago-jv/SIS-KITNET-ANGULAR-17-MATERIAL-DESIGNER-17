@@ -11,11 +11,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
-import { PredioService } from '../../../service/predio.service';
-import { PredioResponseDTO } from '../../../core/model/dto/predio/predioResponseDTO';
+import { ValorService } from '../../../service/valor.service';
+import { ValorResponseDTO } from '../../../core/model/dto/valor/valorResponseDTO';
+import { ValorFilterDTO } from '../../../core/model/dto/valor/valorFilterDTO';
+import { CurrencyBrDirective } from '../../../shared/directives/currency-br.directive';
 
 @Component({
-  selector: 'app-listar-predio',
+  selector: 'app-listar-valor',
   standalone: true,
   imports: [
     CommonModule,
@@ -26,27 +28,27 @@ import { PredioResponseDTO } from '../../../core/model/dto/predio/predioResponse
     MatInputModule,
     MatPaginatorModule,
     MatToolbarModule,
-    MatSortModule
+    MatSortModule,
+    CurrencyBrDirective
   ],
-  templateUrl: './listar-predio.component.html',
-  styleUrl: './listar-predio.component.scss'
+  templateUrl: './listar-valor.component.html',
+  styleUrl: './listar-valor.component.scss'
 })
-export class ListarPredioComponent implements AfterViewInit {
+export class ListarValorComponent  implements AfterViewInit {
 
-  private service = inject(PredioService);
+  private service = inject(ValorService);
   private dialog = inject(MatDialog);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   // MatTableDataSource para integração com MatSort
-  dataSource = new MatTableDataSource<PredioResponseDTO>();
+  dataSource = new MatTableDataSource<ValorResponseDTO>();
 
   totalRegistros = signal(0);
 
   // Filtros
-  descricaoFiltro = signal('');
-  numeroFiltro = signal<string | null>(null);
+  valorFiltro = signal<number | undefined>(undefined);
 
   // Paginação
   paginaAtual = signal(0);
@@ -56,7 +58,7 @@ export class ListarPredioComponent implements AfterViewInit {
   ordemCampo = signal<string | null>(null);
   ordemDirecao = signal<'asc' | 'desc' | ''>('');
 
-  displayedColumns = ['id', 'descricao', 'numero', 'acoes'];
+  displayedColumns = ['id', 'valor', 'acoes'];
 
   ngAfterViewInit() {
     // Vincula MatSort à dataSource
@@ -81,22 +83,20 @@ export class ListarPredioComponent implements AfterViewInit {
   }
 
   private async carregarDados() {
-    const filtro = {
+    const filtro: ValorFilterDTO = {
       pagina: this.paginaAtual(),
       itensPorPagina: this.itensPorPagina(),
-      descricao: this.descricaoFiltro() || undefined,
-      numero: this.numeroFiltro() || undefined,
+      valor: this.valorFiltro(),
       sortField: this.ordemCampo() || undefined,
       sortDirection: this.ordemDirecao() || undefined
     };
 
-
     try {
       const result = await this.service.filter(filtro);
-      this.dataSource.data = result.predios;
+      this.dataSource.data = result.valores;
       this.totalRegistros.set(result.total);
     } catch (error) {
-      console.error('Erro ao carregar predios:', error);
+      console.error('Erro ao carregar valores:', error);
     }
   }
 
@@ -105,31 +105,27 @@ export class ListarPredioComponent implements AfterViewInit {
     this.carregarDados();
   }
 
-  filtrarDescricao(valor: string) {
-    this.descricaoFiltro.set(valor);
-    this.atualizarFiltro();
-  }
-
-  filtrarNumero(valor: string) {
-    // Se o valor está vazio, limpa o filtro
-    const numeroLimpo = valor.trim();
-    this.numeroFiltro.set(numeroLimpo || null);
+  filtrarValor(valor: string) {
+    // Extrair apenas números e tratar como centavos
+    const apenasNumeros = valor.replace(/\D/g, '');
+    const valorNumerico = apenasNumeros ? parseFloat(apenasNumeros) / 100 : undefined;
+    this.valorFiltro.set(valorNumerico);
     this.atualizarFiltro();
   }
 
   async excluir(id: number) {
     const ref = this.dialog.open(DialogExclusaoComponent, {
       width: '450px',
-      data: { dado: 'predio ' + id }
+      data: { dado: 'valor ' + id }
     });
 
     ref.afterClosed().subscribe(async confirmado => {
       if (confirmado) {
         try {
-          await this.service.deletePredio(id);
+          await this.service.deleteValor(id);
           this.carregarDados();
         } catch (error) {
-          console.error('Erro ao excluir predio:', error);
+          console.error('Erro ao excluir valor:', error);
         }
       }
     });

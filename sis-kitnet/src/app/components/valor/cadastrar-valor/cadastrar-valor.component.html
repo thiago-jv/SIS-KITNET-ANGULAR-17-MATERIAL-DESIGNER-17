@@ -1,0 +1,35 @@
+<form [formGroup]="form">
+
+  <mat-toolbar class="mb-4 btn-blue">
+    <div class="container-fluid px-0 w-100">
+      <div class="row w-100">
+
+        <div class="col-12 col-md-6 d-flex flex-wrap gap-2">
+          <button mat-raised-button color="primary" (click)="salvar()">Salvar</button>
+          <button mat-raised-button color="warn" type="button" (click)="cancelar()">Cancelar</button>
+        </div>
+
+        <div class="col-12 col-md-6 d-flex justify-content-md-end mt-2 mt-md-0">
+          <button mat-raised-button color="accent" routerLink="/listar-valor" type="button">Listar</button>
+        </div>
+
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <div class="row g-3">
+
+    <div class="col-12 col-md-8">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Valor</mat-label>
+        <input matInput appCurrencyBr formControlName="valor" />
+
+        <mat-error *ngIf="(form.controls['valor'].touched || formSubmitted) && form.controls['valor'].invalid">
+          Valor é obrigatório.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+  </div>
+
+</form>

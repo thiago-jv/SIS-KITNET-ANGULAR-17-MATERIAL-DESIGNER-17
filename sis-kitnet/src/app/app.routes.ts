@@ -20,12 +20,6 @@ export const routes: Routes = [
         .then(c => c.ListarApartamentoComponent)
   },
   {
-    path: 'diario',
-    loadComponent: () =>
-      import('./components/diario/diario.component')
-        .then(c => c.DiarioComponent)
-  },
-  {
     path: 'inquilino',
     loadComponent: () =>
       import('./components/inquilino/inquilino.component')
@@ -67,4 +61,16 @@ export const routes: Routes = [
       import('./components/valor/valor.component')
         .then(c => c.ValorComponent)
   },
+  {
+    path: 'valor/:id',
+    loadComponent: () =>
+      import('./components/valor/valor.component')
+        .then(c => c.ValorComponent)
+  },
+  {
+    path: 'listar-valor',
+    loadComponent: () =>
+      import('./components/valor/listar-valor/listar-valor.component')
+        .then(c => c.ListarValorComponent)
+  }
 ];
