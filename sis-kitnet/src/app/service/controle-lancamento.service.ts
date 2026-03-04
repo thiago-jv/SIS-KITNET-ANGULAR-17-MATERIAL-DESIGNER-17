@@ -6,6 +6,7 @@ import { ControleLancamentoResponseDTO } from '../core/model/dto/controleLancame
 import { ControleLancamentoFilterDTO } from '../core/model/dto/controleLancamento/controleLancamentoFilterDTO';
 import { ControleLancamentoPostDTO } from '../core/model/dto/controleLancamento/controleLancamentoPostDTO';
 import { ControleLancamentoPutDTO } from '../core/model/dto/controleLancamento/controleLancamentoPutDTO';
+import { RenovarLancamentoDTO } from '../core/model/dto/controleLancamento/renovarLancamentoDTO';
 
 @Injectable({
   providedIn: 'root'
@@ -78,6 +79,16 @@ export class ControleLancamentoService {
         params,
         responseType: 'blob'
       })
+    );
+  }
+
+  async renovarLancamento(id: number, quantidadeMeses: number): Promise<ControleLancamentoResponseDTO[]> {
+    const payload: RenovarLancamentoDTO = {
+      idLancamento: id,
+      quantidadeMeses: quantidadeMeses
+    };
+    return await firstValueFrom(
+      this.http.post<ControleLancamentoResponseDTO[]>(`${this.controleLancamentoUrl}/${id}/renovar`, payload)
     );
   }
 

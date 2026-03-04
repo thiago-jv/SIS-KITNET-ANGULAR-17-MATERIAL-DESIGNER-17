@@ -48,6 +48,13 @@
       </td>
       </ng-container>
 
+      <ng-container matColumnDef="statusApartamento">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+        <td mat-cell *matCellDef="let item" [style.background-color]="item.statusApartamento === 'DISPONIVEL' ? '#90EE90' : '#FF6B6B'">
+          {{ item.statusApartamento }}
+        </td>
+      </ng-container>
+
       <ng-container matColumnDef="acoes">
         <th mat-header-cell *matHeaderCellDef>Ações</th>
         <td mat-cell *matCellDef="let item" class="acoes-cell">

@@ -13,9 +13,12 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
+import { RenovarLancamentoDialogComponent } from '../shared/renovar-lancamento-dialog/renovar-lancamento-dialog.component';
 import { ControleLancamentoService } from '../../../service/controle-lancamento.service';
 import { ControleLancamentoResponseDTO } from '../../../core/model/dto/controleLancamento/controleLancamentoResponseDTO';
 import { ControleLancamentoFilterDTO } from '../../../core/model/dto/controleLancamento/controleLancamentoFilterDTO';
@@ -37,6 +40,8 @@ import { ControleLancamentoFilterDTO } from '../../../core/model/dto/controleLan
     MatToolbarModule,
     MatSortModule,
     MatIconModule,
+    MatSnackBarModule,
+    MatTooltipModule,
     ReactiveFormsModule
   ],
   templateUrl: './listar-controle-lancamento.component.html',
@@ -46,6 +51,7 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
 
   private service = inject(ControleLancamentoService);
   private dialog = inject(MatDialog);
+  private snack = inject(MatSnackBar);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -98,7 +104,6 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
     'statusApartamePagamento',
     'valorApartamento',
     'valorDebitoApartamento',
-    'dataPagamento',
     'statusProximoPagamento',
     'entragaContaLuz',
     'statusApartamePagamentoLuz',
@@ -249,5 +254,69 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
     } catch (error) {
       console.error('Erro ao baixar relatório:', error);
     }
+  }
+
+  async renovar(lancamento: ControleLancamentoResponseDTO) {
+    // Validação 1: Só PAGO
+    if (lancamento.status?.statusApartamePagamento !== 'PAGO') {
+      this.snack.open('Apenas lançamentos PAGOS podem ser renovados', 'OK', {
+        duration: 4000,
+        panelClass: ['snackbar-warning'],
+        verticalPosition: 'top'
+      });
+      return;
+    }
+
+    // Validação 2: Status do controle deve estar FECHADO (statusControle = false)
+    if (lancamento.status?.statusControle !== false) {
+      this.snack.open('O lançamento deve estar FECHADO para renovar', 'OK', {
+        duration: 4000,
+        panelClass: ['snackbar-warning'],
+        verticalPosition: 'top'
+      });
+      return;
+    }
+
+    // Abre modal informativo
+    const ref = this.dialog.open(RenovarLancamentoDialogComponent, {
+      width: '600px',
+      data: { 
+        idLancamento: lancamento.id,
+        lancamento: lancamento
+      }
+    });
+
+    ref.afterClosed().subscribe(async (confirmado) => {
+      if (confirmado) {
+        try {
+          await this.service.renovarLancamento(lancamento.id!, 1);
+          this.snack.open('Próximo lançamento criado com sucesso!', 'OK', {
+            duration: 4000,
+            panelClass: ['snackbar-success'],
+            verticalPosition: 'top'
+          });
+          this.carregarDados();
+        } catch (error) {
+          console.error('Erro ao renovar lançamento:', error);
+          this.snack.open('Erro ao renovar lançamento', 'OK', {
+            duration: 4000,
+            panelClass: ['snackbar-error'],
+            verticalPosition: 'top'
+          });
+        }
+      }
+    });
+  }
+
+  estaVencido(dataPagamento: string | undefined): boolean {
+    if (!dataPagamento) return false;
+    
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    
+    const data = new Date(dataPagamento);
+    data.setHours(0, 0, 0, 0);
+    
+    return data <= hoje;
   }
 }

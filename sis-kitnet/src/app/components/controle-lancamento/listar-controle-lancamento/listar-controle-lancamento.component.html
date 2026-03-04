@@ -130,9 +130,14 @@
       <ng-container matColumnDef="statusControle">
         <th mat-header-cell *matHeaderCellDef>Status</th>
         <td mat-cell *matCellDef="let item">
-          <span [style.color]="item.status?.statusControle ? '#1976d2' : '#666'">
+          <a href="javascript:;" 
+             (click)="atualizarStatus(item.id)"
+             [style.color]="item.status?.statusControle ? '#1976d2' : '#666'"
+             [matTooltip]="item.status?.statusControle ? 'Aberto - Clique para fechar' : 'Fechado - Clique para abrir'"
+             class="cursor-pointer"
+             style="text-decoration: underline;">
             {{ item.status?.statusControle ? 'Aberto' : 'Fechado' }}
-          </span>
+          </a>
         </td>
       </ng-container>
 
@@ -142,6 +147,18 @@
           <button mat-raised-button color="primary" [routerLink]="['/controle-lancamento', item.id]">Editar</button>
           <button mat-raised-button color="accent" (click)="baixarRelatorio(item.id)" matTooltip="Baixar PDF">
             <mat-icon>picture_as_pdf</mat-icon>
+          </button>
+          <button 
+            mat-raised-button 
+            color="success" 
+            (click)="renovar(item)"
+            [disabled]="item.status?.statusApartamePagamento !== 'PAGO' || item.status?.statusControle !== false"
+            [matTooltip]="item.status?.statusApartamePagamento !== 'PAGO' 
+              ? 'Apenas lançamentos PAGOS podem ser renovados' 
+              : item.status?.statusControle !== false
+              ? 'O lançamento deve estar FECHADO para renovar'
+              : 'Criar próximo lançamento (1 mês adiante)'">
+            <mat-icon>autorenew</mat-icon>
           </button>
           <button mat-raised-button color="warn" (click)="excluir(item.id)">Excluir</button>
         </td>

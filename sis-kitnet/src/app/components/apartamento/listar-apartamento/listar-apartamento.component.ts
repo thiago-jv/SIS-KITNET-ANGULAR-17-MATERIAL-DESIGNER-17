@@ -56,7 +56,7 @@ export class ListarApartamentoComponent implements AfterViewInit {
   ordemCampo = signal<string | null>(null);
   ordemDirecao = signal<'asc' | 'desc' | ''>('');
 
-  displayedColumns = ['id', 'descricao', 'numeroApartamento', 'idPredio', 'acoes'];
+  displayedColumns = ['id', 'descricao', 'numeroApartamento', 'idPredio', 'statusApartamento', 'acoes'];
 
   ngAfterViewInit() {
     // Vincula MatSort à dataSource
