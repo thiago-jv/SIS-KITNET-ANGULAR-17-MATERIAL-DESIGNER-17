@@ -9,6 +9,9 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ApartamentoService } from '../../../service/apartamento.service';
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
@@ -26,7 +29,10 @@ import { ApartamentoResponseDTO } from '../../../core/model/dto/apartamento/apar
     MatInputModule,
     MatPaginatorModule,
     MatToolbarModule,
-    MatSortModule
+    MatSortModule,
+    MatMenuModule,
+    MatIconModule,
+    MatTooltipModule
   ],
   templateUrl: './listar-apartamento.component.html',
   styleUrls: ['./listar-apartamento.component.scss']

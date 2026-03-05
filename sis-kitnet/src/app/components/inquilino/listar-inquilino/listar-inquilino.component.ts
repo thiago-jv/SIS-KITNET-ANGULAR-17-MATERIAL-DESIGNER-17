@@ -10,6 +10,9 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
 import { InquilinoService } from '../../../service/inquilino.service';
@@ -29,10 +32,13 @@ import { InquilinoFilterDTO } from '../../../core/model/dto/inquilino/inquilinoF
     MatSelectModule,
     MatPaginatorModule,
     MatToolbarModule,
-    MatSortModule
+    MatSortModule,
+    MatMenuModule,
+    MatIconModule,
+    MatTooltipModule
   ],
   templateUrl: './listar-inquilino.component.html',
-  styleUrl: './listar-inquilino.component.scss'
+  styleUrls: ['./listar-inquilino.component.scss']
 })
 export class ListarInquilinoComponent implements AfterViewInit {
 

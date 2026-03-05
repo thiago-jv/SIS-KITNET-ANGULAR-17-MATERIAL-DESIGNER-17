@@ -6,7 +6,8 @@
   justify-content: flex-start;
   text-align: left;
   color: #444;
-  transition: background 0.25s ease;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
 }
 
 .menu-item mat-icon {
@@ -14,18 +15,20 @@
   font-size: 22px;
 }
 
-/* Hover suave */
+/* Hover mais destacado */
 .menu-item:hover {
-  background: #e9ecf8;
+  background: #d4dcf5;
+  box-shadow: 0 2px 8px rgba(90, 104, 199, 0.15);
 }
 
 /* Quando a rota está ativa */
 .menu-item.active {
-  background: #dbe1fa !important;
+  background: #c4d1f0 !important;
   font-weight: 600;
+  box-shadow: 0 2px 8px rgba(90, 104, 199, 0.2);
 }
 
 /* Reforçando suavidade */
 .menu-item:focus {
-  background: #eef1ff;
+  background: #d4dcf5;
 }

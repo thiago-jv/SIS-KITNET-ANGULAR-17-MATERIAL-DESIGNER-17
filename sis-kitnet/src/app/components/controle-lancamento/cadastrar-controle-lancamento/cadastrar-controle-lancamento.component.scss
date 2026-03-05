@@ -1,1 +1,235 @@
 
+.valor-pago-input {
+	background-color: #f3fbf6;
+	border: 1px solid #d6f3e0;
+	padding: 8px 10px;
+	border-radius: 6px;
+	font-weight: 600;
+	font-size: 1rem;
+	text-align: right;
+	color: #0b5e3a;
+	width: 100%;
+}
+
+/* Improve focus visibility while keeping Material styles intact */
+.valor-pago-input:focus {
+	outline: none;
+	box-shadow: 0 0 0 3px rgba(11,94,58,0.08);
+}
+
+/* Ensure the input inside mat-form-field fills the available space */
+:host ::ng-deep .valor-pago-input {
+	height: 2.4rem;
+}
+
+/* Page header and card styles to match new SaaS-like layout */
+.page-header {
+	padding: 12px 8px;
+	border-bottom: 1px solid #eee;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.page-title {
+	font-size: 22px;
+	font-weight: 600;
+	color: #374151;
+	margin: 0;
+}
+
+.filters-card {
+	background: #fff;
+	border-radius: 10px;
+	padding: 16px;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* Small spacing helpers used by header actions */
+.page-header .gap-2 > * + * {
+	margin-left: 8px;
+}
+
+/* Label styling placed above fields */
+.field-label {
+	display: inline-block;
+	font-size: 13px;
+	color: #6B7280;
+	margin-bottom: 6px;
+}
+
+.mb-1 { margin-bottom: 6px; }
+
+/* Toggle group styles (Sim/Não) */
+:host ::ng-deep .mat-button-toggle-group.w-100 {
+	display: flex;
+	gap: 8px;
+}
+
+:host ::ng-deep .mat-button-toggle-button {
+	border-radius: 8px;
+	border: 1px solid transparent;
+	padding: 8px 14px;
+	min-width: 64px;
+	justify-content: center;
+}
+
+/* Sim/Não primary style */
+:host ::ng-deep .mat-button-toggle-button.mat-button-toggle-checked {
+	background: #2563eb; /* azul */
+	color: #fff;
+}
+
+:host ::ng-deep .mat-button-toggle-button .mat-button-toggle-label-content {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Small check icon for selected */
+:host ::ng-deep .mat-button-toggle-button.mat-button-toggle-checked .mat-icon {
+	font-size: 16px;
+}
+
+/* Status Luz segmented style */
+:host ::ng-deep .status-luz-group {
+	display: flex;
+	background: #f3f4f6;
+	border-radius: 8px;
+	padding: 4px;
+}
+
+:host ::ng-deep .status-luz-group .mat-button-toggle-button {
+	background: transparent;
+	border-radius: 6px;
+	padding: 8px 18px;
+	color: #374151;
+}
+
+:host ::ng-deep .status-luz-group .mat-button-toggle-button.mat-button-toggle-checked {
+	background: #ffffff;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+/* Badge colors inside toggles */
+:host ::ng-deep .badge-paid-toggle {
+	background: #E8F8F0;
+	color: #66BB6A;
+	padding: 4px 8px;
+	border-radius: 12px;
+	font-weight: 600;
+}
+
+:host ::ng-deep .badge-debit-toggle {
+	background: #FDECEC;
+	color: #EF7E7E;
+	padding: 4px 8px;
+	border-radius: 12px;
+	font-weight: 600;
+}
+
+/* Standardize toggle sizing and layout */
+:host ::ng-deep .mat-button-toggle-group.w-100 {
+	width: 100%;
+}
+
+:host ::ng-deep .mat-button-toggle-group.w-100 .mat-button-toggle-button {
+	flex: 1 1 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 44px;
+	padding: 0 12px;
+	border-radius: 8px;
+	background: transparent;
+	transition: background .12s ease, box-shadow .12s ease, color .12s ease;
+}
+
+:host ::ng-deep .mat-button-toggle-button .toggle-content {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Checked state - consistent across toggles */
+:host ::ng-deep .mat-button-toggle-button.mat-button-toggle-checked {
+	background: #ffffff;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+	border: 1px solid rgba(0,0,0,0.06);
+	color: #111827;
+}
+
+/* Specific checked color for Sim */
+:host ::ng-deep .mat-button-toggle-button.mat-button-toggle-checked mat-icon {
+	color: #2563eb;
+}
+
+/* Ensure the status-luz-group buttons match sizing */
+:host ::ng-deep .status-luz-group .mat-button-toggle-button {
+	height: 44px;
+}
+
+/* Sim/Não specific group appearance */
+:host ::ng-deep .sim-nao-group {
+	display: flex;
+	gap: 8px;
+}
+
+:host ::ng-deep .sim-nao-group .mat-button-toggle-button {
+	background: #f3f4f6;
+	color: #374151;
+	border-radius: 8px;
+	height: 44px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+	overflow: hidden;
+	transition: background .12s ease, color .12s ease, z-index .01s;
+}
+
+:host ::ng-deep .sim-nao-group .mat-button-toggle-button.mat-button-toggle-checked {
+	background: #2563eb;
+	color: #fff;
+	box-shadow: none;
+	border: 1px solid rgba(0,0,0,0.04);
+	z-index: 2;
+}
+
+:host ::ng-deep .sim-nao-group .mat-button-toggle-button .mat-icon {
+	font-size: 18px;
+	margin-right: 8px;
+}
+
+:host ::ng-deep .sim-nao-group .mat-button-toggle-button.mat-button-toggle-checked .mat-icon {
+	color: #fff;
+}
+
+:host ::ng-deep .sim-nao-group .mat-button-toggle-button:not(.mat-button-toggle-checked) .mat-icon {
+	color: #9CA3AF;
+}
+
+/* Ensure unchecked buttons sit below the checked one to avoid double-check artifacts */
+:host ::ng-deep .sim-nao-group .mat-button-toggle-button:not(.mat-button-toggle-checked) {
+	z-index: 1;
+}
+
+/* Make group background transparent so each button is visually separated */
+:host ::ng-deep .sim-nao-group {
+	background: transparent;
+	padding: 0;
+}
+
+/* Hide any material-added icons outside our .toggle-content to avoid duplicates */
+:host ::ng-deep .sim-nao-group .mat-button-toggle-button > .mat-icon,
+:host ::ng-deep .sim-nao-group .mat-button-toggle-button .mat-button-toggle-checked-icon {
+	display: none !important;
+}
+
+/* Ensure only icons inside our toggle-content are visible */
+:host ::ng-deep .sim-nao-group .mat-button-toggle-button .toggle-content .mat-icon {
+	display: inline-flex !important;
+	visibility: visible !important;
+}
+

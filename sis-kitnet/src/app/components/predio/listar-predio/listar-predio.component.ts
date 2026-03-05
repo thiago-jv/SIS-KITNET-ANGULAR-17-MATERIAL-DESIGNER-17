@@ -9,6 +9,9 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
 import { PredioService } from '../../../service/predio.service';
@@ -26,10 +29,13 @@ import { PredioResponseDTO } from '../../../core/model/dto/predio/predioResponse
     MatInputModule,
     MatPaginatorModule,
     MatToolbarModule,
-    MatSortModule
+    MatSortModule,
+    MatMenuModule,
+    MatIconModule,
+    MatTooltipModule
   ],
   templateUrl: './listar-predio.component.html',
-  styleUrl: './listar-predio.component.scss'
+  styleUrls: ['./listar-predio.component.scss']
 })
 export class ListarPredioComponent implements AfterViewInit {
 

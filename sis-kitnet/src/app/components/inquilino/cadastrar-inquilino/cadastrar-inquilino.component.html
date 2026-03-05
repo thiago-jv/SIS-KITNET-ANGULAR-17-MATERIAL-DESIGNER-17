@@ -32,11 +32,11 @@
 
     <div class="col-12 col-md-6">
       <mat-form-field appearance="outline" class="w-100">
-        <mat-label>Nome Abreviado</mat-label>
+        <mat-label>Apelido/Abreviação</mat-label>
         <input matInput formControlName="nomeAbreviado" />
 
         <mat-error *ngIf="(form.controls['nomeAbreviado'].touched || formSubmitted) && form.controls['nomeAbreviado'].invalid">
-          Nome abreviado é obrigatório.
+          Apelido é obrigatório.
         </mat-error>
       </mat-form-field>
     </div>

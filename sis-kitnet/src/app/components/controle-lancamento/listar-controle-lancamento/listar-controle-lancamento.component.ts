@@ -15,7 +15,9 @@ import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FilterBarComponent } from '../../../core/filters/filter-bar.component';
 
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
 import { RenovarLancamentoDialogComponent } from '../shared/renovar-lancamento-dialog/renovar-lancamento-dialog.component';
@@ -42,10 +44,12 @@ import { ControleLancamentoFilterDTO } from '../../../core/model/dto/controleLan
     MatIconModule,
     MatSnackBarModule,
     MatTooltipModule,
+    MatMenuModule,
+    FilterBarComponent,
     ReactiveFormsModule
   ],
   templateUrl: './listar-controle-lancamento.component.html',
-  styleUrl: './listar-controle-lancamento.component.scss'
+  styleUrls: ['./listar-controle-lancamento.component.scss']
 })
 export class ListarControleLancamentoComponent implements AfterViewInit {
 
@@ -148,7 +152,7 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
       this.atualizarFiltro();
     });
   }
-
+  
   private async carregarDados() {
     const filtro: ControleLancamentoFilterDTO = {
       pagina: this.paginaAtual(),
@@ -171,7 +175,7 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
     }
   }
 
-  private atualizarFiltro() {
+  atualizarFiltro() {
     this.paginaAtual.set(0);
     this.carregarDados();
   }

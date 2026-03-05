@@ -9,6 +9,9 @@ import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
 import { ValorService } from '../../../service/valor.service';
@@ -29,10 +32,13 @@ import { CurrencyBrDirective } from '../../../shared/directives/currency-br.dire
     MatPaginatorModule,
     MatToolbarModule,
     MatSortModule,
+    MatMenuModule,
+    MatIconModule,
+    MatTooltipModule,
     CurrencyBrDirective
   ],
   templateUrl: './listar-valor.component.html',
-  styleUrl: './listar-valor.component.scss'
+  styleUrls: ['./listar-valor.component.scss']
 })
 export class ListarValorComponent  implements AfterViewInit {
 

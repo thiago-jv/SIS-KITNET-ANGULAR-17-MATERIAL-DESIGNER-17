@@ -36,7 +36,7 @@
 
 /* Toolbar azul customizada */
 .mat-toolbar.btn-blue {
-  background-color: mat.get-color-from-palette($blue-color) !important;
+  background-color: #5E7CE2 !important;
   color: white !important;
 }
 
@@ -80,4 +80,102 @@
   .mat-mdc-button {
     color: white !important;
   }
+}
+
+/* ================================
+   ESTILOS COMUNS - TABELAS
+   ================================ */
+
+table {
+  th {
+    font-weight: bold;
+  }
+
+  td, th {
+    padding: 12px 8px;
+  }
+}
+
+/* ================================
+   ESTILOS COMUNS - UTILITIES
+   ================================ */
+
+.flex-spacer {
+  flex: 1 1 auto;
+}
+
+.acoes-cell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.actions-trigger {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 4px;
+}
+
+.paginator-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+/* ================================
+   ESTILOS COMUNS - BADGES
+   ================================ */
+
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: 1px solid;
+}
+
+.badge-disponivel,
+.badge-ativo {
+  background: #E8F8F0;
+  color: #66BB6A;
+  border-color: #A7E8D1;
+}
+
+.badge-ocupado,
+.badge-inativo {
+  background: #FDECEC;
+  color: #EF7E7E;
+  border-color: #F5C6C6;
+}
+
+/* ================================
+   ESTILOS COMUNS - FORMULÁRIOS
+   ================================ */
+
+.form-wrapper {
+  margin-top: 20px;
+  max-width: 1400px;
+  margin-left: 0;
+}
+
+mat-error {
+  font-size: 12px;
+}
+
+/* ================================
+   ESTILOS COMUNS - OVERLAYS E Z-INDEX
+   ================================ */
+
+card {
+  overflow: visible;
+}
+
+.cdk-overlay-pane {
+  z-index: 10000 !important;
+}
+
+.select-panel-fix {
+  z-index: 10000 !important;
 }

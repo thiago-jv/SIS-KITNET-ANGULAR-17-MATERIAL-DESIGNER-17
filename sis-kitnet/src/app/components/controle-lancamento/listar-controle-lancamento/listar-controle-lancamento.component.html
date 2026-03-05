@@ -1,21 +1,25 @@
 <!-- listar-controle-lancamento.component.html -->
 <div class="table-responsive-mobile">
-  <h1 class="mb-3">Listar Controles de Lançamento</h1>
-  <div class="card shadow-sm p-4">
-
-    <mat-toolbar class="btn-blue mb-4">
+  <h1 class="mb-3">Listar Controle de Lançamento</h1>
+  
+  <!-- Header com botão Novo -->
+  <div class="card shadow-sm p-4 mb-4">
+    <mat-toolbar class="btn-blue mb-0">
       <span class="flex-spacer"></span>
       <div class="d-flex justify-content-end w-100">
         <button mat-raised-button color="accent" routerLink="/controle-lancamento">Novo</button>
       </div>
     </mat-toolbar>
+  </div>
 
-    <h3 class="mb-3">Lançamentos</h3>
+  <!-- Filtros -->
+  <div class="card filters-card shadow-sm p-4 mb-4">
+    <h3 class="mb-3">Filtros</h3>
 
     <div class="row g-3 mb-3">
       <div class="col-12 col-md-6">
         <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Data pagamento de:</mat-label>
+          <mat-label>Data de pagamento (de)</mat-label>
           <input matInput [matDatepicker]="pickerDataPagamentoDe" (dateChange)="filtrarDataPagamentoDe($event)">
           <mat-datepicker-toggle matIconSuffix [for]="pickerDataPagamentoDe"></mat-datepicker-toggle>
           <mat-datepicker #pickerDataPagamentoDe></mat-datepicker>
@@ -24,7 +28,7 @@
 
       <div class="col-12 col-md-6">
         <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Data pagamento até:</mat-label>
+          <mat-label>Data de pagamento (até)</mat-label>
           <input matInput [matDatepicker]="pickerDataPagamentoAte" [min]="minDateAte()" (dateChange)="filtrarDataPagamentoAte($event)">
           <mat-datepicker-toggle matIconSuffix [for]="pickerDataPagamentoAte"></mat-datepicker-toggle>
           <mat-datepicker #pickerDataPagamentoAte></mat-datepicker>
@@ -33,7 +37,7 @@
 
       <div class="col-12 col-md-4">
         <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Pagou?</mat-label>
+          <mat-label>Status do Pagamento</mat-label>
           <mat-select [formControl]="statusApartamentoControl">
             <mat-option *ngFor="let option of statusOptions" [value]="option.value">
               {{ option.label }}
@@ -44,7 +48,7 @@
 
       <div class="col-12 col-md-4">
         <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Entregou Luz?</mat-label>
+          <mat-label>Conta de Luz Entregue</mat-label>
           <mat-select [formControl]="entregaLuzControl">
             <mat-option *ngFor="let option of entregaLuzOptions" [value]="option.value">
               {{ option.label }}
@@ -55,7 +59,7 @@
 
       <div class="col-12 col-md-4">
         <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Pagou Luz?</mat-label>
+          <mat-label>Status da Conta de Luz</mat-label>
           <mat-select [formControl]="statusLuzControl">
             <mat-option *ngFor="let option of statusOptions" [value]="option.value">
               {{ option.label }}
@@ -64,10 +68,13 @@
         </mat-form-field>
       </div>
     </div>
+  </div>
 
-    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1 w-100">
+  <!-- Tabela de Lançamentos -->
+  <div class="card shadow-sm p-4">
+    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1 w-100 modern-table">
       <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Id</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
         <td mat-cell *matCellDef="let item">{{ item.id }}</td>
       </ng-container>
 
@@ -77,53 +84,62 @@
       </ng-container>
 
       <ng-container matColumnDef="apartamento">
-        <th mat-header-cell *matHeaderCellDef>Ap</th>
+        <th mat-header-cell *matHeaderCellDef>Apartamento</th>
         <td mat-cell *matCellDef="let item">{{ item.apartamento?.id }}</td>
       </ng-container>
 
       <ng-container matColumnDef="dataEntrada">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>De</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Data entrada</th>
         <td mat-cell *matCellDef="let item">{{ item.dataEntrada | date: 'dd/MM/yyyy' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="dataPagamento">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Até</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Data pagamento</th>
         <td mat-cell *matCellDef="let item">{{ item.dataPagamento ? (item.dataPagamento | date: 'dd/MM/yyyy') : '-' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="statusApartamePagamento">
-        <th mat-header-cell *matHeaderCellDef>Pagou?</th>
-        <td mat-cell *matCellDef="let item" [style.background-color]="item.status?.statusApartamePagamento === 'PAGO' ? '#90EE90' : '#FF6B6B'">
-          {{ item.status?.statusApartamePagamento }}
+        <th mat-header-cell *matHeaderCellDef>Pagamento</th>
+        <td mat-cell *matCellDef="let item">
+          <span class="badge" [ngClass]="{
+            'badge-paid': item.status?.statusApartamePagamento === 'PAGO',
+            'badge-debit': item.status?.statusApartamePagamento !== 'PAGO'
+          }">{{ item.status?.statusApartamePagamento }}</span>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="valorApartamento">
-        <th mat-header-cell *matHeaderCellDef>R$ Valor<br>Locação Mês</th>
+        <th mat-header-cell *matHeaderCellDef>Valor (R$)</th>
         <td mat-cell *matCellDef="let item">{{ item.valores?.valorApartamento | number:'1.2-2' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="valorDebitoApartamento">
-        <th mat-header-cell *matHeaderCellDef>R$ Débito<br>apartamento</th>
+        <th mat-header-cell *matHeaderCellDef>Débito (R$)</th>
         <td mat-cell *matCellDef="let item">{{ item.valores?.valorDebitoApartamento | number:'1.2-2' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="statusProximoPagamento">
-        <th mat-header-cell *matHeaderCellDef>Status Prox.<br>Pagamento</th>
-        <td mat-cell *matCellDef="let item" [style.background-color]="item.status?.statusProximoPagamento === 'PAGO' ? '#90EE90' : '#FF6B6B'">
-          {{ item.status?.statusProximoPagamento }}
+        <th mat-header-cell *matHeaderCellDef>Próx. pagamento</th>
+        <td mat-cell *matCellDef="let item">
+          <span class="badge" [ngClass]="{
+            'badge-paid': item.status?.statusProximoPagamento === 'PAGO',
+            'badge-debit': item.status?.statusProximoPagamento !== 'PAGO'
+          }">{{ item.status?.statusProximoPagamento }}</span>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="entragaContaLuz">
-        <th mat-header-cell *matHeaderCellDef>Entregou<br>Luz?</th>
+        <th mat-header-cell *matHeaderCellDef>Conta de luz</th>
         <td mat-cell *matCellDef="let item">{{ item.status?.entragaContaLuz }}</td>
       </ng-container>
 
       <ng-container matColumnDef="statusApartamePagamentoLuz">
-        <th mat-header-cell *matHeaderCellDef>Pagou<br>Luz?</th>
-        <td mat-cell *matCellDef="let item" [style.background-color]="item.status?.statusApartamePagamentoLuz === 'PAGO' ? '#90EE90' : '#FF6B6B'">
-          {{ item.status?.statusApartamePagamentoLuz }}
+        <th mat-header-cell *matHeaderCellDef>Pagamento luz</th>
+        <td mat-cell *matCellDef="let item">
+          <span class="badge" [ngClass]="{
+            'badge-paid': item.status?.statusApartamePagamentoLuz === 'PAGO',
+            'badge-debit': item.status?.statusApartamePagamentoLuz !== 'PAGO'
+          }">{{ item.status?.statusApartamePagamentoLuz }}</span>
         </td>
       </ng-container>
 
@@ -133,7 +149,7 @@
           <a href="javascript:;" 
              (click)="atualizarStatus(item.id)"
              [style.color]="item.status?.statusControle ? '#1976d2' : '#666'"
-             [matTooltip]="item.status?.statusControle ? 'Aberto - Clique para fechar' : 'Fechado - Clique para abrir'"
+             [matTooltip]="item.status?.statusControle ? 'Aberto — clique para fechar' : 'Fechado — clique para abrir'"
              class="cursor-pointer"
              style="text-decoration: underline;">
             {{ item.status?.statusControle ? 'Aberto' : 'Fechado' }}
@@ -144,23 +160,50 @@
       <ng-container matColumnDef="acoes">
         <th mat-header-cell *matHeaderCellDef>Ações</th>
         <td mat-cell *matCellDef="let item" class="acoes-cell">
-          <button mat-raised-button color="primary" [routerLink]="['/controle-lancamento', item.id]">Editar</button>
-          <button mat-raised-button color="accent" (click)="baixarRelatorio(item.id)" matTooltip="Baixar PDF">
-            <mat-icon>picture_as_pdf</mat-icon>
+          <button mat-icon-button class="actions-trigger" [matMenuTriggerFor]="menu" aria-label="Ações">
+            <mat-icon>more_vert</mat-icon>
           </button>
-          <button 
-            mat-raised-button 
-            color="success" 
-            (click)="renovar(item)"
-            [disabled]="item.status?.statusApartamePagamento !== 'PAGO' || item.status?.statusControle !== false"
-            [matTooltip]="item.status?.statusApartamePagamento !== 'PAGO' 
-              ? 'Apenas lançamentos PAGOS podem ser renovados' 
-              : item.status?.statusControle !== false
-              ? 'O lançamento deve estar FECHADO para renovar'
-              : 'Criar próximo lançamento (1 mês adiante)'">
-            <mat-icon>autorenew</mat-icon>
-          </button>
-          <button mat-raised-button color="warn" (click)="excluir(item.id)">Excluir</button>
+
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item [routerLink]="['/controle-lancamento', item.id]"
+                    [disabled]="item.status?.statusControle === false">
+              <mat-icon>edit</mat-icon>
+              <span
+                [matTooltip]="item.status?.statusControle === false ? 'Lançamento fechado - não é possível editar' : ''"
+                [matTooltipDisabled]="!(item.status?.statusControle === false)">
+                Editar
+              </span>
+            </button>
+
+            <button mat-menu-item (click)="baixarRelatorio(item.id)">
+              <mat-icon>picture_as_pdf</mat-icon>
+              <span>Baixar PDF</span>
+            </button>
+
+            <button mat-menu-item (click)="renovar(item)"
+                    [disabled]="item.status?.statusApartamePagamento !== 'PAGO' || item.status?.statusControle !== true">
+              <mat-icon>autorenew</mat-icon>
+              <span
+                [matTooltip]="item.status?.statusApartamePagamento !== 'PAGO'
+                  ? 'Apenas lançamentos PAGOS podem ser renovados'
+                  : item.status?.statusControle !== true
+                    ? 'O lançamento deve estar ABERTO para renovar'
+                    : ''"
+                [matTooltipDisabled]="!(item.status?.statusApartamePagamento !== 'PAGO' || item.status?.statusControle !== true)">
+                Renovar
+              </span>
+            </button>
+
+            <button mat-menu-item (click)="excluir(item.id)"
+                    [disabled]="item.status?.statusControle === false">
+              <mat-icon>delete</mat-icon>
+              <span
+                [matTooltip]="item.status?.statusControle === false ? 'Lançamento fechado - não é possível excluir' : ''"
+                [matTooltipDisabled]="!(item.status?.statusControle === false)">
+                Excluir
+              </span>
+            </button>
+          </mat-menu>
         </td>
       </ng-container>
 
@@ -168,18 +211,18 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
 
+    <!-- Paginação -->
     <div class="paginator-container">
-    <mat-paginator
-      [length]="totalRegistros()"
-      [pageSize]="itensPorPagina()"
-      [pageSizeOptions]="[5, 10, 20]"
-      showFirstLastButtons>
-    </mat-paginator>
+      <mat-paginator
+        [length]="totalRegistros()"
+        [pageSize]="itensPorPagina()"
+        [pageSizeOptions]="[5, 10, 20]"
+        showFirstLastButtons>
+      </mat-paginator>
     </div>
 
     <div class="mt-2">
       Página {{ paginaAtual() + 1 }}
     </div>
-
   </div>
 </div>

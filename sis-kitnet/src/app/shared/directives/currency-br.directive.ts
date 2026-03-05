@@ -16,6 +16,7 @@ import { Directive, ElementRef, HostListener, OnInit } from '@angular/core';
   standalone: true
 })
 export class CurrencyBrDirective implements OnInit {
+  private isFormatting = false;
   
   constructor(private el: ElementRef<HTMLInputElement>) {}
 
@@ -68,18 +69,9 @@ export class CurrencyBrDirective implements OnInit {
    */
   @HostListener('input', ['$event'])
   onInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const apenasNumeros = this.extrairApenasNumeros(input.value);
-
-    if (apenasNumeros.length === 0) {
-      input.value = '';
-      return;
-    }
-
-    const valorFormatado = this.formatarParaMoeda(apenasNumeros);
-    input.value = valorFormatado;
-    
-    this.posicionarCursorCorretamente(input, valorFormatado);
+    // Não formatar enquanto o usuário digita para evitar saltos do cursor.
+    // Apenas garante que o valor visível contenha somente dígitos (keypress/keydown já
+    // bloqueiam caracteres inválidos). Deixa a formatação para o evento blur.
   }
 
   /**
@@ -92,7 +84,41 @@ export class CurrencyBrDirective implements OnInit {
 
     if (estaVazio) {
       input.value = '';
+      return;
     }
+    // Ao desfocar, decide como interpretar o valor:
+    // - se o usuário digitou uma vírgula/ponto, trata os dois últimos dígitos como centavos
+    // - se digitou apenas dígitos, interpreta como reais inteiros e adiciona ,00
+    const raw = input.value.trim();
+
+    // Normaliza separadores para verificar se usuário usou decimal
+    const temSeparadorDecimal = /[,\.]/.test(raw);
+
+    let valorFormatado = '';
+
+    if (temSeparadorDecimal) {
+      const apenasNumeros = this.extrairApenasNumeros(raw);
+      if (!apenasNumeros) {
+        input.value = '';
+        return;
+      }
+      valorFormatado = this.formatarParaMoeda(apenasNumeros);
+    } else {
+      const apenasNumeros = this.extrairApenasNumeros(raw);
+      if (!apenasNumeros) {
+        input.value = '';
+        return;
+      }
+      valorFormatado = this.formatarInteiroParaMoeda(apenasNumeros);
+    }
+
+    input.value = valorFormatado;
+
+    // Sincroniza com Angular forms
+    setTimeout(() => {
+      const evt = new Event('input', { bubbles: true });
+      input.dispatchEvent(evt);
+    }, 0);
   }
 
   /**
@@ -101,17 +127,51 @@ export class CurrencyBrDirective implements OnInit {
   @HostListener('paste', ['$event'])
   onPaste(event: ClipboardEvent): void {
     event.preventDefault();
-    
+
     const textoPastado = event.clipboardData?.getData('text') || '';
+    const input = this.el.nativeElement;
+    const temSeparadorDecimal = /[,\.]/.test(textoPastado);
     const apenasNumeros = this.extrairApenasNumeros(textoPastado);
 
-    if (apenasNumeros) {
-      const input = this.el.nativeElement;
-      input.value = apenasNumeros;
-      
-      // Dispara evento input para aplicar formatação
+    if (!apenasNumeros) {
+      return;
+    }
+
+    if (temSeparadorDecimal) {
+      // Ex.: '250,50' -> '250,50'
+      input.value = this.formatarParaMoeda(apenasNumeros);
+    } else {
+      // Ex.: '250' -> '250,00'
+      input.value = this.formatarInteiroParaMoeda(apenasNumeros);
+    }
+
+    setTimeout(() => {
       const eventoInput = new Event('input', { bubbles: true });
       input.dispatchEvent(eventoInput);
+    }, 0);
+  }
+
+  /**
+   * Formata números inteiros como moeda (sem inferir centavos).
+   * Ex.: "250" -> "250,00"; "1234" -> "1.234,00"
+   */
+  private formatarInteiroParaMoeda(numeros: string): string {
+    if (!numeros) {
+      return '0,00';
+    }
+
+    const inteirosFormatados = numeros.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return `${inteirosFormatados},00`;
+  }
+
+  ngAfterViewInit(): void {
+    // Se já houver valor no input (ex: edição), formata ao inicializar
+    const input = this.el.nativeElement as HTMLInputElement;
+    if (input && input.value) {
+      const apenasNumeros = this.extrairApenasNumeros(input.value);
+      if (apenasNumeros) {
+        input.value = this.formatarParaMoeda(apenasNumeros);
+      }
     }
   }
 
@@ -171,12 +231,47 @@ export class CurrencyBrDirective implements OnInit {
    * Mantém o cursor antes dos centavos para digitação contínua
    */
   private posicionarCursorCorretamente(input: HTMLInputElement, valorFormatado: string): void {
-    // Cursor fica 3 caracteres antes do final (antes de ",XX")
+    // Deprecated: use posicionarCursorPorDigitos instead
     const posicao = valorFormatado.length - 3;
-    
     setTimeout(() => {
       input.setSelectionRange(posicao, posicao);
     }, 0);
+  }
+
+  /**
+   * Posiciona o cursor baseado na quantidade de dígitos que estavam antes
+   * do caret (preserva o ponto de inserção mesmo com separadores).
+   */
+  private posicionarCursorPorDigitos(input: HTMLInputElement, valorFormatado: string, digitsBeforeCursor: number): void {
+    if (digitsBeforeCursor <= 0) {
+      input.setSelectionRange(0, 0);
+      return;
+    }
+
+    let digitsSeen = 0;
+    let targetPos = 0;
+
+    for (let i = 0; i < valorFormatado.length; i++) {
+      if (/\d/.test(valorFormatado.charAt(i))) {
+        digitsSeen++;
+      }
+
+      if (digitsSeen >= digitsBeforeCursor) {
+        targetPos = i + 1;
+        break;
+      }
+    }
+
+    // If we didn't reach the desired count, place at end
+    if (digitsSeen < digitsBeforeCursor) {
+      targetPos = valorFormatado.length;
+    }
+
+    try {
+      input.setSelectionRange(targetPos, targetPos);
+    } catch (e) {
+      // ignore if not focusable
+    }
   }
 }
 
