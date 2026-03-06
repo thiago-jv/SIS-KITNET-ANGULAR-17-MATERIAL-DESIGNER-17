@@ -12,10 +12,10 @@ describe('ListarApartamentoComponent', () => {
 
   // Mocks
   const serviceMock = {
-    filter: jasmine.createSpy('filter').and.returnValue(
+    filtrar: jasmine.createSpy('filtrar').and.returnValue(
       Promise.resolve({ apartamentos: [], total: 0 })
     ),
-    deleteApartamento: jasmine.createSpy('deleteApartamento').and.returnValue(
+    excluirApartamento: jasmine.createSpy('excluirApartamento').and.returnValue(
       Promise.resolve({})
     )
   };
@@ -49,12 +49,12 @@ describe('ListarApartamentoComponent', () => {
   });
 
   it('deve filtrar por número e chamar o serviço', fakeAsync(() => {
-    serviceMock.filter.calls.reset();
+    serviceMock.filtrar.calls.reset();
 
-    component.filtrarNumero(123);
+    component.filtrarNumeroApartamento('123');
     tick();
 
-    expect(component.numeroFiltro()).toBe(123);
-    expect(serviceMock.filter).toHaveBeenCalledTimes(1);
+    expect(component.numeroApartamentoFiltro()).toBe('123');
+    expect(serviceMock.filtrar).toHaveBeenCalledTimes(1);
   }));
 });

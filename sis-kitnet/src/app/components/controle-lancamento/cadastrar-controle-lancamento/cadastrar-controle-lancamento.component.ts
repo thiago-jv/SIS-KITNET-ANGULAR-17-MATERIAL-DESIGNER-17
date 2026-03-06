@@ -155,7 +155,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
 
   async carregarTodosInquilinos(): Promise<void> {
     try {
-      const inquilinos = await this.inquilinoService.getAllInquilinos();
+      const inquilinos = await this.inquilinoService.buscarTodosInquilinos();
       this.inquilinos = inquilinos;
     } catch (error) {
       console.error('Erro ao carregar inquilinos:', error);
@@ -169,7 +169,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
 
   async carregarTodosApartamentos(): Promise<void> {
     try {
-      const apartamentos = await this.apartamentoService.getAllApartamentos();
+      const apartamentos = await this.apartamentoService.buscarTodosApartamentos();
       this.apartamentos = apartamentos;
     } catch (error) {
       console.error('Erro ao carregar apartamentos:', error);
@@ -183,7 +183,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
 
   async carregarTodosValores(): Promise<void> {
     try {
-      const valores = await this.valorService.getAllValores();
+      const valores = await this.valorService.buscarTodosValores();
       this.valores = valores;
     } catch (error) {
       console.error('Erro ao carregar valores:', error);
@@ -196,7 +196,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
   }
 
   carregarInquilinoPorId(id: number): void {
-    this.inquilinoService.getById(id)
+    this.inquilinoService.buscarPorId(id)
       .pipe(take(1))
       .subscribe({
         next: (inquilino) => {
@@ -217,7 +217,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
   }
 
   carregarApartamentoPorId(id: number): void {
-    this.apartamentoService.getById(id)
+    this.apartamentoService.buscarPorId(id)
       .pipe(take(1))
       .subscribe({
         next: (apartamento) => {
@@ -238,7 +238,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
   }
 
   carregarValorPorId(id: number): void {
-    this.valorService.getById(id)
+    this.valorService.buscarPorId(id)
       .pipe(take(1))
       .subscribe({
         next: (valor) => {
@@ -340,7 +340,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
   }
 
   buscarPorIdValor(id: number): void {
-    this.valorService.getById(id)
+    this.valorService.buscarPorId(id)
       .pipe(take(1))
       .subscribe({
         next: (valor) => {
@@ -397,7 +397,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
     try {
       if (this.id) {
         const putData: ControleLancamentoPutDTO = { id: this.id, ...dados };
-        await this.controleLancamentoService.updateControleLancamento(this.id, putData);
+        await this.controleLancamentoService.atualizarControleLancamento(this.id, putData);
 
         this.snack.open(Constants.ATUALIZADO_COM_SUCESSO, 'OK', {
           duration: 4000,
@@ -405,7 +405,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
           verticalPosition: 'top'
         });
       } else {
-        await this.controleLancamentoService.createControleLancamento(dados);
+        await this.controleLancamentoService.criarControleLancamento(dados);
 
         this.snack.open(Constants.SALVO_COM_SUCESSO, 'OK', {
           duration: 4000,
@@ -430,7 +430,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
   }
 
   carregarDados(id: number): void {
-    this.controleLancamentoService.getById(id)
+    this.controleLancamentoService.buscarPorId(id)
       .pipe(take(1))
       .subscribe({
         next: (dados: ControleLancamentoResponseDTO) => {

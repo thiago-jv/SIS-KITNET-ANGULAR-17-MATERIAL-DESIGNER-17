@@ -97,7 +97,7 @@ export class ListarApartamentoComponent implements AfterViewInit {
     };
 
     try {
-      const result = await this.service.filter(filtro);
+      const result = await this.service.filtrar(filtro);
       this.dataSource.data = result.apartamentos;
       this.totalRegistros.set(result.total);
     } catch (error) {
@@ -129,7 +129,7 @@ export class ListarApartamentoComponent implements AfterViewInit {
     ref.afterClosed().subscribe(async confirmado => {
       if (confirmado) {
         try {
-          await this.service.deleteApartamento(id);
+          await this.service.excluirApartamento(id);
           this.carregarDados();
         } catch (error) {
           console.error('Erro ao excluir apartamento:', error);
@@ -145,5 +145,17 @@ export class ListarApartamentoComponent implements AfterViewInit {
   getValorNumero(event: Event): number | null {
     const v = (event.target as HTMLInputElement).value;
     return v ? Number(v) : null;
+  }
+
+  obterStatus(item: ApartamentoResponseDTO | null | undefined): string {
+    return item?.statusApartamento ?? 'DESCONHECIDO';
+  }
+
+  obterClasseStatusBadge(status: string | null | undefined): Record<string, boolean> {
+    const statusSafe = this.obterStatus({ statusApartamento: status } as any);
+    return {
+      'badge-disponivel': statusSafe === 'DISPONIVEL',
+      'badge-ocupado': statusSafe === 'OCUPADO'
+    };
   }
 }

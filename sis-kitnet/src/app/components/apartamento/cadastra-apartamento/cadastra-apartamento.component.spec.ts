@@ -18,9 +18,9 @@ describe('CadastraApartamentoComponent', () => {
   let fixture: ComponentFixture<CadastraApartamentoComponent>;
 
   const apartamentoServiceMock = {
-    createApartamento: jasmine.createSpy('createApartamento').and.returnValue(Promise.resolve({})),
-    updateApartamento: jasmine.createSpy('updateApartamento').and.returnValue(Promise.resolve({})),
-    getById: jasmine.createSpy('getById').and.returnValue(of({ descricao: 'Apto 101', numero: 101 }))
+    criarApartamento: jasmine.createSpy('criarApartamento').and.returnValue(Promise.resolve({})),
+    atualizarApartamento: jasmine.createSpy('atualizarApartamento').and.returnValue(Promise.resolve({})),
+    buscarPorId: jasmine.createSpy('buscarPorId').and.returnValue(of({ descricao: 'Apto 101', numero: 101 }))
   };
 
   const snackBarMock = { open: jasmine.createSpy('open') };

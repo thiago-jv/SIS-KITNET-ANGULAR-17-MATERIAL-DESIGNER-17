@@ -18,7 +18,7 @@ export class ValorService {
 
   valorCriado = signal<ValorResponseDTO | null>(null);
 
-  async createValor(valor: ValorPostDTO) {
+  async criarValor(valor: ValorPostDTO) {
     const response = await firstValueFrom(
       this.http.post<ValorResponseDTO>(this.valorUrl, valor)
     );
@@ -26,7 +26,7 @@ export class ValorService {
     return response;
   }
 
-  async filter(filter: ValorFilterDTO): Promise<{ valores: ValorResponseDTO[], total: number }> {
+  async filtrar(filter: ValorFilterDTO): Promise<{ valores: ValorResponseDTO[], total: number }> {
     let params = new HttpParams()
       .set('page', filter.pagina)
       .set('size', filter.itensPorPagina);
@@ -41,29 +41,29 @@ export class ValorService {
     );
 
     return {
-      valores: response.content,
-      total: response.totalElements
+      valores: Array.isArray(response?.content) ? response.content : [],
+      total: response?.totalElements ?? 0
     };
   }
 
-  async getAllValores(): Promise<ValorResponseDTO[]> {
+  async buscarTodosValores(): Promise<ValorResponseDTO[]> {
     const response = await firstValueFrom(
       this.http.get<ValorResponseDTO[]>(`${this.valorUrl}/todos`)
     );
     return response;
   }
 
-  getById(id: number): Observable<ValorResponseDTO> {
+  buscarPorId(id: number): Observable<ValorResponseDTO> {
     return this.http.get<ValorResponseDTO>(`${this.valorUrl}/${id}`);
   }
 
-  async updateValor(id: number, dados: ValorPutDTO): Promise<ValorResponseDTO> {
+  async atualizarValor(id: number, dados: ValorPutDTO): Promise<ValorResponseDTO> {
    return await firstValueFrom(
     this.http.put<ValorResponseDTO>(`${this.valorUrl}/${id}`, dados)
    );
   }
 
-  async deleteValor(id: number): Promise<void> {
+  async excluirValor(id: number): Promise<void> {
     await firstValueFrom(
       this.http.delete(`${this.valorUrl}/${id}`)
     );

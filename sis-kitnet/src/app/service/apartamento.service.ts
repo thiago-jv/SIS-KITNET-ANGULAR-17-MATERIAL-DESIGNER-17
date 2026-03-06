@@ -17,7 +17,7 @@ export class ApartamentoService {
 
   apartamentoCriado = signal<ApartamentoResponseDTO | null>(null);
 
-  async createApartamento(apartamento: ApartamentoPostDTO) {
+  async criarApartamento(apartamento: ApartamentoPostDTO) {
     const response = await firstValueFrom(
       this.http.post<ApartamentoResponseDTO>(this.apartamentoUrl, apartamento)
     );
@@ -25,7 +25,7 @@ export class ApartamentoService {
     return response;
   }
 
-  async filter(filter: ApartamentoFilterDTO): Promise<{ apartamentos: ApartamentoResponseDTO[], total: number }> {
+  async filtrar(filter: ApartamentoFilterDTO): Promise<{ apartamentos: ApartamentoResponseDTO[], total: number }> {
     let params = new HttpParams()
       .set('page', filter.pagina)
       .set('size', filter.itensPorPagina);
@@ -41,29 +41,29 @@ export class ApartamentoService {
     );
 
     return {
-      apartamentos: response.content,
-      total: response.totalElements
+      apartamentos: Array.isArray(response?.content) ? response.content : [],
+      total: response?.totalElements ?? 0
     };
   }
 
-  getById(id: number): Observable<ApartamentoResponseDTO> {
+  buscarPorId(id: number): Observable<ApartamentoResponseDTO> {
     return this.http.get<ApartamentoResponseDTO>(`${this.apartamentoUrl}/${id}`);
   }
 
-  async getAllApartamentos(): Promise<ApartamentoResponseDTO[]> {
+  async buscarTodosApartamentos(): Promise<ApartamentoResponseDTO[]> {
     const response = await firstValueFrom(
       this.http.get<ApartamentoResponseDTO[]>(`${this.apartamentoUrl}/todos`)
     );
     return response;
   }
 
-  async updateApartamento(id: number, dados: ApartamentoPostDTO): Promise<ApartamentoResponseDTO> {
+  async atualizarApartamento(id: number, dados: ApartamentoPostDTO): Promise<ApartamentoResponseDTO> {
    return await firstValueFrom(
     this.http.put<ApartamentoResponseDTO>(`${this.apartamentoUrl}/${id}`, dados));
   }
 
 
-  async deleteApartamento(id: number): Promise<void> {
+  async excluirApartamento(id: number): Promise<void> {
     await firstValueFrom(
       this.http.delete(`${this.apartamentoUrl}/${id}`)
     );

@@ -103,7 +103,7 @@ export class ListarInquilinoComponent implements AfterViewInit {
     };
 
     try {
-      const result = await this.service.filter(filtro);
+      const result = await this.service.filtrar(filtro);
       this.dataSource.data = result.inquilinos;
       this.totalRegistros.set(result.total);
     } catch (error) {
@@ -140,7 +140,7 @@ export class ListarInquilinoComponent implements AfterViewInit {
     ref.afterClosed().subscribe(async confirmado => {
       if (confirmado) {
         try {
-          await this.service.deleteInquilino(id);
+          await this.service.excluirInquilino(id);
           this.carregarDados();
         } catch (error) {
           console.error('Erro ao excluir inquilino:', error);
@@ -155,5 +155,17 @@ export class ListarInquilinoComponent implements AfterViewInit {
 
   getCpfInput(event: Event): string {
     return (event.target as HTMLInputElement).value;
+  }
+
+  obterStatus(item: InquilinoResponseDTO | null | undefined): string {
+    return item?.status ?? 'DESCONHECIDO';
+  }
+
+  obterClasseStatusBadge(status: string | null | undefined): Record<string, boolean> {
+    const statusSafe = this.obterStatus({ status } as any);
+    return {
+      'badge-ativo': statusSafe === 'ATIVO',
+      'badge-inativo': statusSafe === 'INATIVO'
+    };
   }
 }

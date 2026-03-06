@@ -97,7 +97,7 @@ export class CadastrarValorComponent implements OnInit {
     try {
       if (this.id) {
         const putData: ValorPutDTO = { id: this.id, ...dados };
-        await this.valorService.updateValor(this.id, putData);
+        await this.valorService.atualizarValor(this.id, putData);
 
         this.snack.open(Constants.ATUALIZADO_COM_SUCESSO, 'OK', {
           duration: 4000,
@@ -105,7 +105,7 @@ export class CadastrarValorComponent implements OnInit {
           verticalPosition: 'top'
         });
       } else {
-        await this.valorService.createValor(dados);
+        await this.valorService.criarValor(dados);
 
         this.snack.open(Constants.SALVO_COM_SUCESSO, 'OK', {
           duration: 4000,
@@ -130,7 +130,7 @@ export class CadastrarValorComponent implements OnInit {
   }
 
   carregarDados(id: number): void {
-    this.valorService.getById(id)
+    this.valorService.buscarPorId(id)
       .pipe(take(1))
       .subscribe({
         next: (dados: ValorResponseDTO) => {

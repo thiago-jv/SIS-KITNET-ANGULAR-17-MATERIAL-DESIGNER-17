@@ -98,7 +98,7 @@ export class ListarPredioComponent implements AfterViewInit {
 
 
     try {
-      const result = await this.service.filter(filtro);
+      const result = await this.service.filtrar(filtro);
       this.dataSource.data = result.predios;
       this.totalRegistros.set(result.total);
     } catch (error) {
@@ -132,7 +132,7 @@ export class ListarPredioComponent implements AfterViewInit {
     ref.afterClosed().subscribe(async confirmado => {
       if (confirmado) {
         try {
-          await this.service.deletePredio(id);
+          await this.service.excluirPredio(id);
           this.carregarDados();
         } catch (error) {
           console.error('Erro ao excluir predio:', error);

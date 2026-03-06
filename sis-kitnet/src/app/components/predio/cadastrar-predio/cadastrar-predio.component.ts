@@ -78,7 +78,7 @@ export class CadastrarPredioComponent {
 
     try {
       if (this.id) {
-        const resp = await this.predioService.updatePredio(this.id, dados);
+        const resp = await this.predioService.atualizarPredio(this.id, dados);
 
         this.snack.open(Constants.ATUALIZADO_COM_SUCESSO, 'OK', {
           duration: 4000,
@@ -88,7 +88,7 @@ export class CadastrarPredioComponent {
         this.router.navigate(['/listar-predio']);
 
       } else {
-        const resp = await this.predioService.createPredio(dados);
+        const resp = await this.predioService.criarPredio(dados);
 
         this.snack.open(Constants.SALVO_COM_SUCESSO, 'OK', {
           duration: 4000,
@@ -117,7 +117,7 @@ export class CadastrarPredioComponent {
   }
 
   carregarDados(id: number): void {
-    this.predioService.getById(id)
+    this.predioService.buscarPorId(id)
       .pipe(take(1))
       .subscribe({
         next: (dados) => {

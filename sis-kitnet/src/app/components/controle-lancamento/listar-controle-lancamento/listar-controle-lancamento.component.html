@@ -101,10 +101,7 @@
       <ng-container matColumnDef="statusApartamePagamento">
         <th mat-header-cell *matHeaderCellDef>Pagamento</th>
         <td mat-cell *matCellDef="let item">
-          <span class="badge" [ngClass]="{
-            'badge-paid': item.status?.statusApartamePagamento === 'PAGO',
-            'badge-debit': item.status?.statusApartamePagamento !== 'PAGO'
-          }">{{ item.status?.statusApartamePagamento }}</span>
+          <span class="badge" [ngClass]="obterClasseBadgePagamento(item.status?.statusApartamePagamento!)">{{ item.status?.statusApartamePagamento }}</span>
         </td>
       </ng-container>
 
@@ -121,10 +118,7 @@
       <ng-container matColumnDef="statusProximoPagamento">
         <th mat-header-cell *matHeaderCellDef>Próx. pagamento</th>
         <td mat-cell *matCellDef="let item">
-          <span class="badge" [ngClass]="{
-            'badge-paid': item.status?.statusProximoPagamento === 'PAGO',
-            'badge-debit': item.status?.statusProximoPagamento !== 'PAGO'
-          }">{{ item.status?.statusProximoPagamento }}</span>
+          <span class="badge" [ngClass]="obterClasseBadgePagamento(item.status?.statusProximoPagamento!)">{{ item.status?.statusProximoPagamento }}</span>
         </td>
       </ng-container>
 
@@ -136,10 +130,7 @@
       <ng-container matColumnDef="statusApartamePagamentoLuz">
         <th mat-header-cell *matHeaderCellDef>Pagamento luz</th>
         <td mat-cell *matCellDef="let item">
-          <span class="badge" [ngClass]="{
-            'badge-paid': item.status?.statusApartamePagamentoLuz === 'PAGO',
-            'badge-debit': item.status?.statusApartamePagamentoLuz !== 'PAGO'
-          }">{{ item.status?.statusApartamePagamentoLuz }}</span>
+          <span class="badge" [ngClass]="obterClasseBadgePagamento(item.status?.statusApartamePagamentoLuz!)">{{ item.status?.statusApartamePagamentoLuz }}</span>
         </td>
       </ng-container>
 
@@ -165,14 +156,13 @@
           </button>
 
           <mat-menu #menu="matMenu">
-            <button mat-menu-item [routerLink]="['/controle-lancamento', item.id]"
-                    [disabled]="item.status?.statusControle === false">
+            <button mat-menu-item 
+                    [routerLink]="['/controle-lancamento', item.id]"
+                    [disabled]="!podeEditar(item)"
+                    [matTooltip]="obterDicaEdicao(item)"
+                    [matTooltipDisabled]="podeEditar(item)">
               <mat-icon>edit</mat-icon>
-              <span
-                [matTooltip]="item.status?.statusControle === false ? 'Lançamento fechado - não é possível editar' : ''"
-                [matTooltipDisabled]="!(item.status?.statusControle === false)">
-                Editar
-              </span>
+              <span>Editar</span>
             </button>
 
             <button mat-menu-item (click)="baixarRelatorio(item.id)">
@@ -180,28 +170,22 @@
               <span>Baixar PDF</span>
             </button>
 
-            <button mat-menu-item (click)="renovar(item)"
-                    [disabled]="item.status?.statusApartamePagamento !== 'PAGO' || item.status?.statusControle !== true">
+            <button mat-menu-item 
+                    (click)="renovar(item)"
+                    [disabled]="!podeRenovar(item)"
+                    [matTooltip]="obterDicaRenovacao(item)"
+                    [matTooltipDisabled]="podeRenovar(item)">
               <mat-icon>autorenew</mat-icon>
-              <span
-                [matTooltip]="item.status?.statusApartamePagamento !== 'PAGO'
-                  ? 'Apenas lançamentos PAGOS podem ser renovados'
-                  : item.status?.statusControle !== true
-                    ? 'O lançamento deve estar ABERTO para renovar'
-                    : ''"
-                [matTooltipDisabled]="!(item.status?.statusApartamePagamento !== 'PAGO' || item.status?.statusControle !== true)">
-                Renovar
-              </span>
+              <span>Renovar</span>
             </button>
 
-            <button mat-menu-item (click)="excluir(item.id)"
-                    [disabled]="item.status?.statusControle === false">
+            <button mat-menu-item 
+                    (click)="excluir(item.id)"
+                    [disabled]="!podeDeletar(item)"
+                    [matTooltip]="obterDicaDelecao(item)"
+                    [matTooltipDisabled]="podeDeletar(item)">
               <mat-icon>delete</mat-icon>
-              <span
-                [matTooltip]="item.status?.statusControle === false ? 'Lançamento fechado - não é possível excluir' : ''"
-                [matTooltipDisabled]="!(item.status?.statusControle === false)">
-                Excluir
-              </span>
+              <span>Excluir</span>
             </button>
           </mat-menu>
         </td>

@@ -45,7 +45,6 @@ import { ControleLancamentoFilterDTO } from '../../../core/model/dto/controleLan
     MatSnackBarModule,
     MatTooltipModule,
     MatMenuModule,
-    FilterBarComponent,
     ReactiveFormsModule
   ],
   templateUrl: './listar-controle-lancamento.component.html',
@@ -167,7 +166,7 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
     };
 
     try {
-      const result = await this.service.filter(filtro);
+      const result = await this.service.filtrar(filtro);
       this.dataSource.data = result.controleLancamentos;
       this.totalRegistros.set(result.total);
     } catch (error) {
@@ -228,7 +227,7 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
     ref.afterClosed().subscribe(async confirmado => {
       if (confirmado) {
         try {
-          await this.service.deleteControleLancamento(id);
+          await this.service.excluirControleLancamento(id);
           this.carregarDados();
         } catch (error) {
           console.error('Erro ao excluir controle de lançamento:', error);
@@ -239,7 +238,7 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
 
   async atualizarStatus(id: number) {
     try {
-      await this.service.updateStatus(id);
+      await this.service.atualizarStatus(id);
       this.carregarDados();
     } catch (error) {
       console.error('Erro ao atualizar status:', error);
@@ -248,7 +247,7 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
 
   async baixarRelatorio(id: number) {
     try {
-      const blob = await this.service.downloadRelatorio(id);
+      const blob = await this.service.baixarRelatorio(id);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -322,5 +321,64 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
     data.setHours(0, 0, 0, 0);
     
     return data <= hoje;
+  }
+
+  obterStatus(item: ControleLancamentoResponseDTO | null | undefined) {
+    return item?.status ?? { statusControle: null, statusApartamePagamento: null, statusApartamePagamentoLuz: null };
+  }
+
+  obterStatusControle(item: ControleLancamentoResponseDTO | null | undefined): boolean {
+    return this.obterStatus(item).statusControle ?? true;
+  }
+
+  obterStatusApartamePagamento(item: ControleLancamentoResponseDTO | null | undefined): string {
+    return this.obterStatus(item).statusApartamePagamento ?? '';
+  }
+
+  podeEditar(item: ControleLancamentoResponseDTO): boolean {
+    return this.obterStatusControle(item) !== false;
+  }
+
+  obterDicaEdicao(item: ControleLancamentoResponseDTO): string {
+    if (this.obterStatusControle(item) === false) {
+      return 'Lançamento fechado - não é possível editar';
+    }
+    return '';
+  }
+
+  podeRenovar(item: ControleLancamentoResponseDTO): boolean {
+    const status = this.obterStatus(item);
+    const podeRenovar = status.statusApartamePagamento === 'PAGO' && 
+                        status.statusControle === true;
+    return podeRenovar;
+  }
+
+  obterDicaRenovacao(item: ControleLancamentoResponseDTO): string {
+    const status = this.obterStatus(item);
+    if (status.statusApartamePagamento !== 'PAGO') {
+      return 'Apenas lançamentos PAGOS podem ser renovados';
+    }
+    if (status.statusControle !== true) {
+      return 'O lançamento deve estar ABERTO para renovar';
+    }
+    return '';
+  }
+
+  podeDeletar(item: ControleLancamentoResponseDTO): boolean {
+    return this.obterStatusControle(item) !== false;
+  }
+
+  obterDicaDelecao(item: ControleLancamentoResponseDTO): string {
+    if (this.obterStatusControle(item) === false) {
+      return 'Lançamento fechado - não é possível excluir';
+    }
+    return '';
+  }
+
+  obterClasseBadgePagamento(status: string | null | undefined): Record<string, boolean> {
+    return {
+      'badge-paid': status === 'PAGO',
+      'badge-debit': status !== 'PAGO'
+    };
   }
 }

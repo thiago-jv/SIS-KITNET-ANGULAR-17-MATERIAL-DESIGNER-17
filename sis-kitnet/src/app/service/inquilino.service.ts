@@ -17,7 +17,7 @@ export class InquilinoService {
 
   inquilinoCriado = signal<InquilinoResponseDTO | null>(null);
 
-  async createInquilino(inquilino: InquilinoPostDTO) {
+  async criarInquilino(inquilino: InquilinoPostDTO) {
     const response = await firstValueFrom(
       this.http.post<InquilinoResponseDTO>(this.inquilinoUrl, inquilino)
     );
@@ -25,7 +25,7 @@ export class InquilinoService {
     return response;
   }
 
-  async filter(filter: InquilinoFilterDTO): Promise<{ inquilinos: InquilinoResponseDTO[], total: number }> {
+  async filtrar(filter: InquilinoFilterDTO): Promise<{ inquilinos: InquilinoResponseDTO[], total: number }> {
     let params = new HttpParams()
       .set('page', filter.pagina)
       .set('size', filter.itensPorPagina);
@@ -42,36 +42,36 @@ export class InquilinoService {
     );
 
     return {
-      inquilinos: response.content,
-      total: response.totalElements
+      inquilinos: Array.isArray(response?.content) ? response.content : [],
+      total: response?.totalElements ?? 0
     };
   }
 
-  async getAllInquilinos(): Promise<InquilinoResponseDTO[]> {
+  async buscarTodosInquilinos(): Promise<InquilinoResponseDTO[]> {
     const response = await firstValueFrom(
       this.http.get<InquilinoResponseDTO[]>(`${this.inquilinoUrl}/todos`)
     );
     return response;
   }
 
-  async getAllInquilAtivos(): Promise<InquilinoResponseDTO[]> {
+  async buscarTodosInquilinosAtivos(): Promise<InquilinoResponseDTO[]> {
     const response = await firstValueFrom(
       this.http.get<InquilinoResponseDTO[]>(`${this.inquilinoUrl}/todos/ativos`)
     );
     return response;
   }
 
-  getById(id: number): Observable<InquilinoResponseDTO> {
+  buscarPorId(id: number): Observable<InquilinoResponseDTO> {
     return this.http.get<InquilinoResponseDTO>(`${this.inquilinoUrl}/${id}`);
   }
 
-  async updateInquilino(id: number, dados: InquilinoPutDTO): Promise<InquilinoResponseDTO> {
+  async atualizarInquilino(id: number, dados: InquilinoPutDTO): Promise<InquilinoResponseDTO> {
    return await firstValueFrom(
     this.http.put<InquilinoResponseDTO>(`${this.inquilinoUrl}/${id}`, dados)
    );
   }
 
-  async deleteInquilino(id: number): Promise<void> {
+  async excluirInquilino(id: number): Promise<void> {
     await firstValueFrom(
       this.http.delete(`${this.inquilinoUrl}/${id}`)
     );

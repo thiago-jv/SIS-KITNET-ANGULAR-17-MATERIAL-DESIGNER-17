@@ -17,7 +17,7 @@ export class PredioService {
 
   predioCriado = signal<PredioResponseDTO | null>(null);
 
-  async createPredio(predio: PredioPostDTO) {
+  async criarPredio(predio: PredioPostDTO) {
     const response = await firstValueFrom(
       this.http.post<PredioResponseDTO>(this.predioUrl, predio)
     );
@@ -25,7 +25,7 @@ export class PredioService {
     return response;
   }
 
-  async filter(filter: PredioFilterDTO): Promise<{ predios: PredioResponseDTO[], total: number }> {
+  async filtrar(filter: PredioFilterDTO): Promise<{ predios: PredioResponseDTO[], total: number }> {
     let params = new HttpParams()
       .set('page', filter.pagina)
       .set('size', filter.itensPorPagina);
@@ -40,32 +40,30 @@ export class PredioService {
       this.http.get(`${this.predioUrl}/filter`, { params })
     );
 
-    console.log('PredioService.filter raw response:', response);
-
     return {
-      predios: response.content,
-      total: response.totalElements
+      predios: Array.isArray(response?.content) ? response.content : [],
+      total: response?.totalElements ?? 0
     };
   }
 
-  async getAllPredios(): Promise<PredioResponseDTO[]> {
+  async buscarTodosPredios(): Promise<PredioResponseDTO[]> {
     const response = await firstValueFrom(
       this.http.get<PredioResponseDTO[]>(`${this.predioUrl}/todos`)
     );
     return response;
   }
 
-  getById(id: number): Observable<PredioResponseDTO> {
+  buscarPorId(id: number): Observable<PredioResponseDTO> {
     return this.http.get<PredioResponseDTO>(`${this.predioUrl}/${id}`);
   }
 
-  async updatePredio(id: number, dados: PredioPostDTO): Promise<PredioResponseDTO> {
+  async atualizarPredio(id: number, dados: PredioPostDTO): Promise<PredioResponseDTO> {
    return await firstValueFrom(
     this.http.put<PredioResponseDTO>(`${this.predioUrl}/${id}`, dados)
    );
   }
 
-  async deletePredio(id: number): Promise<void> {
+  async excluirPredio(id: number): Promise<void> {
     await firstValueFrom(
       this.http.delete(`${this.predioUrl}/${id}`)
     );

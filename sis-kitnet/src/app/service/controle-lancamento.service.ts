@@ -18,7 +18,7 @@ export class ControleLancamentoService {
 
   controleLancamentoCriado = signal<ControleLancamentoResponseDTO | null>(null);
 
-  async createControleLancamento(controleLancamento: ControleLancamentoPostDTO) {
+  async criarControleLancamento(controleLancamento: ControleLancamentoPostDTO) {
     const response = await firstValueFrom(
       this.http.post<ControleLancamentoResponseDTO>(this.controleLancamentoUrl, controleLancamento)
     );
@@ -26,7 +26,7 @@ export class ControleLancamentoService {
     return response;
   }
 
-  async filter(filter: ControleLancamentoFilterDTO): Promise<{ controleLancamentos: ControleLancamentoResponseDTO[], total: number }> {
+  async filtrar(filter: ControleLancamentoFilterDTO): Promise<{ controleLancamentos: ControleLancamentoResponseDTO[], total: number }> {
     let params = new HttpParams()
       .set('page', filter.pagina)
       .set('size', filter.itensPorPagina);
@@ -45,34 +45,34 @@ export class ControleLancamentoService {
     );
 
     return {
-      controleLancamentos: response.content,
-      total: response.totalElements
+      controleLancamentos: Array.isArray(response?.content) ? response.content : [],
+      total: response?.totalElements ?? 0
     };
   }
 
-  getById(id: number): Observable<ControleLancamentoResponseDTO> {
+  buscarPorId(id: number): Observable<ControleLancamentoResponseDTO> {
     return this.http.get<ControleLancamentoResponseDTO>(`${this.controleLancamentoUrl}/${id}`);
   }
 
-  async updateControleLancamento(id: number, dados: ControleLancamentoPutDTO): Promise<ControleLancamentoResponseDTO> {
+  async atualizarControleLancamento(id: number, dados: ControleLancamentoPutDTO): Promise<ControleLancamentoResponseDTO> {
    return await firstValueFrom(
     this.http.put<ControleLancamentoResponseDTO>(`${this.controleLancamentoUrl}/${id}`, dados)
    );
   }
 
-  async updateStatus(id: number): Promise<void> {
+  async atualizarStatus(id: number): Promise<void> {
     await firstValueFrom(
       this.http.put(`${this.controleLancamentoUrl}/${id}/status`, {})
     );
   }
 
-  async deleteControleLancamento(id: number): Promise<void> {
+  async excluirControleLancamento(id: number): Promise<void> {
     await firstValueFrom(
       this.http.delete(`${this.controleLancamentoUrl}/${id}`)
     );
   }
 
-  async downloadRelatorio(idLancamento: number): Promise<Blob> {
+  async baixarRelatorio(idLancamento: number): Promise<Blob> {
     const params = new HttpParams().set('idLancamento', idLancamento);
     return await firstValueFrom(
       this.http.get(`${this.controleLancamentoUrl}/relatorio/por-controle-lancamento`, {

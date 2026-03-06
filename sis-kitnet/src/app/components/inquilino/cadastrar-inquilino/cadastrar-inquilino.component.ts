@@ -85,7 +85,7 @@ export class CadastrarInquilinoComponent implements OnInit {
     try {
       if (this.id) {
         const putData: InquilinoPutDTO = { id: this.id, ...dados };
-        await this.inquilinoService.updateInquilino(this.id, putData);
+        await this.inquilinoService.atualizarInquilino(this.id, putData);
 
         this.snack.open(Constants.ATUALIZADO_COM_SUCESSO, 'OK', {
           duration: 4000,
@@ -93,7 +93,7 @@ export class CadastrarInquilinoComponent implements OnInit {
           verticalPosition: 'top'
         });
       } else {
-        await this.inquilinoService.createInquilino(dados);
+        await this.inquilinoService.criarInquilino(dados);
 
         this.snack.open(Constants.SALVO_COM_SUCESSO, 'OK', {
           duration: 4000,
@@ -118,7 +118,7 @@ export class CadastrarInquilinoComponent implements OnInit {
   }
 
   carregarDados(id: number): void {
-    this.inquilinoService.getById(id)
+    this.inquilinoService.buscarPorId(id)
       .pipe(take(1))
       .subscribe({
         next: (dados: InquilinoResponseDTO) => {

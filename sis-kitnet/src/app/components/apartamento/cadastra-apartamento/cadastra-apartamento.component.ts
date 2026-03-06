@@ -80,7 +80,7 @@ export class CadastraApartamentoComponent implements OnInit {
  }
 
   carregarDadosApartamento(id: number): void {
-  this.apartamentoService.getById(id)
+  this.apartamentoService.buscarPorId(id)
     .pipe(take(1))
     .subscribe({
       next: (dados) => {
@@ -113,7 +113,7 @@ export class CadastraApartamentoComponent implements OnInit {
   }
 
   carregarDadosPredioPorId(id: number): void {
-  this.predioService.getById(id)
+  this.predioService.buscarPorId(id)
     .pipe(take(1))
     .subscribe({
       next: (predio) => {
@@ -147,7 +147,7 @@ export class CadastraApartamentoComponent implements OnInit {
 
   async carregarTodosPredios(): Promise<void> {
   try {
-    const predios = await this.predioService.getAllPredios();
+    const predios = await this.predioService.buscarTodosPredios();
 
     this.predios = predios ?? [];
 
@@ -184,7 +184,7 @@ export class CadastraApartamentoComponent implements OnInit {
 
     try {
       if (this.id) {
-        await this.apartamentoService.updateApartamento(this.id, dados);
+        await this.apartamentoService.atualizarApartamento(this.id, dados);
         this.snack.open(Constants.ATUALIZADO_COM_SUCESSO, 'OK', { 
           duration: 4000,
           verticalPosition: 'top',
@@ -192,7 +192,7 @@ export class CadastraApartamentoComponent implements OnInit {
         });
         this.router.navigate(['/listar-apartamento']);
       } else {
-        await this.apartamentoService.createApartamento(dados);
+        await this.apartamentoService.criarApartamento(dados);
         this.snack.open(Constants.SALVO_COM_SUCESSO, 'OK', { 
           duration: 4000,
           verticalPosition: 'top',

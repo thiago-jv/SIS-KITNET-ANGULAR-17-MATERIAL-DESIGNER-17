@@ -98,7 +98,7 @@ export class ListarValorComponent  implements AfterViewInit {
     };
 
     try {
-      const result = await this.service.filter(filtro);
+      const result = await this.service.filtrar(filtro);
       this.dataSource.data = result.valores;
       this.totalRegistros.set(result.total);
     } catch (error) {
@@ -128,7 +128,7 @@ export class ListarValorComponent  implements AfterViewInit {
     ref.afterClosed().subscribe(async confirmado => {
       if (confirmado) {
         try {
-          await this.service.deleteValor(id);
+          await this.service.excluirValor(id);
           this.carregarDados();
         } catch (error) {
           console.error('Erro ao excluir valor:', error);

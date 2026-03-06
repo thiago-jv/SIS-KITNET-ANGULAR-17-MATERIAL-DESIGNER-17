@@ -9,34 +9,34 @@
     <div class="info-grid">
       <div class="info-item">
         <label>Inquilino:</label>
-        <span class="value">{{ data.lancamento?.inquilino?.nome || 'N/A' }}</span>
+        <span class="value">{{ data.lancamento.inquilino.nome || 'N/A' }}</span>
       </div>
       <div class="info-item">
         <label>Apartamento:</label>
-        <span class="value">{{ data.lancamento?.apartamento?.numeroApartamento || 'N/A' }}</span>
+        <span class="value">{{ data.lancamento.apartamento.numeroApartamento || 'N/A' }}</span>
       </div>
     </div>
 
     <div class="info-grid mt-3">
       <div class="info-item">
         <label>Data de Entrada:</label>
-        <span class="value">{{ data.lancamento?.dataEntrada | date: 'dd/MM/yyyy' }}</span>
+        <span class="value">{{ data.lancamento.dataEntrada | date: 'dd/MM/yyyy' }}</span>
       </div>
       <div class="info-item">
         <label>Data de Pagamento:</label>
-        <span class="value">{{ data.lancamento?.dataPagamento | date: 'dd/MM/yyyy' }}</span>
+        <span class="value">{{ data.lancamento.dataPagamento | date: 'dd/MM/yyyy' }}</span>
       </div>
     </div>
 
     <div class="info-grid mt-3">
       <div class="info-item">
         <label>Valor do Aluguel:</label>
-        <span class="value highlight">R$ {{ data.lancamento?.valores?.valorApartamento | number: '1.2-2' }}</span>
+        <span class="value highlight">R$ {{ data.lancamento.valores?.valorApartamento | number: '1.2-2' }}</span>
       </div>
       <div class="info-item">
         <label>Status:</label>
-        <span class="value" [style.color]="data.lancamento?.status?.statusApartamePagamento === 'PAGO' ? '#28a745' : '#dc3545'">
-          {{ data.lancamento?.status?.statusApartamePagamento }}
+        <span class="value" [style.color]="data.lancamento.status?.statusApartamePagamento === 'PAGO' ? '#28a745' : '#dc3545'">
+          {{ data.lancamento.status?.statusApartamePagamento }}
         </span>
       </div>
     </div>
@@ -51,13 +51,13 @@
     
     <div class="alert alert-info p-3 rounded mb-3">
       <strong>ℹ️ Nova Entrada:</strong> 
-      <span class="ml-2">{{ data.lancamento?.dataPagamento | date: 'dd/MM/yyyy' }}</span>
+      <span class="ml-2">{{ data.lancamento.dataPagamento | date: 'dd/MM/yyyy' }}</span>
     </div>
 
     <div class="alert alert-info p-3 rounded">
       <strong>ℹ️ Novo Vencimento:</strong>
-      <span class="ml-2" *ngIf="data.lancamento?.dataPagamento">
-        {{ getProximoVencimento(data.lancamento?.dataPagamento) | date: 'dd/MM/yyyy' }}
+      <span class="ml-2" *ngIf="data.lancamento.dataPagamento">
+        {{ getProximoVencimento(data.lancamento.dataPagamento) | date: 'dd/MM/yyyy' }}
       </span>
     </div>
 
