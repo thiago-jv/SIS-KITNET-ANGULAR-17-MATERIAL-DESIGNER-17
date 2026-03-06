@@ -1,18 +1,13 @@
 <form [formGroup]="form">
 
-  <mat-toolbar class="mb-4 btn-blue">
-    <div class="container-fluid px-0 w-100">
-      <div class="row w-100">
-
-        <div class="col-12 col-md-6 d-flex flex-wrap gap-2">
-          <button mat-raised-button color="primary" (click)="salvar()">Salvar</button>
-          <button mat-raised-button color="warn" type="button" (click)="cancelar()">Cancelar</button>
-        </div>
-
-        <div class="col-12 col-md-6 d-flex justify-content-md-end mt-2 mt-md-0">
-          <button mat-raised-button color="accent" routerLink="/listar-apartamento" type="button">Listar</button>
-        </div>
-
+  <mat-toolbar class="mb-4 btn-blue toolbar-responsivo">
+    <div class="toolbar-content">
+      <div class="button-group-left">
+        <button mat-raised-button color="primary" (click)="salvar()">Salvar</button>
+        <button mat-raised-button color="warn" type="button" (click)="cancelar()">Cancelar</button>
+      </div>
+      <div class="button-group-right">
+        <button mat-raised-button color="accent" routerLink="/listar-apartamento" type="button">Listar</button>
       </div>
     </div>
   </mat-toolbar>

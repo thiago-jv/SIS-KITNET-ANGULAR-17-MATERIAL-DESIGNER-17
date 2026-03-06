@@ -45,7 +45,8 @@
 
   <!-- Tabela de Inquilinos -->
   <div class="card shadow-sm p-4">
-    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1 w-100 modern-table">
+    <div class="table-scroll">
+      <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1 w-100 modern-table">
       <ng-container matColumnDef="id">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>Cód.</th>
         <td mat-cell *matCellDef="let item">{{ item.id }}</td>
@@ -103,7 +104,8 @@
 
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
+      </table>
+    </div>
 
     <div class="paginator-container">
     <mat-paginator

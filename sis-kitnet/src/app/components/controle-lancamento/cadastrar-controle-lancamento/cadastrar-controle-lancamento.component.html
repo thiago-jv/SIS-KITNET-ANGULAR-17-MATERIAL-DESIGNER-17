@@ -1,18 +1,13 @@
 <form [formGroup]="form">
 
-  <mat-toolbar class="mb-4 btn-blue">
-    <div class="container-fluid px-0 w-100">
-      <div class="row w-100">
-
-        <div class="col-12 col-md-6 d-flex flex-wrap gap-2">
-          <button mat-raised-button color="primary" (click)="salvar()">Salvar</button>
-          <button mat-raised-button color="warn" type="button" (click)="cancelar()">Cancelar</button>
-        </div>
-
-        <div class="col-12 col-md-6 d-flex justify-content-md-end mt-2 mt-md-0">
-          <button mat-raised-button color="accent" routerLink="/listar-controle-lancamento" type="button">Listar</button>
-        </div>
-
+  <mat-toolbar class="mb-4 btn-blue toolbar-responsivo">
+    <div class="toolbar-content">
+      <div class="button-group-left">
+        <button mat-raised-button color="primary" (click)="salvar()">Salvar</button>
+        <button mat-raised-button color="warn" type="button" (click)="cancelar()">Cancelar</button>
+      </div>
+      <div class="button-group-right">
+        <button mat-raised-button color="accent" routerLink="/listar-controle-lancamento" type="button">Listar</button>
       </div>
     </div>
   </mat-toolbar>
@@ -121,7 +116,7 @@
     <mat-card-content>
       <div class="row g-3">
 
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-lg-6">
           <label class="field-label mb-1">Conta de Luz Entregue</label>
           <mat-button-toggle-group formControlName="entragaContaLuz" class="w-100 status-luz-group">
             <mat-button-toggle *ngFor="let opcao of entragaContaLuz" [value]="opcao.value" class="flex-fill">
@@ -135,7 +130,7 @@
           </mat-button-toggle-group>
         </div>
 
-        <div class="col-12 col-md-6">
+        <div class="col-12 col-lg-6">
           <label class="field-label mb-1">Status da Conta de Luz</label>
           <mat-button-toggle-group formControlName="statusApartamePagamentoLuz" class="w-100 status-luz-group">
             <mat-button-toggle *ngFor="let status of statusApartamePagamentoLuz" [value]="status.value" class="flex-fill">
@@ -149,35 +144,35 @@
           </mat-button-toggle-group>
         </div>
 
-        <div class="col-12 col-md-2">
+        <div class="col-6 col-lg-2">
           <label class="field-label mb-1">R$ Apartamento</label>
           <mat-form-field appearance="outline" class="w-100">
             <input matInput formControlName="valorApartamento" appCurrencyBr readonly />
           </mat-form-field>
         </div>
 
-        <div class="col-12 col-md-2">
+        <div class="col-6 col-lg-2">
           <label class="field-label mb-1">Dias</label>
           <mat-form-field appearance="outline" class="w-100">
             <input matInput type="number" formControlName="dia" readonly />
           </mat-form-field>
         </div>
 
-        <div class="col-12 col-md-2">
+        <div class="col-6 col-lg-2">
           <label class="field-label mb-1">R$ Diária</label>
           <mat-form-field appearance="outline" class="w-100">
             <input matInput formControlName="valorDiaria" appCurrencyBr readonly />
           </mat-form-field>
         </div>
 
-        <div class="col-12 col-md-2">
+        <div class="col-6 col-lg-2">
           <label class="field-label mb-1">R$ Total</label>
           <mat-form-field appearance="outline" class="w-100">
             <input matInput formControlName="valorTotalDiaria" appCurrencyBr readonly />
           </mat-form-field>
         </div>
 
-        <div class="col-12 col-md-2">
+        <div class="col-6 col-lg-2">
           <label class="field-label mb-1">R$ Valor Pago</label>
           <mat-form-field appearance="outline" class="w-100">
             <input matInput formControlName="valorPagoApartamento" appCurrencyBr
@@ -191,7 +186,7 @@
           </mat-form-field>
         </div>
 
-        <div class="col-12 col-md-2">
+        <div class="col-6 col-lg-2">
           <label class="field-label mb-1">R$ Débito</label>
           <mat-form-field appearance="outline" class="w-100">
             <input matInput formControlName="valorDebitoApartamento" appCurrencyBr readonly />

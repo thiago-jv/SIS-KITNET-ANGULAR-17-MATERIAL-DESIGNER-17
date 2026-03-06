@@ -179,3 +179,123 @@ card {
 .select-panel-fix {
   z-index: 10000 !important;
 }
+/* ================================
+   ESTILOS COMUNS - TOOLBAR RESPONSIVA
+   ================================ */
+
+.toolbar-responsivo {
+  padding: 0 !important;
+}
+
+.toolbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  flex-wrap: wrap;
+  padding: 12px 24px;
+}
+
+.button-group-left,
+.button-group-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.button-group-right {
+  margin-left: auto;
+}
+
+@media (max-width: 576px) {
+  .toolbar-content {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 16px;
+  }
+
+  .button-group-left,
+  .button-group-right {
+    width: 100%;
+  }
+
+  .button-group-right {
+    margin-left: 0;
+  }
+
+  .button-group-left button,
+  .button-group-right button {
+    flex: 1;
+    min-height: 40px;
+  }
+}
+
+/* ================================
+   ESTILOS COMUNS - TABLE SCROLL
+   ================================ */
+
+.table-responsive-mobile {
+  width: 100%;
+}
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modern-table {
+  width: 100%;
+  min-width: 1200px;
+}
+
+.modern-table thead th {
+  background: #F3F4F6;
+  color: #374151;
+  font-weight: 600;
+  border-bottom: none;
+}
+
+.modern-table tbody tr {
+  transition: background-color .12s ease;
+}
+
+.modern-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.modern-table td,
+.modern-table th {
+  padding: 14px 12px;
+  vertical-align: middle;
+}
+
+/* ================================
+   ESTILOS COMUNS - FILTERS CARD
+   ================================ */
+
+.filters-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* ================================
+   RESPONSIVE MEDIA QUERIES
+   ================================ */
+
+@media (max-width: 768px) {
+  .filters-card {
+    padding: 14px;
+  }
+
+  .modern-table td,
+  .modern-table th {
+    padding: 10px 8px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}
