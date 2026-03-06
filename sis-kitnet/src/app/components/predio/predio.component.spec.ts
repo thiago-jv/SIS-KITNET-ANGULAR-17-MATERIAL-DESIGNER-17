@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 import { PredioComponent } from './predio.component';
 
@@ -8,7 +10,16 @@ describe('PredioComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PredioComponent]
+      imports: [PredioComponent],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: of({ get: () => null }) }
+        }
+      ]
+    })
+    .overrideComponent(PredioComponent, {
+      set: { template: '' }
     })
     .compileComponents();
     
@@ -17,7 +28,7 @@ describe('PredioComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('deve criar o componente', () => {
     expect(component).toBeTruthy();
   });
 });

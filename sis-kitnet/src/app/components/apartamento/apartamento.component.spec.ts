@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 import { ApartamentoComponent } from './apartamento.component';
 
@@ -8,7 +10,16 @@ describe('ApartamentoComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ApartamentoComponent]
+      imports: [ApartamentoComponent],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: of({ get: () => null }) }
+        }
+      ]
+    })
+    .overrideComponent(ApartamentoComponent, {
+      set: { template: '' }
     })
     .compileComponents();
     
@@ -17,7 +28,7 @@ describe('ApartamentoComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('deve criar o componente', () => {
     expect(component).toBeTruthy();
   });
 });

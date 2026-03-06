@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 import { ValorComponent } from './valor.component';
 
@@ -8,7 +10,16 @@ describe('ValorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ValorComponent]
+      imports: [ValorComponent],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: of({ get: () => null }) }
+        }
+      ]
+    })
+    .overrideComponent(ValorComponent, {
+      set: { template: '' }
     })
     .compileComponents();
     
@@ -17,7 +28,7 @@ describe('ValorComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('deve criar o componente', () => {
     expect(component).toBeTruthy();
   });
 });

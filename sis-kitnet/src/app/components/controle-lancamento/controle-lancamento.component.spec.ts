@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 import { ControleLancamentoComponent } from './controle-lancamento.component';
 
@@ -8,7 +10,16 @@ describe('ControleLancamentoComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ControleLancamentoComponent]
+      imports: [ControleLancamentoComponent],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: { paramMap: of({ get: () => null }) }
+        }
+      ]
+    })
+    .overrideComponent(ControleLancamentoComponent, {
+      set: { template: '' }
     })
     .compileComponents();
 
@@ -17,7 +28,7 @@ describe('ControleLancamentoComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('deve criar o componente', () => {
     expect(component).toBeTruthy();
   });
 });

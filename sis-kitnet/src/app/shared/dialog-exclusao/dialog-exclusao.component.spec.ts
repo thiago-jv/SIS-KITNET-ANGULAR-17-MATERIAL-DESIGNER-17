@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { DialogExclusaoComponent } from './dialog-exclusao.component';
 
@@ -8,7 +9,11 @@ describe('DialogExclusaoComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DialogExclusaoComponent]
+      imports: [DialogExclusaoComponent],
+      providers: [
+        { provide: MatDialogRef, useValue: { close: jasmine.createSpy('close') } },
+        { provide: MAT_DIALOG_DATA, useValue: { dado: 'registro 1' } }
+      ]
     })
     .compileComponents();
     
@@ -17,7 +22,7 @@ describe('DialogExclusaoComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('deve criar o componente', () => {
     expect(component).toBeTruthy();
   });
 });
