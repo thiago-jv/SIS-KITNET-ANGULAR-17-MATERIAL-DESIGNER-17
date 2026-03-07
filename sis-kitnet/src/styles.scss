@@ -288,10 +288,52 @@ card {
    ================================ */
 
 .filters-card {
-  background: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 20px rgba(25, 118, 210, 0.08) !important;
+  }
+}
+
+.filters-header {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.filters-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  letter-spacing: 0.5px;
+}
+
+.filters-content {
+  padding: 24px;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+
+  mat-form-field {
+    width: 100%;
+  }
 }
 
 /* ================================
@@ -299,6 +341,23 @@ card {
    ================================ */
 
 @media (max-width: 768px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .filters-content {
+    padding: 16px;
+  }
+
+  .filters-header {
+    padding: 12px 16px;
+  }
+
+  .filters-title {
+    font-size: 15px;
+  }
+
   .filters-card {
     padding: 14px;
   }
@@ -308,5 +367,19 @@ card {
     padding: 10px 8px;
     font-size: 12px;
     white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .filters-card {
+    margin-bottom: 1.5rem;
+  }
+
+  .filters-content {
+    padding: 12px;
+  }
+
+  .filters-grid {
+    gap: 12px;
   }
 }

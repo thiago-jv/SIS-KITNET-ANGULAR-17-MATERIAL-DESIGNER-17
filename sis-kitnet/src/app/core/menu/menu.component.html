@@ -1,34 +1,45 @@
-<button mat-button class="menu-item w-100 d-flex align-items-center" routerLink="/indicadores">
-  <mat-icon class="me-2">dashboard</mat-icon>
-  Indicadores
-</button>
+<div class="menu-container">
+  <div class="menu-section">
+    <h3 class="menu-section-title">Principal</h3>
+    <button mat-button class="menu-item" routerLink="/indicadores" routerLinkActive="active">
+      <mat-icon class="menu-icon">dashboard</mat-icon>
+      <span class="menu-label">Indicadores</span>
+    </button>
 
-<button mat-button class="menu-item w-100 d-flex align-items-center" routerLink="/listar-controle-lancamento">
-  <mat-icon class="me-2">home_work</mat-icon>
-  Locação
-</button>
+    <button mat-button class="menu-item" routerLink="/listar-controle-lancamento" routerLinkActive="active">
+      <mat-icon class="menu-icon">home_work</mat-icon>
+      <span class="menu-label">Locação</span>
+    </button>
+  </div>
 
-<button mat-button class="menu-item w-100 d-flex align-items-center" routerLink="/listar-apartamento">
-  <mat-icon class="me-2">apartment</mat-icon>
-  Apartamento
-</button>
+  <div class="menu-section">
+    <h3 class="menu-section-title">Cadastros</h3>
+    <button mat-button class="menu-item" routerLink="/listar-apartamento" routerLinkActive="active">
+      <mat-icon class="menu-icon">apartment</mat-icon>
+      <span class="menu-label">Apartamento</span>
+    </button>
 
-<button mat-button class="menu-item w-100 d-flex align-items-center" routerLink="/listar-predio">
-  <mat-icon class="me-2">location_city</mat-icon>
-  Prédio
-</button>
+    <button mat-button class="menu-item" routerLink="/listar-predio" routerLinkActive="active">
+      <mat-icon class="menu-icon">location_city</mat-icon>
+      <span class="menu-label">Prédio</span>
+    </button>
 
-<button mat-button class="menu-item w-100 d-flex align-items-center" routerLink="/inquilino">
-  <mat-icon class="me-2">engineering</mat-icon>
-  Inquilino
-</button>
+    <button mat-button class="menu-item" routerLink="/inquilino" routerLinkActive="active">
+      <mat-icon class="menu-icon">person_add</mat-icon>
+      <span class="menu-label">Inquilino</span>
+    </button>
 
-<button mat-button class="menu-item w-100 d-flex align-items-center" routerLink="/listar-valor">
-  <mat-icon class="me-2">attach_money</mat-icon>
-  Valor
-</button>
+    <button mat-button class="menu-item" routerLink="/listar-valor" routerLinkActive="active">
+      <mat-icon class="menu-icon">attach_money</mat-icon>
+      <span class="menu-label">Valor</span>
+    </button>
+  </div>
 
-<button mat-button class="menu-item w-100 d-flex align-items-center" routerLink="/usuario">
-  <mat-icon class="me-2">person</mat-icon>
-  Usuário
-</button>
+  <div class="menu-section">
+    <h3 class="menu-section-title">Sistema</h3>
+    <button mat-button class="menu-item" routerLink="/usuario" routerLinkActive="active">
+      <mat-icon class="menu-icon">admin_panel_settings</mat-icon>
+      <span class="menu-label">Usuário</span>
+    </button>
+  </div>
+</div>

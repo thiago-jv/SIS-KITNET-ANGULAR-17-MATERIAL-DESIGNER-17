@@ -1,11 +1,19 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ControleLancamentoResponseDTO } from '../../../../core/model/dto/controleLancamento/controleLancamentoResponseDTO';
+import { InquilinoResponseDTO } from '../../../../core/model/dto/inquilino/inquilinoResponseDTO';
+import { ApartamentoResponseDTO } from '../../../../core/model/dto/apartamento/apartamentoResponseDTO';
+import { InquilinoService } from '../../../../service/inquilino.service';
+import { ApartamentoService } from '../../../../service/apartamento.service';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-renovar-lancamento-dialog',
@@ -16,19 +24,27 @@ import { ControleLancamentoResponseDTO } from '../../../../core/model/dto/contro
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    MatButtonModule
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './renovar-lancamento-dialog.component.html',
   styleUrl: './renovar-lancamento-dialog.component.scss'
 })
-export class RenovarLancamentoDialogComponent {
+export class RenovarLancamentoDialogComponent implements OnInit {
+  
+  private inquilinoService = inject(InquilinoService);
+  private apartamentoService = inject(ApartamentoService);
+  
+  inquilinoCompleto: InquilinoResponseDTO | null = null;
+  apartamentoCompleto: ApartamentoResponseDTO | null = null;
+  carregando = true;
   
   form = new FormGroup({
-    quantidadeMeses: new FormControl<number>(1, [
-      Validators.required,
-      Validators.min(1),
-      Validators.max(1)
-    ])
+    novaDataEntrada: new FormControl<Date | null>(null, Validators.required),
+    novoVencimento: new FormControl<Date | null>(null, Validators.required),
+    novoValor: new FormControl<number | null>(null, [Validators.required, Validators.min(0)])
   });
 
   constructor(
@@ -39,12 +55,71 @@ export class RenovarLancamentoDialogComponent {
     }
   ) {}
 
+  ngOnInit(): void {
+    // Buscar dados completos do inquilino e apartamento
+    this.carregarDados();
+  }
+
+  private carregarDados(): void {
+    const idInquilino = this.data.lancamento.inquilino.id;
+    const idApartamento = this.data.lancamento.apartamento.id;
+
+    // Buscar inquilino completo
+    this.inquilinoService.buscarPorId(idInquilino)
+      .pipe(take(1))
+      .subscribe({
+        next: (inquilino) => {
+          this.inquilinoCompleto = inquilino;
+          this.verificarCarregamentoCompleto();
+        },
+        error: () => {
+          this.verificarCarregamentoCompleto();
+        }
+      });
+
+    // Buscar apartamento completo
+    this.apartamentoService.buscarPorId(idApartamento)
+      .pipe(take(1))
+      .subscribe({
+        next: (apartamento) => {
+          this.apartamentoCompleto = apartamento;
+          this.verificarCarregamentoCompleto();
+        },
+        error: () => {
+          this.verificarCarregamentoCompleto();
+        }
+      });
+
+    // Calcular as datas automaticamente
+    const dataAtual = this.data.lancamento.dataPagamento ? new Date(this.data.lancamento.dataPagamento) : new Date();
+    const novaEntrada = new Date(dataAtual);
+    const novoVencimento = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, dataAtual.getDate());
+    
+    // Preencher o formulário com os valores calculados
+    this.form.patchValue({
+      novaDataEntrada: novaEntrada,
+      novoVencimento: novoVencimento,
+      novoValor: this.data.lancamento.valores?.valorApartamento || 0
+    });
+  }
+
+  private verificarCarregamentoCompleto(): void {
+    if (this.inquilinoCompleto !== null && this.apartamentoCompleto !== null) {
+      this.carregando = false;
+    }
+  }
+
   onCancel(): void {
     this.dialogRef.close();
   }
 
   onConfirm(): void {
-    this.dialogRef.close(1); // Sempre retorna 1 (apenas 1 mês)
+    if (this.form.valid) {
+      this.dialogRef.close({
+        confirmado: true,
+        dados: this.form.value
+      });
+    }
   }
 
   getProximoVencimento(dataPagamento: string | undefined): Date | null {

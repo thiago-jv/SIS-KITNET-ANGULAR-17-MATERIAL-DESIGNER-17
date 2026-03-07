@@ -2,77 +2,112 @@
 
 <mat-dialog-content class="dialog-content">
   
-  <!-- Informações do lançamento atual -->
-  <div class="info-section mb-4">
-    <h3 class="section-title mb-3">Informações do Lançamento Atual</h3>
-    
-    <div class="info-grid">
-      <div class="info-item">
-        <label>Inquilino:</label>
-        <span class="value">{{ data.lancamento.inquilino.nome || 'N/A' }}</span>
-      </div>
-      <div class="info-item">
-        <label>Apartamento:</label>
-        <span class="value">{{ data.lancamento.apartamento.numeroApartamento || 'N/A' }}</span>
-      </div>
-    </div>
-
-    <div class="info-grid mt-3">
-      <div class="info-item">
-        <label>Data de Entrada:</label>
-        <span class="value">{{ data.lancamento.dataEntrada | date: 'dd/MM/yyyy' }}</span>
-      </div>
-      <div class="info-item">
-        <label>Data de Pagamento:</label>
-        <span class="value">{{ data.lancamento.dataPagamento | date: 'dd/MM/yyyy' }}</span>
-      </div>
-    </div>
-
-    <div class="info-grid mt-3">
-      <div class="info-item">
-        <label>Valor do Aluguel:</label>
-        <span class="value highlight">R$ {{ data.lancamento.valores?.valorApartamento | number: '1.2-2' }}</span>
-      </div>
-      <div class="info-item">
-        <label>Status:</label>
-        <span class="value" [style.color]="data.lancamento.status?.statusApartamePagamento === 'PAGO' ? '#28a745' : '#dc3545'">
-          {{ data.lancamento.status?.statusApartamePagamento }}
-        </span>
-      </div>
-    </div>
+  <!-- Loading -->
+  <div *ngIf="carregando" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p class="mt-3">Carregando informações...</p>
   </div>
 
-  <!-- Separador -->
-  <hr class="my-4">
+  <!-- Conteúdo -->
+  <div *ngIf="!carregando">
+    <!-- Informações do lançamento atual -->
+    <div class="info-section mb-4">
+      <h3 class="section-title mb-3">Informações do Lançamento Atual</h3>
+      
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Inquilino:</label>
+          <span class="value">{{ inquilinoCompleto?.nome || 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+          <label>CPF:</label>
+          <span class="value">{{ inquilinoCompleto?.cpf || 'N/A' }}</span>
+        </div>
+      </div>
 
-  <!-- Resumo da renovação -->
-  <div class="info-section">
-    <h3 class="section-title mb-3">Próximo Lançamento</h3>
-    
-    <div class="alert alert-info p-3 rounded mb-3">
-      <strong>ℹ️ Nova Entrada:</strong> 
-      <span class="ml-2">{{ data.lancamento.dataPagamento | date: 'dd/MM/yyyy' }}</span>
+      <div class="info-grid mt-3">
+        <div class="info-item">
+          <label>Apartamento:</label>
+          <span class="value">{{ apartamentoCompleto?.numeroApartamento || 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Descrição:</label>
+          <span class="value">{{ apartamentoCompleto?.descricao || 'N/A' }}</span>
+        </div>
+      </div>
+
+      <div class="info-grid mt-3">
+        <div class="info-item">
+          <label>Data de Entrada:</label>
+          <span class="value">{{ data.lancamento.dataEntrada | date: 'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Data de Pagamento:</label>
+          <span class="value">{{ data.lancamento.dataPagamento | date: 'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+
+      <div class="info-grid mt-3">
+        <div class="info-item">
+          <label>Valor do Aluguel:</label>
+          <span class="value highlight">R$ {{ data.lancamento.valores?.valorApartamento | number: '1.2-2' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Status:</label>
+          <span class="value" [style.color]="data.lancamento.status?.statusApartamePagamento === 'PAGO' ? '#28a745' : '#dc3545'">
+            {{ data.lancamento.status?.statusApartamePagamento }}
+          </span>
+        </div>
+      </div>
     </div>
 
-    <div class="alert alert-info p-3 rounded">
-      <strong>ℹ️ Novo Vencimento:</strong>
-      <span class="ml-2" *ngIf="data.lancamento.dataPagamento">
-        {{ getProximoVencimento(data.lancamento.dataPagamento) | date: 'dd/MM/yyyy' }}
-      </span>
-    </div>
+    <!-- Separador -->
+    <hr class="my-4">
 
-    <div class="info-box p-3 bg-light rounded mt-3">
-      <small class="text-muted">
-        ✓ Um novo lançamento será criado com as mesmas informações<br>
-        ✓ Mantendo o mesmo valor e período de cobrança<br>
-        ✓ A data será adiantada automaticamente em 1 mês
-      </small>
-    </div>
-  </div>
+    <!-- Informações do Próximo Lançamento -->
+    <form [formGroup]="form">
+      <div class="info-section">
+        <h3 class="section-title mb-3">Próximo Lançamento</h3>
+        
+        <div class="form-grid">
+          <!-- Nova Data de Entrada -->
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Nova Data de Entrada</mat-label>
+            <input matInput [matDatepicker]="pickerEntrada" formControlName="novaDataEntrada" readonly>
+            <mat-datepicker-toggle matSuffix [for]="pickerEntrada" disabled></mat-datepicker-toggle>
+            <mat-datepicker #pickerEntrada disabled></mat-datepicker>
+          </mat-form-field>
 
-  <!-- Confirmação -->
-  <div class="alert alert-warning p-3 rounded mt-4">
-    <strong>Deseja prosseguir com a renovação?</strong>
+          <!-- Novo Vencimento -->
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Novo Vencimento</mat-label>
+            <input matInput [matDatepicker]="pickerVencimento" formControlName="novoVencimento" readonly>
+            <mat-datepicker-toggle matSuffix [for]="pickerVencimento" disabled></mat-datepicker-toggle>
+            <mat-datepicker #pickerVencimento disabled></mat-datepicker>
+          </mat-form-field>
+
+          <!-- Novo Valor -->
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Novo Valor do Aluguel</mat-label>
+            <span matPrefix>R$&nbsp;</span>
+            <input matInput type="number" formControlName="novoValor" readonly>
+          </mat-form-field>
+        </div>
+
+        <div class="info-box p-3 bg-light rounded mt-3">
+          <small class="text-muted">
+            ✓ Um novo lançamento será criado com as mesmas informações<br>
+            ✓ Mantendo o mesmo valor e período de cobrança<br>
+            ✓ A data será adiantada automaticamente em 1 mês
+          </small>
+        </div>
+      </div>
+    </form>
+
+    <!-- Confirmação -->
+    <div class="alert alert-warning p-3 rounded mt-4">
+      <strong>Deseja prosseguir com a renovação?</strong>
+    </div>
   </div>
 
 </mat-dialog-content>

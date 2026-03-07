@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSelectModule } from '@angular/material/select';
 import { IndicadoresService } from '../../service/indicadores.service';
 import { IndicadoresResumoDTO } from '../../core/model/dto/indicadores/indicadoresResumoDTO';
 
@@ -25,7 +26,8 @@ import { IndicadoresResumoDTO } from '../../core/model/dto/indicadores/indicador
     MatInputModule,
     MatFormFieldModule,
     MatNativeDateModule,
-    MatToolbarModule
+    MatToolbarModule,
+    MatSelectModule
   ],
   templateUrl: './indicadores-resumo.component.html',
   styleUrl: './indicadores-resumo.component.scss'
@@ -37,13 +39,27 @@ export class IndicadoresResumoComponent implements OnInit {
   erro = signal<string | null>(null);
   dataInicio = signal<Date | null>(null);
   dataFim = signal<Date | null>(null);
+  status = signal<string>('AMBOS');
+
+  statusOptions = [
+    { value: 'ABERTO', label: 'Abertos' },
+    { value: 'FECHADO', label: 'Fechados' },
+    { value: 'AMBOS', label: 'Todos' }
+  ];
 
   resumo = signal<IndicadoresResumoDTO>({
     totalApartamentos: 0,
     totalApartamentosAlugados: 0,
     totalApartamentosVagos: 0,
-    somaAlugueisEmAberto: 0,
-    totalDebitoReal: 0
+    receitaPrevista: 0,
+    totalRecebido: 0,
+    totalDebito: 0,
+    totalEmAberto: 0,
+    taxaOcupacao: 0,
+    taxaInadimplencia: 0,
+    taxaPagamento: 0,
+    totalPagamentos: 0,
+    pagamentosVencidos: 0
   });
 
   ngOnInit(): void {
@@ -51,13 +67,19 @@ export class IndicadoresResumoComponent implements OnInit {
   }
 
   async carregarResumo(): Promise<void> {
+    if (!this.dataInicio() || !this.dataFim()) {
+      this.erro.set('As datas inicial e final são obrigatórias.');
+      return;
+    }
+
     this.carregando.set(true);
     this.erro.set(null);
 
     try {
       const dados = await this.indicadoresService.obterResumo(
         this.dataInicio() || undefined,
-        this.dataFim() || undefined
+        this.dataFim() || undefined,
+        this.status()
       );
       this.resumo.set(dados);
     } catch {
@@ -74,6 +96,7 @@ export class IndicadoresResumoComponent implements OnInit {
   limparFiltro(): void {
     this.dataInicio.set(null);
     this.dataFim.set(null);
+    this.status.set('ABERTO');
     this.carregarResumo();
   }
 

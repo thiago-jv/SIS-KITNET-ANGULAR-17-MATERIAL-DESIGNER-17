@@ -13,32 +13,36 @@
   </div>
 
   <!-- Filtros -->
-  <div class="card filters-card shadow-sm p-4 mb-4">
-    <h3 class="mb-3">Filtros</h3>
+  <div class="card filters-card shadow-sm mb-4">
+    <div class="filters-header">
+      <h3 class="filters-title">Filtros</h3>
+    </div>
+    
+    <div class="filters-content">
+      <div class="filters-grid">
+        <div class="filter-item">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Filtrar por Nome</mat-label>
+            <input matInput (input)="filtrarNome(getNomeInput($event))">
+          </mat-form-field>
+        </div>
 
-    <div class="row g-3 mb-3">
-      <div class="col-12 col-md-4">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Filtrar por Nome</mat-label>
-          <input matInput (input)="filtrarNome(getNomeInput($event))">
-        </mat-form-field>
-      </div>
+        <div class="filter-item">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Filtrar por CPF</mat-label>
+            <input matInput (input)="filtrarCpf(getCpfInput($event))">
+          </mat-form-field>
+        </div>
 
-      <div class="col-12 col-md-4">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Filtrar por CPF</mat-label>
-          <input matInput (input)="filtrarCpf(getCpfInput($event))">
-        </mat-form-field>
-      </div>
-
-      <div class="col-12 col-md-4">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Filtrar por Status</mat-label>
-          <mat-select (selectionChange)="filtrarStatus($event.value)">
-            <mat-option value="">Todos</mat-option>
-            <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+        <div class="filter-item">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Filtrar por Status</mat-label>
+            <mat-select (selectionChange)="filtrarStatus($event.value)">
+              <mat-option value="">Todos</mat-option>
+              <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </div>
     </div>
   </div>

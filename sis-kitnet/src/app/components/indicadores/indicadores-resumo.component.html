@@ -5,13 +5,15 @@
     <mat-toolbar class="btn-blue mb-0">
       <span class="flex-spacer"></span>
       <div class="d-flex justify-content-end w-100 gap-2">
-        <button mat-raised-button class="btn-red" (click)="aplicarFiltro()" [disabled]="carregando()">
+        <button mat-raised-button color="primary" (click)="aplicarFiltro()" [disabled]="!dataInicio() || !dataFim() || carregando()">
+          <mat-icon>filter_list</mat-icon>
           Filtrar
         </button>
-        <button mat-raised-button class="btn-red" (click)="limparFiltro()" [disabled]="carregando()">
+        <button mat-raised-button color="warn" (click)="limparFiltro()" [disabled]="carregando()">
+          <mat-icon>clear</mat-icon>
           Limpar
         </button>
-        <button mat-raised-button class="btn-red" (click)="carregarResumo()" [disabled]="carregando()">
+        <button mat-raised-button color="accent" (click)="carregarResumo()" [disabled]="!dataInicio() || !dataFim() || carregando()">
           <mat-icon>refresh</mat-icon>
           Atualizar
         </button>
@@ -23,20 +25,33 @@
     <h3 class="mb-3">Filtros</h3>
 
     <div class="row g-3 mb-3">
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-md-4">
         <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Data de pagamento (de)</mat-label>
-          <input matInput [matDatepicker]="pickerInicio" [(ngModel)]="dataInicio" (ngModelChange)="dataInicio.set($event)">
-          <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
-          <mat-datepicker #pickerInicio></mat-datepicker>
+          <mat-label>Status dos Contratos</mat-label>
+          <mat-select [(ngModel)]="status" (ngModelChange)="status.set($event)">
+            <mat-option *ngFor="let opt of statusOptions" [value]="opt.value">
+              {{ opt.label }}
+            </mat-option>
+          </mat-select>
+          <mat-hint>Filtra por status do contrato</mat-hint>
         </mat-form-field>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-md-4">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Data de pagamento (de)</mat-label>
+          <input matInput [matDatepicker]="pickerInicio" [(ngModel)]="dataInicio" (ngModelChange)="dataInicio.set($event)" required>
+          <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+          <mat-datepicker #pickerInicio></mat-datepicker>
+          <mat-error *ngIf="!dataInicio()">Data inicial é obrigatória</mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-12 col-md-4">
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Data de pagamento (até)</mat-label>
-          <input matInput [matDatepicker]="pickerFim" [(ngModel)]="dataFim" (ngModelChange)="dataFim.set($event)">
+          <input matInput [matDatepicker]="pickerFim" [(ngModel)]="dataFim" (ngModelChange)="dataFim.set($event)" required>
           <mat-datepicker-toggle matIconSuffix [for]="pickerFim"></mat-datepicker-toggle>
           <mat-datepicker #pickerFim></mat-datepicker>
+          <mat-error *ngIf="!dataFim()">Data final é obrigatória</mat-error>
         </mat-form-field>
       </div>
     </div>
@@ -53,56 +68,137 @@
     <div class="estado estado-erro">{{ erro() }}</div>
   }
 
-  <div class="grid-indicadores">
-    <div class="card-indicador">
-      <div class="icone-container icone-azul">
-        <mat-icon>home</mat-icon>
+  @if (!carregando() && !erro()) {
+    <div class="grid-indicadores">
+      <!-- Card 1: Apartamentos -->
+      <div class="card-indicador card-apartamentos">
+        <div class="icone-container icone-azul">
+          <mat-icon>apartment</mat-icon>
+        </div>
+        <div class="conteudo">
+          <div class="label">Total de Apartamentos</div>
+          <div class="valor">{{ resumo().totalApartamentos }}</div>
+          <div class="detalhes">
+            <span class="detalhe-item">
+              <mat-icon class="mini-icon">key</mat-icon>
+              Alugados: {{ resumo().totalApartamentosAlugados }}
+            </span>
+            <span class="detalhe-item">
+              <mat-icon class="mini-icon">meeting_room</mat-icon>
+              Vagos: {{ resumo().totalApartamentosVagos }}
+            </span>
+          </div>
+        </div>
       </div>
-      <div class="conteudo">
-        <div class="label">Total de apartamentos</div>
-        <div class="valor">{{ resumo().totalApartamentos }}</div>
-      </div>
-    </div>
 
-    <div class="card-indicador">
-      <div class="icone-container icone-verde">
-        <mat-icon>key</mat-icon>
+      <!-- Card 2: Ocupação -->
+      <div class="card-indicador card-ocupacao">
+        <div class="icone-container icone-verde">
+          <mat-icon>trending_up</mat-icon>
+        </div>
+        <div class="conteudo">
+          <div class="label">Taxa de Ocupação</div>
+          <div class="valor">{{ resumo().taxaOcupacao | number:'1.0-1' }}%</div>
+          <div class="detalhe-simples">Percentual de apartamentos ocupados</div>
+        </div>
       </div>
-      <div class="conteudo">
-        <div class="label">Apartamentos alugados</div>
-        <div class="valor">{{ resumo().totalApartamentosAlugados }}</div>
-      </div>
-    </div>
 
-    <div class="card-indicador">
-      <div class="icone-container icone-laranja">
-        <mat-icon>meeting_room</mat-icon>
+      <!-- Card 3: Receita Prevista -->
+      <div class="card-indicador card-receita">
+        <div class="icone-container icone-roxo">
+          <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+        <div class="conteudo">
+          <div class="label">Receita Prevista</div>
+          <div class="valor">{{ formatarMoeda(resumo().receitaPrevista) }}</div>
+          <div class="detalhe-simples">Total esperado no período</div>
+        </div>
       </div>
-      <div class="conteudo">
-        <div class="label">Apartamentos vagos</div>
-        <div class="valor">{{ resumo().totalApartamentosVagos }}</div>
-      </div>
-    </div>
 
-    <div class="card-indicador">
-      <div class="icone-container icone-vermelho">
-        <mat-icon>monetization_on</mat-icon>
+      <!-- Card 4: Total Recebido -->
+      <div class="card-indicador card-recebido">
+        <div class="icone-container icone-verde-escuro">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <div class="conteudo">
+          <div class="label">Total Recebido</div>
+          <div class="valor">{{ formatarMoeda(resumo().totalRecebido) }}</div>
+          <div class="detalhe-simples">Pagamentos confirmados</div>
+        </div>
       </div>
-      <div class="conteudo">
-        <div class="label">Alugueis em aberto</div>
-        <div class="valor">{{ formatarMoeda(resumo().somaAlugueisEmAberto) }}</div>
-      </div>
-    </div>
 
-    <div class="card-indicador">
-      <div class="icone-container icone-laranja-escuro">
-        <mat-icon>attach_money</mat-icon>
+      <!-- Card 5: Em Aberto -->
+      <div class="card-indicador card-aberto">
+        <div class="icone-container icone-laranja">
+          <mat-icon>pending</mat-icon>
+        </div>
+        <div class="conteudo">
+          <div class="label">Em Aberto</div>
+          <div class="valor">{{ formatarMoeda(resumo().totalEmAberto) }}</div>
+          <div class="detalhe-simples">Aguardando pagamento</div>
+        </div>
       </div>
-      <div class="conteudo">
-        <div class="label">Total débito real</div>
-        <div class="valor">{{ formatarMoeda(resumo().totalDebitoReal) }}</div>
-      </div>
-    </div>
 
-  </div>
+      <!-- Card 6: Débito -->
+      <div class="card-indicador card-debito">
+        <div class="icone-container icone-vermelho">
+          <mat-icon>warning</mat-icon>
+        </div>
+        <div class="conteudo">
+          <div class="label">Total em Débito</div>
+          <div class="valor">{{ formatarMoeda(resumo().totalDebito) }}</div>
+          <div class="detalhe-simples">Valores atrasados</div>
+        </div>
+      </div>
+
+      <!-- Card 7: Taxa de Inadimplência -->
+      <div class="card-indicador card-inadimplencia">
+        <div class="icone-container icone-vermelho-escuro">
+          <mat-icon>trending_down</mat-icon>
+        </div>
+        <div class="conteudo">
+          <div class="label">Taxa de Inadimplência</div>
+          <div class="valor">{{ resumo().taxaInadimplencia | number:'1.0-1' }}%</div>
+          <div class="detalhe-simples">Percentual de inadimplência</div>
+        </div>
+      </div>
+
+      <!-- Card 8: Taxa de Pagamento -->
+      <div class="card-indicador card-pagamento">
+        <div class="icone-container icone-azul-claro">
+          <mat-icon>payment</mat-icon>
+        </div>
+        <div class="conteudo">
+          <div class="label">Taxa de Pagamento</div>
+          <div class="valor">{{ resumo().taxaPagamento | number:'1.0-1' }}%</div>
+          <div class="detalhe-simples">Percentual pago no período</div>
+        </div>
+      </div>
+
+      <!-- Card 9: Total de Pagamentos -->
+      <div class="card-indicador card-total-pagamentos">
+        <div class="icone-container icone-cinza">
+          <mat-icon>receipt_long</mat-icon>
+        </div>
+        <div class="conteudo">
+          <div class="label">Total de Pagamentos</div>
+          <div class="valor">{{ resumo().totalPagamentos }}</div>
+          <div class="detalhe-simples">Lançamentos no período</div>
+        </div>
+      </div>
+
+      <!-- Card 10: Pagamentos Vencidos -->
+      <div class="card-indicador card-vencidos">
+        <div class="icone-container icone-rosa">
+          <mat-icon>schedule</mat-icon>
+        </div>
+        <div class="conteudo">
+          <div class="label">Pagamentos Vencidos</div>
+          <div class="valor">{{ resumo().pagamentosVencidos }}</div>
+          <div class="detalhe-simples">Pagamentos atrasados</div>
+        </div>
+      </div>
+
+    </div>
+  }
 </div>

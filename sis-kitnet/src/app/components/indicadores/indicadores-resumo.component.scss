@@ -34,6 +34,11 @@
   width: 100%;
 }
 
+.hint-warning {
+  color: #f59e0b !important;
+  font-weight: 500;
+}
+
 .gap-2 {
   gap: 0.5rem;
 }
@@ -123,39 +128,41 @@
 
 .grid-indicadores {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
 }
 
 .card-indicador {
   background: #fff;
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 24px;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
-  transition: box-shadow 0.3s ease;
+  transition: all 0.3s ease;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
   }
 }
 
 .icone-container {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 
   mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
     color: white;
   }
 }
@@ -168,6 +175,10 @@
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 }
 
+.icone-verde-escuro {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
 .icone-laranja {
   background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
 }
@@ -176,30 +187,76 @@
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
 
-.icone-laranja-escuro {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+.icone-vermelho-escuro {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 }
 
 .icone-azul-claro {
   background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
 }
 
+.icone-roxo {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.icone-rosa {
+  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+}
+
+.icone-cinza {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+}
+
 .conteudo {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .card-indicador .label {
   color: #6b7280;
   font-size: 0.875rem;
-  margin-bottom: 4px;
-  font-weight: 500;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .card-indicador .valor {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: #111827;
+  line-height: 1.2;
+}
+
+.detalhes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.detalhe-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  font-weight: 500;
+
+  .mini-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: #9ca3af;
+  }
+}
+
+.detalhe-simples {
+  font-size: 0.8125rem;
+  color: #9ca3af;
+  margin-top: 4px;
 }
 
 @media (max-width: 992px) {
@@ -216,5 +273,9 @@
 
   .grid-indicadores {
     grid-template-columns: 1fr;
+  }
+
+  .card-indicador .valor {
+    font-size: 1.5rem;
   }
 }

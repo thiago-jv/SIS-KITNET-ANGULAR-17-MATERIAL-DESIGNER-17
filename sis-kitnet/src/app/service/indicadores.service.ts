@@ -11,7 +11,7 @@ export class IndicadoresService {
   private http = inject(HttpClient);
   private indicadoresUrl = `${environment.apiUrl}/v1/indicadores`;
 
-  async obterResumo(dataInicio?: Date, dataFim?: Date): Promise<IndicadoresResumoDTO> {
+  async obterResumo(dataInicio?: Date, dataFim?: Date, status?: string): Promise<IndicadoresResumoDTO> {
     let params = new HttpParams();
     
     if (dataInicio) {
@@ -20,6 +20,10 @@ export class IndicadoresService {
     
     if (dataFim) {
       params = params.set('dataFim', this.formatarData(dataFim));
+    }
+
+    if (status) {
+      params = params.set('status', status);
     }
     
     return await firstValueFrom(

@@ -270,16 +270,18 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
   async renovar(lancamento: ControleLancamentoResponseDTO) {
     // Abre modal informativo
     const ref = this.dialog.open(RenovarLancamentoDialogComponent, {
-      width: '600px',
+      width: '900px',
       data: { 
         idLancamento: lancamento.id,
         lancamento: lancamento
       }
     });
 
-    ref.afterClosed().subscribe(async (confirmado) => {
-      if (confirmado) {
+    ref.afterClosed().subscribe(async (resultado) => {
+      if (resultado?.confirmado) {
         try {
+          // Por enquanto ainda usa o método antigo que só aceita quantidade de meses
+          // TODO: Implementar novo endpoint que aceite dados editáveis
           await this.service.renovarLancamento(lancamento.id!, 1);
           this.errorHandler.exibirSucesso(Constants.LANCAMENTO_CRIADO_COM_SUCESSO, 4000);
           this.carregarDados();
