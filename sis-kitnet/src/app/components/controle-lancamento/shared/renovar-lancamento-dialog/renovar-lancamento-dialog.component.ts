@@ -40,6 +40,8 @@ export class RenovarLancamentoDialogComponent implements OnInit {
   inquilinoCompleto: InquilinoResponseDTO | null = null;
   apartamentoCompleto: ApartamentoResponseDTO | null = null;
   carregando = true;
+  private inquilinoCarregado = false;
+  private apartamentoCarregado = false;
   
   form = new FormGroup({
     novaDataEntrada: new FormControl<Date | null>(null, Validators.required),
@@ -70,9 +72,11 @@ export class RenovarLancamentoDialogComponent implements OnInit {
       .subscribe({
         next: (inquilino) => {
           this.inquilinoCompleto = inquilino;
+          this.inquilinoCarregado = true;
           this.verificarCarregamentoCompleto();
         },
         error: () => {
+          this.inquilinoCarregado = true;
           this.verificarCarregamentoCompleto();
         }
       });
@@ -83,9 +87,11 @@ export class RenovarLancamentoDialogComponent implements OnInit {
       .subscribe({
         next: (apartamento) => {
           this.apartamentoCompleto = apartamento;
+          this.apartamentoCarregado = true;
           this.verificarCarregamentoCompleto();
         },
         error: () => {
+          this.apartamentoCarregado = true;
           this.verificarCarregamentoCompleto();
         }
       });
@@ -104,9 +110,22 @@ export class RenovarLancamentoDialogComponent implements OnInit {
   }
 
   private verificarCarregamentoCompleto(): void {
-    if (this.inquilinoCompleto !== null && this.apartamentoCompleto !== null) {
+    if (this.inquilinoCarregado && this.apartamentoCarregado) {
       this.carregando = false;
     }
+  }
+
+  obterStatusPagamentoTexto(): string {
+    return this.data.lancamento.status?.statusApartamePagamento || 'N/A';
+  }
+
+  obterClasseStatusPagamento(): Record<string, boolean> {
+    const status = this.data.lancamento.status?.statusApartamePagamento;
+
+    return {
+      'status-pago': status === 'PAGO',
+      'status-debito': status !== 'PAGO'
+    };
   }
 
   onCancel(): void {

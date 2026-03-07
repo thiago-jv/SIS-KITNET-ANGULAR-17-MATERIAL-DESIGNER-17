@@ -54,8 +54,8 @@
         </div>
         <div class="info-item">
           <label>Status:</label>
-          <span class="value" [style.color]="data.lancamento.status?.statusApartamePagamento === 'PAGO' ? '#28a745' : '#dc3545'">
-            {{ data.lancamento.status?.statusApartamePagamento }}
+          <span class="value" [ngClass]="obterClasseStatusPagamento()">
+            {{ obterStatusPagamentoTexto() }}
           </span>
         </div>
       </div>
@@ -74,16 +74,16 @@
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>Nova Data de Entrada</mat-label>
             <input matInput [matDatepicker]="pickerEntrada" formControlName="novaDataEntrada" readonly>
-            <mat-datepicker-toggle matSuffix [for]="pickerEntrada" disabled></mat-datepicker-toggle>
-            <mat-datepicker #pickerEntrada disabled></mat-datepicker>
+            <mat-datepicker-toggle matSuffix [for]="pickerEntrada" [disabled]="true"></mat-datepicker-toggle>
+            <mat-datepicker #pickerEntrada [disabled]="true"></mat-datepicker>
           </mat-form-field>
 
           <!-- Novo Vencimento -->
           <mat-form-field appearance="outline" class="w-100">
             <mat-label>Novo Vencimento</mat-label>
             <input matInput [matDatepicker]="pickerVencimento" formControlName="novoVencimento" readonly>
-            <mat-datepicker-toggle matSuffix [for]="pickerVencimento" disabled></mat-datepicker-toggle>
-            <mat-datepicker #pickerVencimento disabled></mat-datepicker>
+            <mat-datepicker-toggle matSuffix [for]="pickerVencimento" [disabled]="true"></mat-datepicker-toggle>
+            <mat-datepicker #pickerVencimento [disabled]="true"></mat-datepicker>
           </mat-form-field>
 
           <!-- Novo Valor -->

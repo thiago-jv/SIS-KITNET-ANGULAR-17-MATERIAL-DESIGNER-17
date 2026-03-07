@@ -356,4 +356,21 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
       'badge-debit': status !== Constants.STATUS_PAGO
     };
   }
+
+  obterClasseStatusControle(item: ControleLancamentoResponseDTO): Record<string, boolean> {
+    return {
+      'status-link-open': this.obterStatusControle(item),
+      'status-link-closed': !this.obterStatusControle(item)
+    };
+  }
+
+  obterTextoStatusControle(item: ControleLancamentoResponseDTO): string {
+    return this.obterStatusControle(item) ? 'Aberto' : 'Fechado';
+  }
+
+  obterTooltipStatusControle(item: ControleLancamentoResponseDTO): string {
+    return this.obterStatusControle(item)
+      ? 'Aberto — clique para fechar'
+      : 'Fechado — clique para abrir';
+  }
 }

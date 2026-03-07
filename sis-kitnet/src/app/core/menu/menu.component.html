@@ -1,45 +1,17 @@
 <div class="menu-container">
-  <div class="menu-section">
-    <h3 class="menu-section-title">Principal</h3>
-    <button mat-button class="menu-item" routerLink="/indicadores" routerLinkActive="active">
-      <mat-icon class="menu-icon">dashboard</mat-icon>
-      <span class="menu-label">Indicadores</span>
-    </button>
+  <div class="menu-section" *ngFor="let section of menuSections; trackBy: trackBySectionTitle">
+    <h3 class="menu-section-title">{{ section.title }}</h3>
 
-    <button mat-button class="menu-item" routerLink="/listar-controle-lancamento" routerLinkActive="active">
-      <mat-icon class="menu-icon">home_work</mat-icon>
-      <span class="menu-label">Locação</span>
-    </button>
-  </div>
-
-  <div class="menu-section">
-    <h3 class="menu-section-title">Cadastros</h3>
-    <button mat-button class="menu-item" routerLink="/listar-apartamento" routerLinkActive="active">
-      <mat-icon class="menu-icon">apartment</mat-icon>
-      <span class="menu-label">Apartamento</span>
-    </button>
-
-    <button mat-button class="menu-item" routerLink="/listar-predio" routerLinkActive="active">
-      <mat-icon class="menu-icon">location_city</mat-icon>
-      <span class="menu-label">Prédio</span>
-    </button>
-
-    <button mat-button class="menu-item" routerLink="/inquilino" routerLinkActive="active">
-      <mat-icon class="menu-icon">person_add</mat-icon>
-      <span class="menu-label">Inquilino</span>
-    </button>
-
-    <button mat-button class="menu-item" routerLink="/listar-valor" routerLinkActive="active">
-      <mat-icon class="menu-icon">attach_money</mat-icon>
-      <span class="menu-label">Valor</span>
-    </button>
-  </div>
-
-  <div class="menu-section">
-    <h3 class="menu-section-title">Sistema</h3>
-    <button mat-button class="menu-item" routerLink="/usuario" routerLinkActive="active">
-      <mat-icon class="menu-icon">admin_panel_settings</mat-icon>
-      <span class="menu-label">Usuário</span>
+    <button
+      mat-button
+      class="menu-item"
+      *ngFor="let item of section.items; trackBy: trackByRoute"
+      [routerLink]="item.route"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+    >
+      <mat-icon class="menu-icon">{{ item.icon }}</mat-icon>
+      <span class="menu-label">{{ item.label }}</span>
     </button>
   </div>
 </div>
