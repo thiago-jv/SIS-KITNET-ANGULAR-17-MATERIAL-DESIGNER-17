@@ -53,11 +53,11 @@ export class MenuComponent {
     }
   ];
 
-  trackBySectionTitle(_: number, section: MenuSection): string {
+  rastrearPorTituloSecao(_: number, section: MenuSection): string {
     return section.title;
   }
 
-  trackByRoute(_: number, item: MenuItem): string {
+  rastrearPorRota(_: number, item: MenuItem): string {
     return item.route;
   }
 

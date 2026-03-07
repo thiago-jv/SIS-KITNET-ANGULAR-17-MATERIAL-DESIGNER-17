@@ -15,4 +15,6 @@ export interface ControleLancamentoResponseDTO {
   valor: ValorId;
   inquilino: InquilinoId;
   apartamento: ApartamentoId;
+  nomeInquilino?: string;
+  numeroApartamento?: string;
 }

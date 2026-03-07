@@ -21,10 +21,16 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
 import { RenovarLancamentoDialogComponent } from '../shared/renovar-lancamento-dialog/renovar-lancamento-dialog.component';
 import { ControleLancamentoService } from '../../../service/controle-lancamento.service';
+import { InquilinoService } from '../../../service/inquilino.service';
+import { ApartamentoService } from '../../../service/apartamento.service';
+import { PredioService } from '../../../service/predio.service';
 import { ErrorHandlerService } from '../../../service/error-handler.service';
 import { Constants } from '../../../util/constantes';
 import { ControleLancamentoResponseDTO } from '../../../core/model/dto/controleLancamento/controleLancamentoResponseDTO';
 import { ControleLancamentoFilterDTO } from '../../../core/model/dto/controleLancamento/controleLancamentoFilterDTO';
+import { InquilinoResponseDTO } from '../../../core/model/dto/inquilino/inquilinoResponseDTO';
+import { ApartamentoResponseDTO } from '../../../core/model/dto/apartamento/apartamentoResponseDTO';
+import { PredioResponseDTO } from '../../../core/model/dto/predio/predioResponseDTO';
 
 @Component({
   selector: 'app-listar-controle-lancamento',
@@ -53,6 +59,9 @@ import { ControleLancamentoFilterDTO } from '../../../core/model/dto/controleLan
 export class ListarControleLancamentoComponent implements AfterViewInit {
 
   private service = inject(ControleLancamentoService);
+  private inquilinoService = inject(InquilinoService);
+  private apartamentoService = inject(ApartamentoService);
+  private predioService = inject(PredioService);
   private dialog = inject(MatDialog);
   private errorHandler = inject(ErrorHandlerService);
 
@@ -72,6 +81,14 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
   dataPagamentoAteFiltro = signal<string | undefined>(undefined);
   minDateAte = signal<Date | null>(null);
   statusApartamePagamentoFiltro = signal<string | undefined>(undefined);
+  inquilinoIdFiltro = signal<number | undefined>(undefined);
+  apartamentoIdFiltro = signal<number | undefined>(undefined);
+  predioIdFiltro = signal<number | undefined>(undefined);
+
+  // Listas para os selects
+  inquilinos = signal<InquilinoResponseDTO[]>([]);
+  apartamentos = signal<ApartamentoResponseDTO[]>([]);
+  predios = signal<PredioResponseDTO[]>([]);
 
   // Opções para os selects de status
   statusOptions = [
@@ -82,6 +99,11 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
 
   // Form controls para os selects
   statusApartamentoControl = new FormControl('');
+  inquilinoControl = new FormControl('');
+  apartamentoControl = new FormControl('');
+  predioControl = new FormControl('');
+  dataPagamentoDeControl = new FormControl<Date | null>(null);
+  dataPagamentoAteControl = new FormControl<Date | null>(null);
 
   // Paginação
   paginaAtual = signal(0);
@@ -108,6 +130,7 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
     // Vincula MatSort à dataSource
     this.dataSource.sort = this.sort;
 
+    this.carregarListasParaFiltros();
     this.carregarDados();
 
     // Paginação
@@ -124,12 +147,22 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
       this.paginaAtual.set(0);
       this.carregarDados();
     });
+  }
 
-    // Subscribe aos filtros de status
-    this.statusApartamentoControl.valueChanges.subscribe(value => {
-      this.statusApartamePagamentoFiltro.set(value || undefined);
-      this.atualizarFiltro();
-    });
+  private async carregarListasParaFiltros() {
+    try {
+      const [inquilinos, apartamentos, predios] = await Promise.all([
+        this.inquilinoService.buscarTodosInquilinos(),
+        this.apartamentoService.buscarTodosApartamentos(),
+        this.predioService.buscarTodosPredios()
+      ]);
+      
+      this.inquilinos.set(inquilinos);
+      this.apartamentos.set(apartamentos);
+      this.predios.set(predios);
+    } catch (error: any) {
+      this.errorHandler.exibirErro(error, 'carregar listas de filtros');
+    }
   }
   
   private async carregarDados() {
@@ -139,6 +172,9 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
       dataPagamentoDe: this.dataPagamentoDeFiltro(),
       dataPagamentoAte: this.dataPagamentoAteFiltro(),
       statusApartamePagamento: this.statusApartamePagamentoFiltro(),
+      inquilinoId: this.inquilinoIdFiltro(),
+      apartamentoId: this.apartamentoIdFiltro(),
+      predioId: this.predioIdFiltro(),
       sortField: this.ordemCampo() || undefined,
       sortDirection: this.ordemDirecao() || undefined
     };
@@ -179,48 +215,60 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
     });
   }
 
-  atualizarFiltro() {
-    this.paginaAtual.set(0);
-    this.carregarDados();
-  }
+  aplicarFiltros() {
+    // Atualizar filtros a partir dos FormControls
+    const statusValue = this.statusApartamentoControl.value;
+    this.statusApartamePagamentoFiltro.set(statusValue || undefined);
 
-  filtrarDataPagamentoDe(event: any) {
-    if (event && event.value) {
-      const date = new Date(event.value);
-      const formattedDate = date.toISOString().split('T')[0];
+    const inquilinoValue = this.inquilinoControl.value;
+    this.inquilinoIdFiltro.set(inquilinoValue ? Number(inquilinoValue) : undefined);
+
+    const apartamentoValue = this.apartamentoControl.value;
+    this.apartamentoIdFiltro.set(apartamentoValue ? Number(apartamentoValue) : undefined);
+
+    const predioValue = this.predioControl.value;
+    this.predioIdFiltro.set(predioValue ? Number(predioValue) : undefined);
+
+    const dataDe = this.dataPagamentoDeControl.value;
+    if (dataDe) {
+      const formattedDate = dataDe.toISOString().split('T')[0];
       this.dataPagamentoDeFiltro.set(formattedDate);
-      this.minDateAte.set(date);
-      
-      // Valida se a data 'até' é menor que a data 'de'
-      const dataAte = this.dataPagamentoAteFiltro();
-      if (dataAte && dataAte < formattedDate) {
-        this.dataPagamentoAteFiltro.set(undefined);
-      }
+      this.minDateAte.set(dataDe);
     } else {
       this.dataPagamentoDeFiltro.set(undefined);
       this.minDateAte.set(null);
     }
-    this.atualizarFiltro();
-  }
 
-  filtrarDataPagamentoAte(event: any) {
-    if (event && event.value) {
-      const date = new Date(event.value);
-      const formattedDate = date.toISOString().split('T')[0];
-      
-      // Valida se a data 'até' é menor que a data 'de'
-      const dataDe = this.dataPagamentoDeFiltro();
-      if (dataDe && formattedDate < dataDe) {
-        // Não permite que a data 'até' seja menor que a data 'de'
-        this.dataPagamentoAteFiltro.set(undefined);
-        return;
-      }
-      
+    const dataAte = this.dataPagamentoAteControl.value;
+    if (dataAte) {
+      const formattedDate = dataAte.toISOString().split('T')[0];
       this.dataPagamentoAteFiltro.set(formattedDate);
     } else {
       this.dataPagamentoAteFiltro.set(undefined);
     }
-    this.atualizarFiltro();
+
+    this.paginaAtual.set(0);
+    this.carregarDados();
+  }
+
+  limparFiltros() {
+    this.statusApartamentoControl.setValue('');
+    this.inquilinoControl.setValue('');
+    this.apartamentoControl.setValue('');
+    this.predioControl.setValue('');
+    this.dataPagamentoDeControl.setValue(null);
+    this.dataPagamentoAteControl.setValue(null);
+
+    this.statusApartamePagamentoFiltro.set(undefined);
+    this.inquilinoIdFiltro.set(undefined);
+    this.apartamentoIdFiltro.set(undefined);
+    this.predioIdFiltro.set(undefined);
+    this.dataPagamentoDeFiltro.set(undefined);
+    this.dataPagamentoAteFiltro.set(undefined);
+    this.minDateAte.set(null);
+
+    this.paginaAtual.set(0);
+    this.carregarDados();
   }
 
   async excluir(id: number) {

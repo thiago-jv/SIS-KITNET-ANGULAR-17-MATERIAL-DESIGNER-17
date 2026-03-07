@@ -34,6 +34,9 @@ export class ControleLancamentoService {
     if (filter.dataPagamentoDe) params = params.set('dataPagamentoDe', filter.dataPagamentoDe);
     if (filter.dataPagamentoAte) params = params.set('dataPagamentoAte', filter.dataPagamentoAte);
     if (filter.statusApartamePagamento) params = params.set('statusApartamePagamento', filter.statusApartamePagamento);
+    if (filter.inquilinoId) params = params.set('inquilinoId', filter.inquilinoId.toString());
+    if (filter.apartamentoId) params = params.set('apartamentoId', filter.apartamentoId.toString());
+    if (filter.predioId) params = params.set('predioId', filter.predioId.toString());
     if (filter.sortField && filter.sortDirection) {
       params = params.set('sort', `${filter.sortField},${filter.sortDirection}`);
     }

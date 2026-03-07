@@ -1,11 +1,11 @@
 <div class="menu-container">
-  <div class="menu-section" *ngFor="let section of menuSections; trackBy: trackBySectionTitle">
+  <div class="menu-section" *ngFor="let section of menuSections; trackBy: rastrearPorTituloSecao">
     <h3 class="menu-section-title">{{ section.title }}</h3>
 
     <button
       mat-button
       class="menu-item"
-      *ngFor="let item of section.items; trackBy: trackByRoute"
+      *ngFor="let item of section.items; trackBy: rastrearPorRota"
       [routerLink]="item.route"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: item.exact ?? false }"

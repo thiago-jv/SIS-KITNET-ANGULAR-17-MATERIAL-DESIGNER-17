@@ -7,6 +7,7 @@ export interface ControleLancamentoFilterDTO {
   dataPagamentoAte?: string;
   inquilinoId?: number;
   apartamentoId?: number;
+  predioId?: number;
   valorId?: number;
   statusApartamePagamento?: string;
   sortField?: string;
