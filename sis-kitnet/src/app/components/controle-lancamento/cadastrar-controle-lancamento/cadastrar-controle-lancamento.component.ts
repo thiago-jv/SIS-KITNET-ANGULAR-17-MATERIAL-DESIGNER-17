@@ -11,12 +11,13 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { CurrencyBrDirective } from '../../../shared/directives/currency-br.directive';
 import { Constants } from '../../../util/constantes';
 import { take } from 'rxjs';
 import { ControleLancamentoService } from '../../../service/controle-lancamento.service';
+import { ErrorHandlerService } from '../../../service/error-handler.service';
 import { InquilinoService } from '../../../service/inquilino.service';
 import { ApartamentoService } from '../../../service/apartamento.service';
 import { ValorService } from '../../../service/valor.service';
@@ -46,7 +47,6 @@ import { ApartamentoId } from '../../../core/model/dto/controleLancamento/aparta
     MatCardModule,
     MatIconModule,
     RouterLink,
-    MatSnackBarModule,
     MatToolbarModule,
     CurrencyBrDirective
   ],
@@ -60,7 +60,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
   private apartamentoService = inject(ApartamentoService);
   private valorService = inject(ValorService);
   private route = inject(ActivatedRoute);
-  private snack = inject(MatSnackBar);
+  private errorHandler = inject(ErrorHandlerService);
   private router = inject(Router);
 
   id: number | null = null;
@@ -71,21 +71,6 @@ export class CadastrarControleLancamentoComponent implements OnInit {
   apartamentos: ApartamentoResponseDTO[] = [];
   valores: ValorResponseDTO[] = [];
 
-  statusApartamePagamentoLuz = [
-    { label: 'Pago', value: 'PAGO' },
-    { label: 'Débito', value: 'DEBITO' }
-  ];
-
-  entragaContaLuz = [
-    { label: 'Sim', value: 'SIM' },
-    { label: 'Não', value: 'NAO' }
-  ];
-
-  statusProximoPagamento = [
-    { label: 'Pago', value: 'PAGO' },
-    { label: 'Débito', value: 'DEBITO' }
-  ];
-
   form = new FormGroup({
     dataEntrada: new FormControl<Date | string | null>(null, Validators.required),
     dataPagamento: new FormControl<Date | string | null>(null, Validators.required),
@@ -93,9 +78,6 @@ export class CadastrarControleLancamentoComponent implements OnInit {
     valorId: new FormControl<number | null>(null, Validators.required),
     inquilinoId: new FormControl<number | null>(null, Validators.required),
     apartamentoId: new FormControl<number | null>(null, Validators.required),
-    statusProximoPagamento: new FormControl<string>('DEBITO', Validators.required),
-    entragaContaLuz: new FormControl<string>('NAO', Validators.required),
-    statusApartamePagamentoLuz: new FormControl<string>('DEBITO', Validators.required),
     valorApartamento: new FormControl<number>({ value: 0, disabled: true }),
     dia: new FormControl<number>({ value: 0, disabled: true }),
     valorDiaria: new FormControl<number>({ value: 0, disabled: true }),
@@ -157,13 +139,8 @@ export class CadastrarControleLancamentoComponent implements OnInit {
     try {
       const inquilinos = await this.inquilinoService.buscarTodosInquilinos();
       this.inquilinos = inquilinos;
-    } catch (error) {
-      console.error('Erro ao carregar inquilinos:', error);
-      this.snack.open('Erro ao carregar inquilinos', 'OK', {
-        duration: 3000,
-        panelClass: ['snackbar-error'],
-        verticalPosition: 'top'
-      });
+    } catch (error: any) {
+      this.errorHandler.exibirErro(error, 'carregar inquilinos');
     }
   }
 
@@ -171,13 +148,8 @@ export class CadastrarControleLancamentoComponent implements OnInit {
     try {
       const apartamentos = await this.apartamentoService.buscarTodosApartamentos();
       this.apartamentos = apartamentos;
-    } catch (error) {
-      console.error('Erro ao carregar apartamentos:', error);
-      this.snack.open('Erro ao carregar apartamentos', 'OK', {
-        duration: 3000,
-        panelClass: ['snackbar-error'],
-        verticalPosition: 'top'
-      });
+    } catch (error: any) {
+      this.errorHandler.exibirErro(error, 'carregar apartamentos');
     }
   }
 
@@ -185,13 +157,8 @@ export class CadastrarControleLancamentoComponent implements OnInit {
     try {
       const valores = await this.valorService.buscarTodosValores();
       this.valores = valores;
-    } catch (error) {
-      console.error('Erro ao carregar valores:', error);
-      this.snack.open('Erro ao carregar valores', 'OK', {
-        duration: 3000,
-        panelClass: ['snackbar-error'],
-        verticalPosition: 'top'
-      });
+    } catch (error: any) {
+      this.errorHandler.exibirErro(error, 'carregar valores');
     }
   }
 
@@ -380,9 +347,6 @@ export class CadastrarControleLancamentoComponent implements OnInit {
       dataPagamento: this.form.value.dataPagamento ? this.formatarData(this.form.value.dataPagamento) : undefined,
       observacao: this.form.value.observacao || undefined,
       status: {
-        entragaContaLuz: this.form.value.entragaContaLuz || 'NAO',
-        statusApartamePagamentoLuz: this.form.value.statusApartamePagamentoLuz || 'DEBITO',
-        statusProximoPagamento: this.form.value.statusProximoPagamento || 'DEBITO',
         statusControle: true
       },
       valores: {
@@ -398,30 +362,16 @@ export class CadastrarControleLancamentoComponent implements OnInit {
       if (this.id) {
         const putData: ControleLancamentoPutDTO = { id: this.id, ...dados };
         await this.controleLancamentoService.atualizarControleLancamento(this.id, putData);
-
-        this.snack.open(Constants.ATUALIZADO_COM_SUCESSO, 'OK', {
-          duration: 4000,
-          panelClass: ['snackbar-success'],
-          verticalPosition: 'top'
-        });
+        this.errorHandler.exibirSucesso(Constants.ATUALIZADO_COM_SUCESSO);
       } else {
         await this.controleLancamentoService.criarControleLancamento(dados);
-
-        this.snack.open(Constants.SALVO_COM_SUCESSO, 'OK', {
-          duration: 4000,
-          panelClass: ['snackbar-success'],
-          verticalPosition: 'top'
-        });
+        this.errorHandler.exibirSucesso(Constants.SALVO_COM_SUCESSO);
       }
 
       this.router.navigate(['/listar-controle-lancamento']);
 
-    } catch {
-      this.snack.open(Constants.ERRO_AO_SALVAR_OU_ATUALIZAR_RECURSO, 'OK', {
-        duration: 4000,
-        panelClass: ['snackbar-error'],
-        verticalPosition: 'top'
-      });
+    } catch (error: any) {
+      this.errorHandler.exibirErro(error, 'salvar ou atualizar controle de lançamento');
     }
   }
 
@@ -435,11 +385,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
       .subscribe({
         next: (dados: ControleLancamentoResponseDTO) => {
           if (!dados) {
-            this.snack.open(Constants.RECURSO_NAO_ENCONTRADO, 'OK', {
-              duration: 3000,
-              panelClass: ['snackbar-error'],
-              verticalPosition: 'top'
-            });
+            this.errorHandler.exibirErro(null, 'recurso não encontrado');
             return;
           }
 
@@ -450,9 +396,6 @@ export class CadastrarControleLancamentoComponent implements OnInit {
             valorId: dados.valor?.id,
             inquilinoId: dados.inquilino?.id,
             apartamentoId: dados.apartamento?.id,
-            statusProximoPagamento: dados.status?.statusProximoPagamento || 'DEBITO',
-            entragaContaLuz: dados.status?.entragaContaLuz || 'NAO',
-            statusApartamePagamentoLuz: dados.status?.statusApartamePagamentoLuz || 'DEBITO',
             valorApartamento: dados.valores?.valorApartamento || 0,
             dia: dados.valores?.dia || 0,
             valorDiaria: dados.valores?.valorDiaria || 0,
@@ -471,12 +414,8 @@ export class CadastrarControleLancamentoComponent implements OnInit {
             this.carregarValorPorId(dados.valor.id);
           }
         },
-        error: () => {
-          this.snack.open(Constants.ERRO_AO_CARREGAR_DADOS_DO_RECURSO, 'OK', {
-            duration: 3000,
-            panelClass: ['snackbar-error'],
-            verticalPosition: 'top'
-          });
+        error: (error: any) => {
+          this.errorHandler.exibirErro(error, 'carregar dados do controle de lançamento');
         }
       });
   }

@@ -15,9 +15,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
 import { ValorService } from '../../../service/valor.service';
+import { ErrorHandlerService } from '../../../service/error-handler.service';
 import { ValorResponseDTO } from '../../../core/model/dto/valor/valorResponseDTO';
 import { ValorFilterDTO } from '../../../core/model/dto/valor/valorFilterDTO';
 import { CurrencyBrDirective } from '../../../shared/directives/currency-br.directive';
+import { Constants } from '../../../util/constantes';
 
 @Component({
   selector: 'app-listar-valor',
@@ -44,6 +46,7 @@ export class ListarValorComponent  implements AfterViewInit {
 
   private service = inject(ValorService);
   private dialog = inject(MatDialog);
+  private errorHandler = inject(ErrorHandlerService);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -101,8 +104,8 @@ export class ListarValorComponent  implements AfterViewInit {
       const result = await this.service.filtrar(filtro);
       this.dataSource.data = result.valores;
       this.totalRegistros.set(result.total);
-    } catch (error) {
-      console.error('Erro ao carregar valores:', error);
+    } catch (error: any) {
+      this.errorHandler.exibirErro(error, 'Carregar valores');
     }
   }
 
@@ -129,9 +132,10 @@ export class ListarValorComponent  implements AfterViewInit {
       if (confirmado) {
         try {
           await this.service.excluirValor(id);
+          this.errorHandler.exibirSucesso(Constants.EXCLUIDO_COM_SUCESSO);
           this.carregarDados();
-        } catch (error) {
-          console.error('Erro ao excluir valor:', error);
+        } catch (error: any) {
+          this.errorHandler.exibirErro(error, 'Excluir valor');
         }
       }
     });

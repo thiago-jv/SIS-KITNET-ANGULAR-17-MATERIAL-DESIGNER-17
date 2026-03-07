@@ -14,6 +14,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ApartamentoService } from '../../../service/apartamento.service';
+import { ErrorHandlerService } from '../../../service/error-handler.service';
+import { Constants } from '../../../util/constantes';
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
 import { ApartamentoResponseDTO } from '../../../core/model/dto/apartamento/apartamentoResponseDTO';
 
@@ -41,6 +43,7 @@ export class ListarApartamentoComponent implements AfterViewInit {
 
   private service = inject(ApartamentoService);
   private dialog = inject(MatDialog);
+  private errorHandler = inject(ErrorHandlerService);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -100,8 +103,8 @@ export class ListarApartamentoComponent implements AfterViewInit {
       const result = await this.service.filtrar(filtro);
       this.dataSource.data = result.apartamentos;
       this.totalRegistros.set(result.total);
-    } catch (error) {
-      console.error('Erro ao carregar apartamentos:', error);
+    } catch (error: any) {
+      this.errorHandler.exibirErro(error, 'carregar apartamentos');
     }
   }
 
@@ -130,9 +133,10 @@ export class ListarApartamentoComponent implements AfterViewInit {
       if (confirmado) {
         try {
           await this.service.excluirApartamento(id);
+          this.errorHandler.exibirSucesso(Constants.EXCLUIDO_COM_SUCESSO);
           this.carregarDados();
-        } catch (error) {
-          console.error('Erro ao excluir apartamento:', error);
+        } catch (error: any) {
+          this.errorHandler.exibirErro(error, 'excluir apartamento');
         }
       }
     });
@@ -148,14 +152,14 @@ export class ListarApartamentoComponent implements AfterViewInit {
   }
 
   obterStatus(item: ApartamentoResponseDTO | null | undefined): string {
-    return item?.statusApartamento ?? 'DESCONHECIDO';
+    return item?.statusApartamento ?? Constants.STATUS_DESCONHECIDO;
   }
 
   obterClasseStatusBadge(status: string | null | undefined): Record<string, boolean> {
     const statusSafe = this.obterStatus({ statusApartamento: status } as any);
     return {
-      'badge-disponivel': statusSafe === 'DISPONIVEL',
-      'badge-ocupado': statusSafe === 'OCUPADO'
+      'badge-disponivel': statusSafe === Constants.STATUS_DISPONIVEL,
+      'badge-ocupado': statusSafe === Constants.STATUS_OCUPADO
     };
   }
 }

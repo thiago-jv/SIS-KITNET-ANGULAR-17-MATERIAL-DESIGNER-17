@@ -8,10 +8,7 @@ export interface ControleLancamentoFilterDTO {
   inquilinoId?: number;
   apartamentoId?: number;
   valorId?: number;
-  entragaContaLuz?: string;
   statusApartamePagamento?: string;
-  statusApartamePagamentoLuz?: string;
-  statusProximoPagamento?: string;
   sortField?: string;
   sortDirection?: 'asc' | 'desc' | '';
 }

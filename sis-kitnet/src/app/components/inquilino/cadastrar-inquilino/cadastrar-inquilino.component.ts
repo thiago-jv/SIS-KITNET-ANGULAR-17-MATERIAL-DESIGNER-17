@@ -6,11 +6,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Constants } from '../../../util/constantes';
 import { take } from 'rxjs';
 import { InquilinoService } from '../../../service/inquilino.service';
+import { ErrorHandlerService } from '../../../service/error-handler.service';
 import { InquilinoPostDTO } from '../../../core/model/dto/inquilino/inquilinoPostDTO';
 import { InquilinoPutDTO } from '../../../core/model/dto/inquilino/inquilinoPutDTO';
 import { InquilinoResponseDTO } from '../../../core/model/dto/inquilino/inquilinoResponseDTO';
@@ -36,7 +37,7 @@ export class CadastrarInquilinoComponent implements OnInit {
 
   private inquilinoService = inject(InquilinoService);
   private route = inject(ActivatedRoute);
-  private snack = inject(MatSnackBar);
+  private errorHandler = inject(ErrorHandlerService);
   private router = inject(Router);
 
   id: number | null = null;
@@ -47,13 +48,13 @@ export class CadastrarInquilinoComponent implements OnInit {
     nomeAbreviado: new FormControl<string | null>(null, Validators.required),
     email: new FormControl<string | null>(null, [Validators.required, Validators.email]),
     contato: new FormControl<string | null>(null, Validators.required),
-    status: new FormControl<string>('ATIVO', Validators.required),
-    genero: new FormControl<string>('MASCULINO', Validators.required),
+    status: new FormControl<string>(Constants.STATUS_ATIVO, Validators.required),
+    genero: new FormControl<string>(Constants.GENERO_MASCULINO, Validators.required),
     cpf: new FormControl<string | null>(null, Validators.required),
   });
 
-  statusOptions = ['ATIVO', 'INATIVO'];
-  generoOptions = ['MASCULINO', 'FEMININO'];
+  statusOptions = [Constants.STATUS_ATIVO, Constants.STATUS_INATIVO];
+  generoOptions = [Constants.GENERO_MASCULINO, Constants.GENERO_FEMININO];
 
   ngOnInit(): void {
     const routeId = this.route.snapshot.paramMap.get('id');
@@ -77,8 +78,8 @@ export class CadastrarInquilinoComponent implements OnInit {
       nomeAbreviado: this.form.value.nomeAbreviado!,
       email: this.form.value.email!,
       contato: this.form.value.contato!,
-      status: this.form.value.status || 'ATIVO',
-      genero: this.form.value.genero || 'MASCULINO',
+      status: this.form.value.status || Constants.STATUS_ATIVO,
+      genero: this.form.value.genero || Constants.GENERO_MASCULINO,
       cpf: this.form.value.cpf!
     };
 
@@ -86,30 +87,16 @@ export class CadastrarInquilinoComponent implements OnInit {
       if (this.id) {
         const putData: InquilinoPutDTO = { id: this.id, ...dados };
         await this.inquilinoService.atualizarInquilino(this.id, putData);
-
-        this.snack.open(Constants.ATUALIZADO_COM_SUCESSO, 'OK', {
-          duration: 4000,
-          panelClass: ['snackbar-success'],
-          verticalPosition: 'top'
-        });
+        this.errorHandler.exibirSucesso(Constants.ATUALIZADO_COM_SUCESSO);
       } else {
         await this.inquilinoService.criarInquilino(dados);
-
-        this.snack.open(Constants.SALVO_COM_SUCESSO, 'OK', {
-          duration: 4000,
-          panelClass: ['snackbar-success'],
-          verticalPosition: 'top'
-        });
+        this.errorHandler.exibirSucesso(Constants.SALVO_COM_SUCESSO);
       }
 
       this.router.navigate(['/listar-inquilino']);
 
-    } catch {
-      this.snack.open(Constants.ERRO_AO_SALVAR_OU_ATUALIZAR_RECURSO, 'OK', {
-        duration: 4000,
-        panelClass: ['snackbar-error'],
-        verticalPosition: 'top'
-      });
+    } catch (error: any) {
+      this.errorHandler.exibirErro(error, 'salvar ou atualizar inquilino');
     }
   }
 
@@ -123,11 +110,7 @@ export class CadastrarInquilinoComponent implements OnInit {
       .subscribe({
         next: (dados: InquilinoResponseDTO) => {
           if (!dados) {
-            this.snack.open(Constants.RECURSO_NAO_ENCONTRADO, 'OK', {
-              duration: 3000,
-              panelClass: ['snackbar-error'],
-              verticalPosition: 'top'
-            });
+            this.errorHandler.exibirErro(null, 'recurso não encontrado');
             return;
           }
 
@@ -141,12 +124,8 @@ export class CadastrarInquilinoComponent implements OnInit {
             cpf: dados.cpf
           });
         },
-        error: () => {
-          this.snack.open(Constants.ERRO_AO_CARREGAR_DADOS_DO_RECURSO, 'OK', {
-            duration: 3000,
-            panelClass: ['snackbar-error'],
-            verticalPosition: 'top'
-          });
+        error: (error: any) => {
+          this.errorHandler.exibirErro(error, 'carregar dados do inquilino');
         }
       });
   }

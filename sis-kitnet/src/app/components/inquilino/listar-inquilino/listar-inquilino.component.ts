@@ -16,8 +16,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
 import { InquilinoService } from '../../../service/inquilino.service';
+import { ErrorHandlerService } from '../../../service/error-handler.service';
 import { InquilinoResponseDTO } from '../../../core/model/dto/inquilino/inquilinoResponseDTO';
 import { InquilinoFilterDTO } from '../../../core/model/dto/inquilino/inquilinoFilterDTO';
+import { Constants } from '../../../util/constantes';
 
 @Component({
   selector: 'app-listar-inquilino',
@@ -44,6 +46,7 @@ export class ListarInquilinoComponent implements AfterViewInit {
 
   private service = inject(InquilinoService);
   private dialog = inject(MatDialog);
+  private errorHandler = inject(ErrorHandlerService);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -66,7 +69,7 @@ export class ListarInquilinoComponent implements AfterViewInit {
   ordemCampo = signal<string | null>(null);
   ordemDirecao = signal<'asc' | 'desc' | ''>('');
 
-  statusOptions = ['ATIVO', 'INATIVO'];
+  statusOptions = [Constants.STATUS_ATIVO, Constants.STATUS_INATIVO];
   displayedColumns = ['id', 'nome', 'nomeAbreviado', 'email', 'cpf', 'status', 'acoes'];
 
   ngAfterViewInit() {
@@ -106,8 +109,8 @@ export class ListarInquilinoComponent implements AfterViewInit {
       const result = await this.service.filtrar(filtro);
       this.dataSource.data = result.inquilinos;
       this.totalRegistros.set(result.total);
-    } catch (error) {
-      console.error('Erro ao carregar inquilinos:', error);
+    } catch (error: any) {
+      this.errorHandler.exibirErro(error, 'Carregar inquilinos');
     }
   }
 
@@ -141,9 +144,10 @@ export class ListarInquilinoComponent implements AfterViewInit {
       if (confirmado) {
         try {
           await this.service.excluirInquilino(id);
+          this.errorHandler.exibirSucesso(Constants.EXCLUIDO_COM_SUCESSO);
           this.carregarDados();
-        } catch (error) {
-          console.error('Erro ao excluir inquilino:', error);
+        } catch (error: any) {
+          this.errorHandler.exibirErro(error, 'Excluir inquilino');
         }
       }
     });
@@ -158,14 +162,14 @@ export class ListarInquilinoComponent implements AfterViewInit {
   }
 
   obterStatus(item: InquilinoResponseDTO | null | undefined): string {
-    return item?.status ?? 'DESCONHECIDO';
+    return item?.status ?? Constants.STATUS_DESCONHECIDO;
   }
 
   obterClasseStatusBadge(status: string | null | undefined): Record<string, boolean> {
     const statusSafe = this.obterStatus({ status } as any);
     return {
-      'badge-ativo': statusSafe === 'ATIVO',
-      'badge-inativo': statusSafe === 'INATIVO'
+      'badge-ativo': statusSafe === Constants.STATUS_ATIVO,
+      'badge-inativo': statusSafe === Constants.STATUS_INATIVO
     };
   }
 }

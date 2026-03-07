@@ -5,11 +5,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Constants } from '../../../util/constantes';
 import { take } from 'rxjs';
 import { ValorService } from '../../../service/valor.service';
+import { ErrorHandlerService } from '../../../service/error-handler.service';
 import { ValorPostDTO } from '../../../core/model/dto/valor/valorPostDTO';
 import { ValorPutDTO } from '../../../core/model/dto/valor/valorPutDTO';
 import { ValorResponseDTO } from '../../../core/model/dto/valor/valorResponseDTO';
@@ -36,7 +37,7 @@ export class CadastrarValorComponent implements OnInit {
 
   private valorService = inject(ValorService);
   private route = inject(ActivatedRoute);
-  private snack = inject(MatSnackBar);
+  private errorHandler = inject(ErrorHandlerService);
   private router = inject(Router);
 
   id: number | null = null;
@@ -98,30 +99,16 @@ export class CadastrarValorComponent implements OnInit {
       if (this.id) {
         const putData: ValorPutDTO = { id: this.id, ...dados };
         await this.valorService.atualizarValor(this.id, putData);
-
-        this.snack.open(Constants.ATUALIZADO_COM_SUCESSO, 'OK', {
-          duration: 4000,
-          panelClass: ['snackbar-success'],
-          verticalPosition: 'top'
-        });
+        this.errorHandler.exibirSucesso(Constants.ATUALIZADO_COM_SUCESSO);
       } else {
         await this.valorService.criarValor(dados);
-
-        this.snack.open(Constants.SALVO_COM_SUCESSO, 'OK', {
-          duration: 4000,
-          panelClass: ['snackbar-success'],
-          verticalPosition: 'top'
-        });
+        this.errorHandler.exibirSucesso(Constants.SALVO_COM_SUCESSO);
       }
 
       this.router.navigate(['/listar-valor']);
 
-    } catch {
-      this.snack.open(Constants.ERRO_AO_SALVAR_OU_ATUALIZAR_RECURSO, 'OK', {
-        duration: 4000,
-        panelClass: ['snackbar-error'],
-        verticalPosition: 'top'
-      });
+    } catch (error: any) {
+      this.errorHandler.exibirErro(error, 'salvar ou atualizar valor');
     }
   }
 
@@ -135,11 +122,7 @@ export class CadastrarValorComponent implements OnInit {
       .subscribe({
         next: (dados: ValorResponseDTO) => {
           if (!dados) {
-            this.snack.open(Constants.RECURSO_NAO_ENCONTRADO, 'OK', {
-              duration: 3000,
-              panelClass: ['snackbar-error'],
-              verticalPosition: 'top'
-            });
+            this.errorHandler.exibirErro(null, 'recurso não encontrado');
             return;
           }
 
@@ -147,12 +130,8 @@ export class CadastrarValorComponent implements OnInit {
             valor: this.formatarParaDecimal(dados.valor)
           });
         },
-        error: () => {
-          this.snack.open(Constants.ERRO_AO_CARREGAR_DADOS_DO_RECURSO, 'OK', {
-            duration: 3000,
-            panelClass: ['snackbar-error'],
-            verticalPosition: 'top'
-          });
+        error: (error: any) => {
+          this.errorHandler.exibirErro(error, 'carregar dados do valor');
         }
       });
   }

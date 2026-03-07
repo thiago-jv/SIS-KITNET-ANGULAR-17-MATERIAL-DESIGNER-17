@@ -1,0 +1,108 @@
+<div class="resumo-wrapper">
+  <h1 class="mb-3">Resumo de Indicadores</h1>
+  
+  <div class="card shadow-sm p-4 mb-4">
+    <mat-toolbar class="btn-blue mb-0">
+      <span class="flex-spacer"></span>
+      <div class="d-flex justify-content-end w-100 gap-2">
+        <button mat-raised-button class="btn-red" (click)="aplicarFiltro()" [disabled]="carregando()">
+          Filtrar
+        </button>
+        <button mat-raised-button class="btn-red" (click)="limparFiltro()" [disabled]="carregando()">
+          Limpar
+        </button>
+        <button mat-raised-button class="btn-red" (click)="carregarResumo()" [disabled]="carregando()">
+          <mat-icon>refresh</mat-icon>
+          Atualizar
+        </button>
+      </div>
+    </mat-toolbar>
+  </div>
+
+  <div class="card shadow-sm p-4 mb-4">
+    <h3 class="mb-3">Filtros</h3>
+
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Data de pagamento (de)</mat-label>
+          <input matInput [matDatepicker]="pickerInicio" [(ngModel)]="dataInicio" (ngModelChange)="dataInicio.set($event)">
+          <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+          <mat-datepicker #pickerInicio></mat-datepicker>
+        </mat-form-field>
+      </div>
+      <div class="col-12 col-md-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Data de pagamento (até)</mat-label>
+          <input matInput [matDatepicker]="pickerFim" [(ngModel)]="dataFim" (ngModelChange)="dataFim.set($event)">
+          <mat-datepicker-toggle matIconSuffix [for]="pickerFim"></mat-datepicker-toggle>
+          <mat-datepicker #pickerFim></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+
+  @if (carregando()) {
+    <div class="estado estado-carregando">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Carregando indicadores...</span>
+    </div>
+  }
+
+  @if (erro()) {
+    <div class="estado estado-erro">{{ erro() }}</div>
+  }
+
+  <div class="grid-indicadores">
+    <div class="card-indicador">
+      <div class="icone-container icone-azul">
+        <mat-icon>home</mat-icon>
+      </div>
+      <div class="conteudo">
+        <div class="label">Total de apartamentos</div>
+        <div class="valor">{{ resumo().totalApartamentos }}</div>
+      </div>
+    </div>
+
+    <div class="card-indicador">
+      <div class="icone-container icone-verde">
+        <mat-icon>key</mat-icon>
+      </div>
+      <div class="conteudo">
+        <div class="label">Apartamentos alugados</div>
+        <div class="valor">{{ resumo().totalApartamentosAlugados }}</div>
+      </div>
+    </div>
+
+    <div class="card-indicador">
+      <div class="icone-container icone-laranja">
+        <mat-icon>meeting_room</mat-icon>
+      </div>
+      <div class="conteudo">
+        <div class="label">Apartamentos vagos</div>
+        <div class="valor">{{ resumo().totalApartamentosVagos }}</div>
+      </div>
+    </div>
+
+    <div class="card-indicador">
+      <div class="icone-container icone-vermelho">
+        <mat-icon>monetization_on</mat-icon>
+      </div>
+      <div class="conteudo">
+        <div class="label">Alugueis em aberto</div>
+        <div class="valor">{{ formatarMoeda(resumo().somaAlugueisEmAberto) }}</div>
+      </div>
+    </div>
+
+    <div class="card-indicador">
+      <div class="icone-container icone-laranja-escuro">
+        <mat-icon>attach_money</mat-icon>
+      </div>
+      <div class="conteudo">
+        <div class="label">Total débito real</div>
+        <div class="valor">{{ formatarMoeda(resumo().totalDebitoReal) }}</div>
+      </div>
+    </div>
+
+  </div>
+</div>

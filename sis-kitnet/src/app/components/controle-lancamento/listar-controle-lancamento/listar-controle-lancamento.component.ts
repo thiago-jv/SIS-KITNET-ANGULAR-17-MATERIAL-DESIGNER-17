@@ -13,15 +13,16 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { FilterBarComponent } from '../../../core/filters/filter-bar.component';
 
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
 import { RenovarLancamentoDialogComponent } from '../shared/renovar-lancamento-dialog/renovar-lancamento-dialog.component';
 import { ControleLancamentoService } from '../../../service/controle-lancamento.service';
+import { ErrorHandlerService } from '../../../service/error-handler.service';
+import { Constants } from '../../../util/constantes';
 import { ControleLancamentoResponseDTO } from '../../../core/model/dto/controleLancamento/controleLancamentoResponseDTO';
 import { ControleLancamentoFilterDTO } from '../../../core/model/dto/controleLancamento/controleLancamentoFilterDTO';
 
@@ -42,7 +43,6 @@ import { ControleLancamentoFilterDTO } from '../../../core/model/dto/controleLan
     MatToolbarModule,
     MatSortModule,
     MatIconModule,
-    MatSnackBarModule,
     MatTooltipModule,
     MatMenuModule,
     ReactiveFormsModule
@@ -54,7 +54,7 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
 
   private service = inject(ControleLancamentoService);
   private dialog = inject(MatDialog);
-  private snack = inject(MatSnackBar);
+  private errorHandler = inject(ErrorHandlerService);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -63,32 +63,25 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
   dataSource = new MatTableDataSource<ControleLancamentoResponseDTO>();
 
   totalRegistros = signal(0);
+  
+  // Set com IDs dos últimos lançamentos por inquilino
+  ultimosLancamentosPorInquilino = new Set<number>();
 
   // Filtros
   dataPagamentoDeFiltro = signal<string | undefined>(undefined);
   dataPagamentoAteFiltro = signal<string | undefined>(undefined);
   minDateAte = signal<Date | null>(null);
   statusApartamePagamentoFiltro = signal<string | undefined>(undefined);
-  entragaContaLuzFiltro = signal<string | undefined>(undefined);
-  statusApartamePagamentoLuzFiltro = signal<string | undefined>(undefined);
 
   // Opções para os selects de status
   statusOptions = [
     { label: 'Todos', value: '' },
-    { label: 'Pago', value: 'PAGO' },
+    { label: 'Pago', value: Constants.STATUS_PAGO },
     { label: 'Débito', value: 'DEBITO' }
-  ];
-
-  entregaLuzOptions = [
-    { label: 'Todos', value: '' },
-    { label: 'Sim', value: 'SIM' },
-    { label: 'Não', value: 'NAO' }
   ];
 
   // Form controls para os selects
   statusApartamentoControl = new FormControl('');
-  entregaLuzControl = new FormControl('');
-  statusLuzControl = new FormControl('');
 
   // Paginação
   paginaAtual = signal(0);
@@ -107,9 +100,6 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
     'statusApartamePagamento',
     'valorApartamento',
     'valorDebitoApartamento',
-    'statusProximoPagamento',
-    'entragaContaLuz',
-    'statusApartamePagamentoLuz',
     'statusControle',
     'acoes'
   ];
@@ -140,16 +130,6 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
       this.statusApartamePagamentoFiltro.set(value || undefined);
       this.atualizarFiltro();
     });
-
-    this.entregaLuzControl.valueChanges.subscribe(value => {
-      this.entragaContaLuzFiltro.set(value || undefined);
-      this.atualizarFiltro();
-    });
-
-    this.statusLuzControl.valueChanges.subscribe(value => {
-      this.statusApartamePagamentoLuzFiltro.set(value || undefined);
-      this.atualizarFiltro();
-    });
   }
   
   private async carregarDados() {
@@ -159,8 +139,6 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
       dataPagamentoDe: this.dataPagamentoDeFiltro(),
       dataPagamentoAte: this.dataPagamentoAteFiltro(),
       statusApartamePagamento: this.statusApartamePagamentoFiltro(),
-      entragaContaLuz: this.entragaContaLuzFiltro(),
-      statusApartamePagamentoLuz: this.statusApartamePagamentoLuzFiltro(),
       sortField: this.ordemCampo() || undefined,
       sortDirection: this.ordemDirecao() || undefined
     };
@@ -169,9 +147,36 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
       const result = await this.service.filtrar(filtro);
       this.dataSource.data = result.controleLancamentos;
       this.totalRegistros.set(result.total);
-    } catch (error) {
-      console.error('Erro ao carregar controle de lançamentos:', error);
+      
+      // Identificar último lançamento por inquilino
+      this.identificarUltimosLancamentosPorInquilino(result.controleLancamentos);
+    } catch (error: any) {
+      this.errorHandler.exibirErro(error, 'carregar controle de lançamentos');
     }
+  }
+  
+  private identificarUltimosLancamentosPorInquilino(lancamentos: ControleLancamentoResponseDTO[]) {
+    this.ultimosLancamentosPorInquilino.clear();
+    
+    // Agrupar por inquilino e encontrar o ID mais alto (último registro)
+    const mapaInquilinos = new Map<number, number>();
+    
+    lancamentos.forEach(lancamento => {
+      const inquilinoId = lancamento.inquilino?.id;
+      const lancamentoId = lancamento.id;
+      
+      if (inquilinoId && lancamentoId) {
+        const idAtual = mapaInquilinos.get(inquilinoId);
+        if (!idAtual || lancamentoId > idAtual) {
+          mapaInquilinos.set(inquilinoId, lancamentoId);
+        }
+      }
+    });
+    
+    // Adicionar os IDs dos últimos lançamentos ao Set
+    mapaInquilinos.forEach(lancamentoId => {
+      this.ultimosLancamentosPorInquilino.add(lancamentoId);
+    });
   }
 
   atualizarFiltro() {
@@ -228,9 +233,10 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
       if (confirmado) {
         try {
           await this.service.excluirControleLancamento(id);
+          this.errorHandler.exibirSucesso(Constants.EXCLUIDO_COM_SUCESSO);
           this.carregarDados();
-        } catch (error) {
-          console.error('Erro ao excluir controle de lançamento:', error);
+        } catch (error: any) {
+          this.errorHandler.exibirErro(error, 'excluir controle de lançamento');
         }
       }
     });
@@ -239,9 +245,10 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
   async atualizarStatus(id: number) {
     try {
       await this.service.atualizarStatus(id);
+      this.errorHandler.exibirSucesso(Constants.STATUS_ATUALIZADO_COM_SUCESSO);
       this.carregarDados();
-    } catch (error) {
-      console.error('Erro ao atualizar status:', error);
+    } catch (error: any) {
+      this.errorHandler.exibirErro(error, 'atualizar status');
     }
   }
 
@@ -254,32 +261,13 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
       link.download = `controle-lancamento-${id}.pdf`;
       link.click();
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Erro ao baixar relatório:', error);
+      this.errorHandler.exibirSucesso(Constants.RELATORIO_BAIXADO_COM_SUCESSO);
+    } catch (error: any) {
+      this.errorHandler.exibirErro(error, 'baixar relatório');
     }
   }
 
   async renovar(lancamento: ControleLancamentoResponseDTO) {
-    // Validação 1: Só PAGO
-    if (lancamento.status?.statusApartamePagamento !== 'PAGO') {
-      this.snack.open('Apenas lançamentos PAGOS podem ser renovados', 'OK', {
-        duration: 4000,
-        panelClass: ['snackbar-warning'],
-        verticalPosition: 'top'
-      });
-      return;
-    }
-
-    // Validação 2: Status do controle deve estar FECHADO (statusControle = false)
-    if (lancamento.status?.statusControle !== false) {
-      this.snack.open('O lançamento deve estar FECHADO para renovar', 'OK', {
-        duration: 4000,
-        panelClass: ['snackbar-warning'],
-        verticalPosition: 'top'
-      });
-      return;
-    }
-
     // Abre modal informativo
     const ref = this.dialog.open(RenovarLancamentoDialogComponent, {
       width: '600px',
@@ -293,19 +281,10 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
       if (confirmado) {
         try {
           await this.service.renovarLancamento(lancamento.id!, 1);
-          this.snack.open('Próximo lançamento criado com sucesso!', 'OK', {
-            duration: 4000,
-            panelClass: ['snackbar-success'],
-            verticalPosition: 'top'
-          });
+          this.errorHandler.exibirSucesso(Constants.LANCAMENTO_CRIADO_COM_SUCESSO, 4000);
           this.carregarDados();
-        } catch (error) {
-          console.error('Erro ao renovar lançamento:', error);
-          this.snack.open('Erro ao renovar lançamento', 'OK', {
-            duration: 4000,
-            panelClass: ['snackbar-error'],
-            verticalPosition: 'top'
-          });
+        } catch (error: any) {
+          this.errorHandler.exibirErro(error, 'renovar lançamento');
         }
       }
     });
@@ -324,7 +303,7 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
   }
 
   obterStatus(item: ControleLancamentoResponseDTO | null | undefined) {
-    return item?.status ?? { statusControle: null, statusApartamePagamento: null, statusApartamePagamentoLuz: null };
+    return item?.status ?? { statusControle: null, statusApartamePagamento: null };
   }
 
   obterStatusControle(item: ControleLancamentoResponseDTO | null | undefined): boolean {
@@ -347,19 +326,13 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
   }
 
   podeRenovar(item: ControleLancamentoResponseDTO): boolean {
-    const status = this.obterStatus(item);
-    const podeRenovar = status.statusApartamePagamento === 'PAGO' && 
-                        status.statusControle === true;
-    return podeRenovar;
+    // Verifica se é o último lançamento do inquilino
+    return item.id ? this.ultimosLancamentosPorInquilino.has(item.id) : false;
   }
 
   obterDicaRenovacao(item: ControleLancamentoResponseDTO): string {
-    const status = this.obterStatus(item);
-    if (status.statusApartamePagamento !== 'PAGO') {
-      return 'Apenas lançamentos PAGOS podem ser renovados';
-    }
-    if (status.statusControle !== true) {
-      return 'O lançamento deve estar ABERTO para renovar';
+    if (!item.id || !this.ultimosLancamentosPorInquilino.has(item.id)) {
+      return 'Apenas o último lançamento do inquilino pode ser renovado';
     }
     return '';
   }
@@ -377,8 +350,8 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
 
   obterClasseBadgePagamento(status: string | null | undefined): Record<string, boolean> {
     return {
-      'badge-paid': status === 'PAGO',
-      'badge-debit': status !== 'PAGO'
+      'badge-paid': status === Constants.STATUS_PAGO,
+      'badge-debit': status !== Constants.STATUS_PAGO
     };
   }
 }

@@ -45,28 +45,6 @@
           </mat-select>
         </mat-form-field>
       </div>
-
-      <div class="col-12 col-md-4">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Conta de Luz Entregue</mat-label>
-          <mat-select [formControl]="entregaLuzControl">
-            <mat-option *ngFor="let option of entregaLuzOptions" [value]="option.value">
-              {{ option.label }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <div class="col-12 col-md-4">
-        <mat-form-field appearance="outline" class="w-100">
-          <mat-label>Status da Conta de Luz</mat-label>
-          <mat-select [formControl]="statusLuzControl">
-            <mat-option *ngFor="let option of statusOptions" [value]="option.value">
-              {{ option.label }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
     </div>
   </div>
 
@@ -114,25 +92,6 @@
       <ng-container matColumnDef="valorDebitoApartamento">
         <th mat-header-cell *matHeaderCellDef>Débito (R$)</th>
         <td mat-cell *matCellDef="let item">{{ item.valores?.valorDebitoApartamento | number:'1.2-2' }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="statusProximoPagamento">
-        <th mat-header-cell *matHeaderCellDef>Próx. pagamento</th>
-        <td mat-cell *matCellDef="let item">
-          <span class="badge" [ngClass]="obterClasseBadgePagamento(item.status?.statusProximoPagamento!)">{{ item.status?.statusProximoPagamento }}</span>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="entragaContaLuz">
-        <th mat-header-cell *matHeaderCellDef>Conta de luz</th>
-        <td mat-cell *matCellDef="let item">{{ item.status?.entragaContaLuz }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="statusApartamePagamentoLuz">
-        <th mat-header-cell *matHeaderCellDef>Pagamento luz</th>
-        <td mat-cell *matCellDef="let item">
-          <span class="badge" [ngClass]="obterClasseBadgePagamento(item.status?.statusApartamePagamentoLuz!)">{{ item.status?.statusApartamePagamentoLuz }}</span>
-        </td>
       </ng-container>
 
       <ng-container matColumnDef="statusControle">

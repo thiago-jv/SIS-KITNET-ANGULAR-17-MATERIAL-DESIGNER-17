@@ -11,11 +11,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { ApartamentoService } from '../../../service/apartamento.service';
 import { PredioService } from '../../../service/predio.service';
+import { ErrorHandlerService } from '../../../service/error-handler.service';
 
 import { ApartamentoPostDTO } from '../../../core/model/dto/apartamento/apartamentoPostDTO';
 import { PredioResponseDTO } from '../../../core/model/dto/predio/predioResponseDTO';
@@ -34,7 +35,6 @@ import { take } from 'rxjs';
     MatSelectModule,
     MatButtonModule,
     RouterLink,
-    MatSnackBarModule,
     MatToolbarModule
   ],
   templateUrl: './cadastra-apartamento.component.html',
@@ -45,7 +45,7 @@ export class CadastraApartamentoComponent implements OnInit {
   private apartamentoService = inject(ApartamentoService);
   private predioService = inject(PredioService);
   private route = inject(ActivatedRoute);
-  private snack = inject(MatSnackBar);
+  private errorHandler = inject(ErrorHandlerService);
   private router = inject(Router);
 
   id: number | null = null;
@@ -85,11 +85,7 @@ export class CadastraApartamentoComponent implements OnInit {
     .subscribe({
       next: (dados) => {
         if (!dados) {
-          this.snack.open(Constants.RECURSO_NAO_ENCONTRADO, 'OK', {
-            duration: 3000,
-            panelClass: ['snackbar-error'],
-            verticalPosition: 'top'
-          });
+          this.errorHandler.exibirErro(new Error('Recurso não encontrado'), 'carregar dados');
           return;
         }
         this.form.patchValue({
@@ -102,12 +98,8 @@ export class CadastraApartamentoComponent implements OnInit {
           this.carregarDadosPredioPorId(dados.predio.id);
         }
       },
-      error: () => {
-        this.snack.open(Constants.ERRO_AO_CARREGAR_DADOS_DO_RECURSO, 'OK', {
-          duration: 3000,
-          panelClass: ['snackbar-error'],
-          verticalPosition: 'top'
-        });
+      error: (error) => {
+        this.errorHandler.exibirErro(error, 'carregar dados');
       }
     });
   }
@@ -118,11 +110,7 @@ export class CadastraApartamentoComponent implements OnInit {
     .subscribe({
       next: (predio) => {
         if (!predio) {
-          this.snack.open(Constants.RECURSO_NAO_ENCONTRADO, 'OK', {
-            duration: 3000,
-            panelClass: ['snackbar-error'],
-            verticalPosition: 'top'
-          });
+          this.errorHandler.exibirErro(new Error('Recurso não encontrado'), 'carregar dados');
           return;
         }
 
@@ -135,12 +123,8 @@ export class CadastraApartamentoComponent implements OnInit {
           predioId: predio.id
         });
       },
-      error: () => {
-        this.snack.open(Constants.ERRO_AO_CARREGAR_DADOS_DO_RECURSO, 'OK', {
-          duration: 3000,
-          panelClass: ['snackbar-error'],
-          verticalPosition: 'top'
-        });
+      error: (error) => {
+        this.errorHandler.exibirErro(error, 'carregar dados');
       }
     });
 }
@@ -154,11 +138,7 @@ export class CadastraApartamentoComponent implements OnInit {
   } catch (error) {
     this.predios = [];
 
-    this.snack.open('Não foi possível carregar os prédios.', 'OK', {
-      duration: 4000,
-      panelClass: ['snackbar-error'],
-      verticalPosition: 'top'
-    });
+    this.errorHandler.exibirErro(error, 'carregar prédios');
    }
   }
 
@@ -176,7 +156,7 @@ export class CadastraApartamentoComponent implements OnInit {
     const dados: ApartamentoPostDTO = {
       descricao: value.descricao!,
       numeroApartamento: String(value.numero),
-      statusApartamento: 'DISPONIVEL',
+      statusApartamento: Constants.STATUS_DISPONIVEL,
       predio: {
         id: value.predioId!
       }
@@ -185,27 +165,15 @@ export class CadastraApartamentoComponent implements OnInit {
     try {
       if (this.id) {
         await this.apartamentoService.atualizarApartamento(this.id, dados);
-        this.snack.open(Constants.ATUALIZADO_COM_SUCESSO, 'OK', { 
-          duration: 4000,
-          verticalPosition: 'top',
-          panelClass: ['snackbar-success']
-        });
+        this.errorHandler.exibirSucesso(Constants.ATUALIZADO_COM_SUCESSO);
         this.router.navigate(['/listar-apartamento']);
       } else {
         await this.apartamentoService.criarApartamento(dados);
-        this.snack.open(Constants.SALVO_COM_SUCESSO, 'OK', { 
-          duration: 4000,
-          verticalPosition: 'top',
-          panelClass: ['snackbar-success']
-        });
+        this.errorHandler.exibirSucesso(Constants.SALVO_COM_SUCESSO);
         this.router.navigate(['/listar-apartamento']);
       }
-    } catch {
-      this.snack.open(Constants.ERRO_AO_SALVAR_OU_ATUALIZAR_RECURSO, 'OK', {
-        duration: 4000,
-        panelClass: ['snackbar-error'],
-        verticalPosition: 'top'
-      });
+    } catch (error) {
+      this.errorHandler.exibirErro(error, 'salvar ou atualizar');
     }
   }
 

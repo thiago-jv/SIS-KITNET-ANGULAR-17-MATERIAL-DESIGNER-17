@@ -15,7 +15,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
 import { PredioService } from '../../../service/predio.service';
+import { ErrorHandlerService } from '../../../service/error-handler.service';
 import { PredioResponseDTO } from '../../../core/model/dto/predio/predioResponseDTO';
+import { Constants } from '../../../util/constantes';
 
 @Component({
   selector: 'app-listar-predio',
@@ -41,6 +43,7 @@ export class ListarPredioComponent implements AfterViewInit {
 
   private service = inject(PredioService);
   private dialog = inject(MatDialog);
+  private errorHandler = inject(ErrorHandlerService);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -101,8 +104,8 @@ export class ListarPredioComponent implements AfterViewInit {
       const result = await this.service.filtrar(filtro);
       this.dataSource.data = result.predios;
       this.totalRegistros.set(result.total);
-    } catch (error) {
-      console.error('Erro ao carregar predios:', error);
+    } catch (error: any) {
+      this.errorHandler.exibirErro(error, 'Carregar prédios');
     }
   }
 
@@ -133,9 +136,10 @@ export class ListarPredioComponent implements AfterViewInit {
       if (confirmado) {
         try {
           await this.service.excluirPredio(id);
+          this.errorHandler.exibirSucesso(Constants.EXCLUIDO_COM_SUCESSO);
           this.carregarDados();
-        } catch (error) {
-          console.error('Erro ao excluir predio:', error);
+        } catch (error: any) {
+          this.errorHandler.exibirErro(error, 'Excluir prédio');
         }
       }
     });

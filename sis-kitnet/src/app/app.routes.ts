@@ -2,6 +2,17 @@ import { Routes } from '@angular/router';
 
 export const routes: Routes = [
   {
+    path: '',
+    redirectTo: 'indicadores',
+    pathMatch: 'full'
+  },
+  {
+    path: 'indicadores',
+    loadComponent: () =>
+      import('./components/indicadores/indicadores-resumo.component')
+        .then(c => c.IndicadoresResumoComponent)
+  },
+  {
     path: 'apartamento',
     loadComponent: () =>
       import('./components/apartamento/apartamento.component')
@@ -102,5 +113,9 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/controle-lancamento/listar-controle-lancamento/listar-controle-lancamento.component')
         .then(c => c.ListarControleLancamentoComponent)
+  },
+  {
+    path: '**',
+    redirectTo: 'indicadores'
   }
 ];

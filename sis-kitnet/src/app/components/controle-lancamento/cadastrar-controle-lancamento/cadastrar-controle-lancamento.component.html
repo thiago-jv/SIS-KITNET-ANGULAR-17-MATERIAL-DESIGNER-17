@@ -90,20 +90,6 @@
           </mat-form-field>
         </div>
 
-        <div class="col-12">
-          <label class="field-label mb-1">Status do Próximo Pagamento</label>
-          <mat-button-toggle-group formControlName="statusProximoPagamento" class="w-100 status-luz-group">
-            <mat-button-toggle *ngFor="let status of statusProximoPagamento" [value]="status.value" class="flex-fill">
-              <span class="toggle-content">
-                <span [ngClass]="{
-                  'badge-paid-toggle': status.value === 'PAGO',
-                  'badge-debit-toggle': status.value === 'DEBITO'
-                }">{{ status.label }}</span>
-              </span>
-            </mat-button-toggle>
-          </mat-button-toggle-group>
-        </div>
-
       </div>
     </mat-card-content>
   </mat-card>
@@ -115,34 +101,6 @@
     </mat-card-header>
     <mat-card-content>
       <div class="row g-3">
-
-        <div class="col-12 col-lg-6">
-          <label class="field-label mb-1">Conta de Luz Entregue</label>
-          <mat-button-toggle-group formControlName="entragaContaLuz" class="w-100 status-luz-group">
-            <mat-button-toggle *ngFor="let opcao of entragaContaLuz" [value]="opcao.value" class="flex-fill">
-              <span class="toggle-content">
-                <span [ngClass]="{
-                  'badge-paid-toggle': opcao.value === 'SIM',
-                  'badge-debit-toggle': opcao.value === 'NAO'
-                }">{{ opcao.label }}</span>
-              </span>
-            </mat-button-toggle>
-          </mat-button-toggle-group>
-        </div>
-
-        <div class="col-12 col-lg-6">
-          <label class="field-label mb-1">Status da Conta de Luz</label>
-          <mat-button-toggle-group formControlName="statusApartamePagamentoLuz" class="w-100 status-luz-group">
-            <mat-button-toggle *ngFor="let status of statusApartamePagamentoLuz" [value]="status.value" class="flex-fill">
-              <span class="toggle-content">
-                <span [ngClass]="{
-                  'badge-paid-toggle': status.value === 'PAGO',
-                  'badge-debit-toggle': status.value === 'DEBITO'
-                }">{{ status.label }}</span>
-              </span>
-            </mat-button-toggle>
-          </mat-button-toggle-group>
-        </div>
 
         <div class="col-6 col-lg-2">
           <label class="field-label mb-1">R$ Apartamento</label>

@@ -8,12 +8,13 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import {Constants} from "../../../util/constantes";
 import {take} from "rxjs";
 import { PredioService } from '../../../service/predio.service';
 import { PredioPostDTO } from '../../../core/model/dto/predio/predioPostDTO';
+import { ErrorHandlerService } from '../../../service/error-handler.service';
 
 @Component({
   selector: 'app-cadastrar-predio',
@@ -28,7 +29,6 @@ import { PredioPostDTO } from '../../../core/model/dto/predio/predioPostDTO';
     MatNativeDateModule,
     MatButtonModule,
     RouterLink,
-    MatSnackBarModule,
     MatToolbarModule
   ],
   templateUrl: './cadastrar-predio.component.html',
@@ -38,7 +38,7 @@ export class CadastrarPredioComponent {
 
   private predioService = inject(PredioService);
   private route = inject(ActivatedRoute);
-  private snack = inject(MatSnackBar);
+  private errorHandler = inject(ErrorHandlerService);
   private router = inject(Router);
 
   id: number | null = null;
@@ -80,30 +80,18 @@ export class CadastrarPredioComponent {
       if (this.id) {
         const resp = await this.predioService.atualizarPredio(this.id, dados);
 
-        this.snack.open(Constants.ATUALIZADO_COM_SUCESSO, 'OK', {
-          duration: 4000,
-          panelClass: ['snackbar-success'],
-          verticalPosition: 'top'
-        });
+        this.errorHandler.exibirSucesso(Constants.ATUALIZADO_COM_SUCESSO);
         this.router.navigate(['/listar-predio']);
 
       } else {
         const resp = await this.predioService.criarPredio(dados);
 
-        this.snack.open(Constants.SALVO_COM_SUCESSO, 'OK', {
-          duration: 4000,
-          panelClass: ['snackbar-success'],
-          verticalPosition: 'top'
-        });
+        this.errorHandler.exibirSucesso(Constants.SALVO_COM_SUCESSO);
         this.router.navigate(['/listar-predio']);
       }
 
     } catch (error) {
-      this.snack.open(Constants.ERRO_AO_SALVAR_OU_ATUALIZAR_RECURSO, 'OK', {
-        duration: 4000,
-        panelClass: ['snackbar-error'],
-        verticalPosition: 'top'
-      });
+      this.errorHandler.exibirErro(error, 'salvar ou atualizar');
     }
   }
 
@@ -122,23 +110,15 @@ export class CadastrarPredioComponent {
       .subscribe({
         next: (dados) => {
           if (!dados) {
-            this.snack.open(Constants.RECURSO_NAO_ENCONTRADO, "OK", {
-              duration: 3000,
-              panelClass: ['snackbar-error'],
-              verticalPosition: 'top'
-            });
+            this.errorHandler.exibirErro(new Error('Recurso não encontrado'), 'carregar dados');
             return;
           }
 
           this.form.patchValue(dados);
         },
 
-        error: () => {
-          this.snack.open(Constants.ERRO_AO_CARREGAR_DADOS_DO_RECURSO, "OK", {
-            duration: 3000,
-            panelClass: ['snackbar-error'],
-            verticalPosition: 'top'
-          });
+        error: (error) => {
+          this.errorHandler.exibirErro(error, 'carregar dados');
         }
       });
     }
