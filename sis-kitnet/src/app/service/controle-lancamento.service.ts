@@ -33,9 +33,7 @@ export class ControleLancamentoService {
 
     if (filter.dataPagamentoDe) params = params.set('dataPagamentoDe', filter.dataPagamentoDe);
     if (filter.dataPagamentoAte) params = params.set('dataPagamentoAte', filter.dataPagamentoAte);
-    if (filter.entragaContaLuz) params = params.set('entragaContaLuz', filter.entragaContaLuz);
     if (filter.statusApartamePagamento) params = params.set('statusApartamePagamento', filter.statusApartamePagamento);
-    if (filter.statusApartamePagamentoLuz) params = params.set('statusApartamePagamentoLuz', filter.statusApartamePagamentoLuz);
     if (filter.sortField && filter.sortDirection) {
       params = params.set('sort', `${filter.sortField},${filter.sortDirection}`);
     }
@@ -46,7 +44,7 @@ export class ControleLancamentoService {
 
     return {
       controleLancamentos: Array.isArray(response?.content) ? response.content : [],
-      total: response?.totalElements ?? 0
+      total: response?.page?.totalElements ?? response?.totalElements ?? 0
     };
   }
 
