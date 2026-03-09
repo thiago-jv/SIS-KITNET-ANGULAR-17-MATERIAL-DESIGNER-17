@@ -47,6 +47,24 @@
   margin-bottom: 1rem;
 }
 
+.secao-titulo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+
+  mat-icon {
+    color: rgba(0, 0, 0, 0.54);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+  }
+}
+
 .row {
   display: flex;
   flex-wrap: wrap;

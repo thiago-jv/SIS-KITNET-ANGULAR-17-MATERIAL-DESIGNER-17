@@ -1,0 +1,142 @@
+<div class="relatorio-wrapper">
+  <h1 class="mb-3">Relatório Gerencial</h1>
+
+  <!-- Botões de ação -->
+  <div class="card shadow-sm p-4 mb-4">
+    <mat-toolbar class="btn-blue mb-0">
+      <span class="flex-spacer"></span>
+      <div class="d-flex justify-content-end w-100 gap-2">
+        <button
+          mat-raised-button
+          (click)="limparFiltros()"
+          [disabled]="carregando() || carregandoDados()"
+        >
+          <mat-icon>close</mat-icon>
+          Limpar
+        </button>
+
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="gerarPDF(false)"
+          [disabled]="carregando() || carregandoDados()"
+        >
+          @if (carregando()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            <mat-icon>download</mat-icon>
+          }
+          Baixar PDF
+        </button>
+
+        <button
+          mat-raised-button
+          color="accent"
+          (click)="gerarPDF(true)"
+          [disabled]="carregando() || carregandoDados()"
+        >
+          @if (carregando()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            <mat-icon>open_in_new</mat-icon>
+          }
+          Abrir PDF
+        </button>
+      </div>
+    </mat-toolbar>
+  </div>
+
+  <!-- Card de Filtros -->
+  <div class="card shadow-sm p-4 mb-4">
+    <h3 class="mb-3">Filtros</h3>
+
+    <!-- Filtros de Período -->
+    <div class="secao-titulo">
+      <mat-icon>date_range</mat-icon>
+      <h3>Período</h3>
+    </div>
+
+      <div class="filtros">
+        <mat-form-field appearance="outline" class="campo-data">
+          <mat-label>Data de Início</mat-label>
+          <input
+            matInput
+            [matDatepicker]="pickerInicio"
+            [(ngModel)]="dataInicio"
+            placeholder="DD/MM/YYYY"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+          <mat-datepicker #pickerInicio></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="campo-data">
+          <mat-label>Data de Fim</mat-label>
+          <input
+            matInput
+            [matDatepicker]="pickerFim"
+            [(ngModel)]="dataFim"
+            placeholder="DD/MM/YYYY"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerFim"></mat-datepicker-toggle>
+          <mat-datepicker #pickerFim></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Filtros Específicos -->
+      <div class="secao-titulo">
+        <mat-icon>filter_list</mat-icon>
+        <h3>Filtros Opcionais</h3>
+      </div>
+
+      <div class="filtros">
+        <mat-form-field appearance="outline" class="campo-filtro">
+          <mat-label>Prédio</mat-label>
+          <mat-select [(ngModel)]="predioId" [disabled]="carregandoDados()">
+            <mat-option [value]="null">Todos</mat-option>
+            @for (predio of predios(); track predio.id) {
+              <mat-option [value]="predio.id">
+                {{ predio.descricao }} - {{ predio.numero }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="campo-filtro">
+          <mat-label>Apartamento</mat-label>
+          <mat-select [(ngModel)]="apartamentoId" [disabled]="carregandoDados()">
+            <mat-option [value]="null">Todos</mat-option>
+            @for (apartamento of apartamentos(); track apartamento.id) {
+              <mat-option [value]="apartamento.id">
+                Apt {{ apartamento.numeroApartamento }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="campo-filtro">
+          <mat-label>Inquilino</mat-label>
+          <mat-select [(ngModel)]="inquilinoId" [disabled]="carregandoDados()">
+            <mat-option [value]="null">Todos</mat-option>
+            @for (inquilino of inquilinos(); track inquilino.id) {
+              <mat-option [value]="inquilino.id">
+                {{ inquilino.nome }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="campo-filtro">
+          <mat-label>Status de Pagamento</mat-label>
+          <mat-select [(ngModel)]="statusPagamentoSelecionado">
+            @for (status of statusOptions; track status.value) {
+              <mat-option [value]="status.value">
+                {{ status.label }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+  </div>
+</div>

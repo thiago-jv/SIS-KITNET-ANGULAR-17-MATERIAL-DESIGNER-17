@@ -13,83 +13,95 @@
   </div>
 
   <!-- Filtros -->
-  <div class="card filters-card shadow-sm mb-4">
-    <div class="filters-header">
-      <h3 class="filters-title">Filtros</h3>
-    </div>
+  <div class="card shadow-sm p-4 mb-4">
+    <h3 class="mb-3">Filtros</h3>
     
-    <div class="filters-content">
-      <div class="filters-grid">
-        <div class="filter-item">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Inquilino</mat-label>
-            <mat-select [formControl]="inquilinoControl">
-              <mat-option value="">Todos</mat-option>
-              <mat-option *ngFor="let inquilino of inquilinos()" [value]="inquilino.id">
-                {{ inquilino.nome }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
+    <!-- Período -->
+    <div class="secao-titulo">
+      <mat-icon>date_range</mat-icon>
+      <h3>Período</h3>
+    </div>
 
-        <div class="filter-item">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Apartamento</mat-label>
-            <mat-select [formControl]="apartamentoControl">
-              <mat-option value="">Todos</mat-option>
-              <mat-option *ngFor="let apartamento of apartamentos()" [value]="apartamento.id">
-                {{ apartamento.numeroApartamento }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-
-        <div class="filter-item">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Prédio</mat-label>
-            <mat-select [formControl]="predioControl">
-              <mat-option value="">Todos</mat-option>
-              <mat-option *ngFor="let predio of predios()" [value]="predio.id">
-                {{ predio.numero }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-
-        <div class="filter-item">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Data de pagamento (de)</mat-label>
-            <input matInput [matDatepicker]="pickerDataPagamentoDe" [formControl]="dataPagamentoDeControl">
-            <mat-datepicker-toggle matIconSuffix [for]="pickerDataPagamentoDe"></mat-datepicker-toggle>
-            <mat-datepicker #pickerDataPagamentoDe></mat-datepicker>
-          </mat-form-field>
-        </div>
-
-        <div class="filter-item">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Data de pagamento (até)</mat-label>
-            <input matInput [matDatepicker]="pickerDataPagamentoAte" [min]="minDateAte()" [formControl]="dataPagamentoAteControl">
-            <mat-datepicker-toggle matIconSuffix [for]="pickerDataPagamentoAte"></mat-datepicker-toggle>
-            <mat-datepicker #pickerDataPagamentoAte></mat-datepicker>
-          </mat-form-field>
-        </div>
-
-        <div class="filter-item">
-          <mat-form-field appearance="outline" class="w-100">
-            <mat-label>Status do Pagamento</mat-label>
-            <mat-select [formControl]="statusApartamentoControl">
-              <mat-option *ngFor="let option of statusOptions" [value]="option.value">
-                {{ option.label }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Data de Início</mat-label>
+          <input matInput [matDatepicker]="pickerDataPagamentoDe" [formControl]="dataPagamentoDeControl">
+          <mat-datepicker-toggle matIconSuffix [for]="pickerDataPagamentoDe"></mat-datepicker-toggle>
+          <mat-datepicker #pickerDataPagamentoDe></mat-datepicker>
+        </mat-form-field>
       </div>
+
+      <div class="col-12 col-md-6">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Data de Fim</mat-label>
+          <input matInput [matDatepicker]="pickerDataPagamentoAte" [min]="minDateAte()" [formControl]="dataPagamentoAteControl">
+          <mat-datepicker-toggle matIconSuffix [for]="pickerDataPagamentoAte"></mat-datepicker-toggle>
+          <mat-datepicker #pickerDataPagamentoAte></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <mat-divider class="my-3"></mat-divider>
+
+    <!-- Filtros Opcionais -->
+    <div class="secao-titulo">
+      <mat-icon>filter_list</mat-icon>
+      <h3>Filtros Opcionais</h3>
+    </div>
+
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-3">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Prédio</mat-label>
+          <mat-select [formControl]="predioControl">
+            <mat-option value="">Todos</mat-option>
+            <mat-option *ngFor="let predio of predios()" [value]="predio.id">
+              {{ predio.numero }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Apartamento</mat-label>
+          <mat-select [formControl]="apartamentoControl">
+            <mat-option value="">Todos</mat-option>
+            <mat-option *ngFor="let apartamento of apartamentos()" [value]="apartamento.id">
+              {{ apartamento.numeroApartamento }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Inquilino</mat-label>
+          <mat-select [formControl]="inquilinoControl">
+            <mat-option value="">Todos</mat-option>
+            <mat-option *ngFor="let inquilino of inquilinos()" [value]="inquilino.id">
+              {{ inquilino.nome }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <mat-form-field appearance="outline" class="w-100">
+          <mat-label>Status de Pagamento</mat-label>
+          <mat-select [formControl]="statusApartamentoControl">
+            <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
       
-      <div class="d-flex justify-content-end gap-2 mt-3">
-        <button mat-raised-button color="warn" (click)="limparFiltros()">Limpar</button>
-        <button mat-raised-button color="primary" (click)="aplicarFiltros()">Pesquisar</button>
-      </div>
+    <div class="d-flex justify-content-end gap-2 mt-3">
+      <button mat-raised-button color="warn" (click)="limparFiltros()">Limpar</button>
+      <button mat-raised-button color="primary" (click)="aplicarFiltros()">Pesquisar</button>
     </div>
   </div>
 

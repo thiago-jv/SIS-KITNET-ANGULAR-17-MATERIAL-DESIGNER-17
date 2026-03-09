@@ -115,6 +115,12 @@ export const routes: Routes = [
         .then(c => c.ListarControleLancamentoComponent)
   },
   {
+    path: 'relatorio-gerencial',
+    loadComponent: () =>
+      import('./components/relatorio-gerencial/relatorio-gerencial.component')
+        .then(c => c.RelatorioGerencialComponent)
+  },
+  {
     path: '**',
     redirectTo: 'indicadores'
   }

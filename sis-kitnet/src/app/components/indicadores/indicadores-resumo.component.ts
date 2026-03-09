@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDividerModule } from '@angular/material/divider';
 import { IndicadoresService } from '../../service/indicadores.service';
 import { IndicadoresResumoDTO } from '../../core/model/dto/indicadores/indicadoresResumoDTO';
 
@@ -27,7 +28,8 @@ import { IndicadoresResumoDTO } from '../../core/model/dto/indicadores/indicador
     MatFormFieldModule,
     MatNativeDateModule,
     MatToolbarModule,
-    MatSelectModule
+    MatSelectModule,
+    MatDividerModule
   ],
   templateUrl: './indicadores-resumo.component.html',
   styleUrl: './indicadores-resumo.component.scss'

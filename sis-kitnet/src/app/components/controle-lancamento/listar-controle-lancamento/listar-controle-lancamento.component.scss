@@ -24,13 +24,14 @@
   color: #EF7E7E;
 }
 
-/* Actions trigger smaller */
+/* Actions trigger */
 .actions-trigger {
   width: 36px;
   height: 36px;
   color: rgba(0,0,0,0.65);
 }
 
+/* Status link */
 .status-link {
   background: transparent;
   border: none;
@@ -54,3 +55,21 @@
   }
 }
 
+/* Section title */
+.secao-titulo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+
+  mat-icon {
+    color: rgba(0, 0, 0, 0.54);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+  }
+}

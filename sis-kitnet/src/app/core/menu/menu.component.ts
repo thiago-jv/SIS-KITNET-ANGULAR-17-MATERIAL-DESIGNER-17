@@ -46,6 +46,12 @@ export class MenuComponent {
       ]
     },
     {
+      title: 'Relatórios',
+      items: [
+        { label: 'Relatório Gerencial', icon: 'assignment', route: '/relatorio-gerencial', exact: true }
+      ]
+    },
+    {
       title: 'Sistema',
       items: [
         { label: 'Usuário', icon: 'admin_panel_settings', route: '/usuario' }

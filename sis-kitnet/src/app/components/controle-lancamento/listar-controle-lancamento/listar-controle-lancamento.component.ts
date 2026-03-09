@@ -16,6 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { DialogExclusaoComponent } from '../../../shared/dialog-exclusao/dialog-exclusao.component';
@@ -51,6 +52,7 @@ import { PredioResponseDTO } from '../../../core/model/dto/predio/predioResponse
     MatIconModule,
     MatTooltipModule,
     MatMenuModule,
+    MatDividerModule,
     ReactiveFormsModule
   ],
   templateUrl: './listar-controle-lancamento.component.html',
