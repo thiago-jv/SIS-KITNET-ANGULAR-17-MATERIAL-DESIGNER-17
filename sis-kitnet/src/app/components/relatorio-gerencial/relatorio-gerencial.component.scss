@@ -2,6 +2,27 @@
   width: 100%;
 }
 
+/* Filtro do select de inquilino, predio e apartamento */
+:host ::ng-deep .option-filtro-inquilino {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #fff;
+}
+
+.filtro-inquilino-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 2px 4px;
+}
+
+.filtro-inquilino-wrapper input {
+  flex: 1;
+  min-width: 0;
+}
+
 mat-toolbar {
   margin-bottom: 24px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

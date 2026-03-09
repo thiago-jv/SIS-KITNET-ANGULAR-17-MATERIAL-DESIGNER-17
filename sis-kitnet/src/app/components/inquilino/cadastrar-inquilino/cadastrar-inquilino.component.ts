@@ -45,12 +45,13 @@ export class CadastrarInquilinoComponent implements OnInit {
 
   form = new FormGroup({
     nome: new FormControl<string | null>(null, Validators.required),
-    nomeAbreviado: new FormControl<string | null>(null, Validators.required),
-    email: new FormControl<string | null>(null, [Validators.required, Validators.email]),
-    contato: new FormControl<string | null>(null, Validators.required),
-    status: new FormControl<string>(Constants.STATUS_ATIVO, Validators.required),
-    genero: new FormControl<string>(Constants.GENERO_MASCULINO, Validators.required),
-    cpf: new FormControl<string | null>(null, Validators.required),
+    nomeAbreviado: new FormControl<string | null>(null),
+    email: new FormControl<string | null>(null, Validators.email),
+    contato: new FormControl<string | null>(null),
+    status: new FormControl<string>(Constants.STATUS_ATIVO),
+    genero: new FormControl<string>(Constants.GENERO_MASCULINO),
+    cpf: new FormControl<string | null>(null),
+    rg: new FormControl<string | null>(null),
   });
 
   statusOptions = [Constants.STATUS_ATIVO, Constants.STATUS_INATIVO];
@@ -75,12 +76,13 @@ export class CadastrarInquilinoComponent implements OnInit {
 
     const dados: InquilinoPostDTO = {
       nome: this.form.value.nome!,
-      nomeAbreviado: this.form.value.nomeAbreviado!,
-      email: this.form.value.email!,
-      contato: this.form.value.contato!,
+      nomeAbreviado: this.form.value.nomeAbreviado || null,
+      email: this.form.value.email || null,
+      contato: this.form.value.contato || null,
       status: this.form.value.status || Constants.STATUS_ATIVO,
       genero: this.form.value.genero || Constants.GENERO_MASCULINO,
-      cpf: this.form.value.cpf!
+      cpf: this.form.value.cpf || null,
+      rg: this.form.value.rg || null
     };
 
     try {
@@ -121,7 +123,8 @@ export class CadastrarInquilinoComponent implements OnInit {
             contato: dados.contato,
             status: dados.status,
             genero: dados.genero,
-            cpf: dados.cpf
+            cpf: dados.cpf,
+            rg: dados.rg
           });
         },
         error: (error: any) => {

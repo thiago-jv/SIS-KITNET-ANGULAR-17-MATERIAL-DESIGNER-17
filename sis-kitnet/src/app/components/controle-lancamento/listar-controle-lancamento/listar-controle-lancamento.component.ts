@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -89,8 +89,20 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
 
   // Listas para os selects
   inquilinos = signal<InquilinoResponseDTO[]>([]);
+  inquilinosFiltrados = signal<InquilinoResponseDTO[]>([]);
   apartamentos = signal<ApartamentoResponseDTO[]>([]);
+  apartamentosFiltrados = signal<ApartamentoResponseDTO[]>([]);
   predios = signal<PredioResponseDTO[]>([]);
+  prediosFiltrados = signal<PredioResponseDTO[]>([]);
+
+  // Filtros de pesquisa
+  filtroPredio = '';
+  filtroApartamento = '';
+  filtroInquilino = '';
+
+  @ViewChild('predioSelect') predioSelect?: MatSelect;
+  @ViewChild('apartamentoSelect') apartamentoSelect?: MatSelect;
+  @ViewChild('inquilinoSelect') inquilinoSelect?: MatSelect;
 
   // Opções para os selects de status
   statusOptions = [
@@ -162,6 +174,10 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
       this.inquilinos.set(inquilinos);
       this.apartamentos.set(apartamentos);
       this.predios.set(predios);
+      
+      this.aplicarFiltroInquilinos();
+      this.aplicarFiltroApartamentos();
+      this.aplicarFiltroPredios();
     } catch (error: any) {
       this.errorHandler.exibirErro(error, 'carregar listas de filtros');
     }
@@ -215,6 +231,148 @@ export class ListarControleLancamentoComponent implements AfterViewInit {
     mapaInquilinos.forEach(lancamentoId => {
       this.ultimosLancamentosPorInquilino.add(lancamentoId);
     });
+  }
+
+  // Métodos de filtro para Prédio
+  onFiltroPredioInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.filtroPredio = target.value ?? '';
+    this.aplicarFiltroPredios();
+  }
+
+  limparFiltroPredio(event: MouseEvent): void {
+    event.stopPropagation();
+    this.filtroPredio = '';
+    this.aplicarFiltroPredios();
+  }
+
+  onPredioOpened(opened: boolean): void {
+    if (!opened) return;
+    this.filtroPredio = '';
+    this.aplicarFiltroPredios();
+    setTimeout(() => {
+      const panel = this.predioSelect?.panel?.nativeElement as HTMLElement | undefined;
+      panel?.scrollTo({ top: 0 });
+      const input = document.getElementById('filtro-predio-input') as HTMLInputElement | null;
+      input?.focus();
+    });
+  }
+
+  limparPredioSelecionado(event: MouseEvent): void {
+    event.stopPropagation();
+    this.predioControl.setValue('');
+    this.filtroPredio = '';
+    this.aplicarFiltroPredios();
+  }
+
+  private aplicarFiltroPredios(): void {
+    const termo = this.normalizarTexto(this.filtroPredio);
+    if (!termo) {
+      this.prediosFiltrados.set([...this.predios()]);
+      return;
+    }
+    const filtrados = this.predios().filter(predio => {
+      const texto = `${predio.numero} ${predio.descricao ?? ''}`;
+      return this.normalizarTexto(texto).includes(termo);
+    });
+    this.prediosFiltrados.set(filtrados);
+  }
+
+  // Métodos de filtro para Apartamento
+  onFiltroApartamentoInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.filtroApartamento = target.value ?? '';
+    this.aplicarFiltroApartamentos();
+  }
+
+  limparFiltroApartamento(event: MouseEvent): void {
+    event.stopPropagation();
+    this.filtroApartamento = '';
+    this.aplicarFiltroApartamentos();
+  }
+
+  onApartamentoOpened(opened: boolean): void {
+    if (!opened) return;
+    this.filtroApartamento = '';
+    this.aplicarFiltroApartamentos();
+    setTimeout(() => {
+      const panel = this.apartamentoSelect?.panel?.nativeElement as HTMLElement | undefined;
+      panel?.scrollTo({ top: 0 });
+      const input = document.getElementById('filtro-apartamento-input') as HTMLInputElement | null;
+      input?.focus();
+    });
+  }
+
+  limparApartamentoSelecionado(event: MouseEvent): void {
+    event.stopPropagation();
+    this.apartamentoControl.setValue('');
+    this.filtroApartamento = '';
+    this.aplicarFiltroApartamentos();
+  }
+
+  private aplicarFiltroApartamentos(): void {
+    const termo = this.normalizarTexto(this.filtroApartamento);
+    if (!termo) {
+      this.apartamentosFiltrados.set([...this.apartamentos()]);
+      return;
+    }
+    const filtrados = this.apartamentos().filter(apartamento => {
+      const texto = `${apartamento.numeroApartamento} ${apartamento.descricao ?? ''}`;
+      return this.normalizarTexto(texto).includes(termo);
+    });
+    this.apartamentosFiltrados.set(filtrados);
+  }
+
+  // Métodos de filtro para Inquilino
+  onFiltroInquilinoInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.filtroInquilino = target.value ?? '';
+    this.aplicarFiltroInquilinos();
+  }
+
+  limparFiltroInquilino(event: MouseEvent): void {
+    event.stopPropagation();
+    this.filtroInquilino = '';
+    this.aplicarFiltroInquilinos();
+  }
+
+  onInquilinoOpened(opened: boolean): void {
+    if (!opened) return;
+    this.filtroInquilino = '';
+    this.aplicarFiltroInquilinos();
+    setTimeout(() => {
+      const panel = this.inquilinoSelect?.panel?.nativeElement as HTMLElement | undefined;
+      panel?.scrollTo({ top: 0 });
+      const input = document.getElementById('filtro-inquilino-input') as HTMLInputElement | null;
+      input?.focus();
+    });
+  }
+
+  limparInquilinoSelecionado(event: MouseEvent): void {
+    event.stopPropagation();
+    this.inquilinoControl.setValue('');
+    this.filtroInquilino = '';
+    this.aplicarFiltroInquilinos();
+  }
+
+  private aplicarFiltroInquilinos(): void {
+    const termo = this.normalizarTexto(this.filtroInquilino);
+    if (!termo) {
+      this.inquilinosFiltrados.set([...this.inquilinos()]);
+      return;
+    }
+    const filtrados = this.inquilinos().filter(inquilino =>
+      this.normalizarTexto(inquilino.nome).includes(termo)
+    );
+    this.inquilinosFiltrados.set(filtrados);
+  }
+
+  private normalizarTexto(valor: string | null | undefined): string {
+    return (valor ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
   }
 
   aplicarFiltros() {

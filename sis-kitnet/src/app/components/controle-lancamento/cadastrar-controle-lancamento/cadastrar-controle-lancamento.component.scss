@@ -51,6 +51,27 @@
 
 .mb-1 { margin-bottom: 6px; }
 
+/* Filtro do select de inquilino */
+:host ::ng-deep .option-filtro-inquilino {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+	background: #fff;
+}
+
+.filtro-inquilino-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	width: 100%;
+	padding: 2px 4px;
+}
+
+.filtro-inquilino-wrapper input {
+	flex: 1;
+	min-width: 0;
+}
+
 /* Toggle group styles (Sim/Não) */
 :host ::ng-deep .mat-button-toggle-group.w-100 {
 	display: flex;

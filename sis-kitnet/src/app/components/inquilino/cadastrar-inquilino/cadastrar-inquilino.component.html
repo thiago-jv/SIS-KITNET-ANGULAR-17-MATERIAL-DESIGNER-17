@@ -29,10 +29,6 @@
       <mat-form-field appearance="outline" class="w-100">
         <mat-label>Apelido/Abreviação</mat-label>
         <input matInput formControlName="nomeAbreviado" />
-
-        <mat-error *ngIf="(form.controls['nomeAbreviado'].touched || formSubmitted) && form.controls['nomeAbreviado'].invalid">
-          Apelido é obrigatório.
-        </mat-error>
       </mat-form-field>
     </div>
 
@@ -42,7 +38,7 @@
         <input matInput type="email" formControlName="email" />
 
         <mat-error *ngIf="(form.controls['email'].touched || formSubmitted) && form.controls['email'].invalid">
-          Email válido é obrigatório.
+          Email deve ser válido.
         </mat-error>
       </mat-form-field>
     </div>
@@ -51,10 +47,6 @@
       <mat-form-field appearance="outline" class="w-100">
         <mat-label>Contato</mat-label>
         <input matInput formControlName="contato" />
-
-        <mat-error *ngIf="(form.controls['contato'].touched || formSubmitted) && form.controls['contato'].invalid">
-          Contato é obrigatório.
-        </mat-error>
       </mat-form-field>
     </div>
 
@@ -62,10 +54,13 @@
       <mat-form-field appearance="outline" class="w-100">
         <mat-label>CPF</mat-label>
         <input matInput formControlName="cpf" />
+      </mat-form-field>
+    </div>
 
-        <mat-error *ngIf="(form.controls['cpf'].touched || formSubmitted) && form.controls['cpf'].invalid">
-          CPF é obrigatório.
-        </mat-error>
+    <div class="col-12 col-md-6">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>RG</mat-label>
+        <input matInput formControlName="rg" maxlength="20" />
       </mat-form-field>
     </div>
 
@@ -75,10 +70,6 @@
         <mat-select formControlName="status">
           <mat-option *ngFor="let status of statusOptions" [value]="status">{{ status }}</mat-option>
         </mat-select>
-
-        <mat-error *ngIf="(form.controls['status'].touched || formSubmitted) && form.controls['status'].invalid">
-          Status é obrigatório.
-        </mat-error>
       </mat-form-field>
     </div>
 
@@ -88,10 +79,6 @@
         <mat-select formControlName="genero">
           <mat-option *ngFor="let genero of generoOptions" [value]="genero">{{ genero }}</mat-option>
         </mat-select>
-
-        <mat-error *ngIf="(form.controls['genero'].touched || formSubmitted) && form.controls['genero'].invalid">
-          Gênero é obrigatório.
-        </mat-error>
       </mat-form-field>
     </div>
 

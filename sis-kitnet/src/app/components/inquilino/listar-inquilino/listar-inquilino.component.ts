@@ -70,7 +70,7 @@ export class ListarInquilinoComponent implements AfterViewInit {
   ordemDirecao = signal<'asc' | 'desc' | ''>('');
 
   statusOptions = [Constants.STATUS_ATIVO, Constants.STATUS_INATIVO];
-  displayedColumns = ['id', 'nome', 'nomeAbreviado', 'email', 'cpf', 'status', 'acoes'];
+  displayedColumns = ['id', 'nome', 'nomeAbreviado', 'email', 'cpf', 'rg', 'status', 'acoes'];
 
   ngAfterViewInit() {
     // Vincula MatSort à dataSource

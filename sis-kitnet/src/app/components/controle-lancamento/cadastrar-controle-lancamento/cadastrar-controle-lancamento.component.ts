@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -6,7 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -68,8 +68,18 @@ export class CadastrarControleLancamentoComponent implements OnInit {
   minDatePagamento: Date | null = null;
 
   inquilinos: InquilinoResponseDTO[] = [];
+  inquilinosFiltrados: InquilinoResponseDTO[] = [];
   apartamentos: ApartamentoResponseDTO[] = [];
+  apartamentosFiltrados: ApartamentoResponseDTO[] = [];
   valores: ValorResponseDTO[] = [];
+  valoresFiltrados: ValorResponseDTO[] = [];
+  filtroInquilino = '';
+  filtroApartamento = '';
+  filtroValor = '';
+
+  @ViewChild('inquilinoSelect') inquilinoSelect?: MatSelect;
+  @ViewChild('apartamentoSelect') apartamentoSelect?: MatSelect;
+  @ViewChild('valorSelect') valorSelect?: MatSelect;
 
   form = new FormGroup({
     dataEntrada: new FormControl<Date | string | null>(null, Validators.required),
@@ -139,6 +149,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
     try {
       const inquilinos = await this.inquilinoService.buscarTodosInquilinos();
       this.inquilinos = inquilinos;
+      this.aplicarFiltroInquilinos();
     } catch (error: any) {
       this.errorHandler.exibirErro(error, 'carregar inquilinos');
     }
@@ -148,6 +159,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
     try {
       const apartamentos = await this.apartamentoService.buscarTodosApartamentos();
       this.apartamentos = apartamentos;
+      this.aplicarFiltroApartamentos();
     } catch (error: any) {
       this.errorHandler.exibirErro(error, 'carregar apartamentos');
     }
@@ -157,6 +169,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
     try {
       const valores = await this.valorService.buscarTodosValores();
       this.valores = valores;
+      this.aplicarFiltroValores();
     } catch (error: any) {
       this.errorHandler.exibirErro(error, 'carregar valores');
     }
@@ -171,6 +184,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
           
           if (!this.inquilinos.some(i => i.id === inquilino.id)) {
             this.inquilinos.push(inquilino);
+            this.aplicarFiltroInquilinos();
           }
 
           this.form.patchValue({
@@ -183,6 +197,172 @@ export class CadastrarControleLancamentoComponent implements OnInit {
       });
   }
 
+  onFiltroInquilinoInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.filtroInquilino = target.value ?? '';
+    this.aplicarFiltroInquilinos();
+  }
+
+  limparFiltroInquilino(event: MouseEvent): void {
+    event.stopPropagation();
+    this.filtroInquilino = '';
+    this.aplicarFiltroInquilinos();
+  }
+
+  onInquilinoOpened(opened: boolean): void {
+    if (!opened) {
+      return;
+    }
+
+    // sempre abre sem filtro para facilitar troca de registro
+    this.filtroInquilino = '';
+    this.aplicarFiltroInquilinos();
+
+    setTimeout(() => {
+      const panel = this.inquilinoSelect?.panel?.nativeElement as HTMLElement | undefined;
+      panel?.scrollTo({ top: 0 });
+
+      const input = document.getElementById('filtro-inquilino-input') as HTMLInputElement | null;
+      input?.focus();
+    });
+  }
+
+  limparInquilinoSelecionado(event: MouseEvent): void {
+    event.stopPropagation();
+    this.form.patchValue({ inquilinoId: null });
+    this.filtroInquilino = '';
+    this.aplicarFiltroInquilinos();
+  }
+
+  onFiltroApartamentoInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.filtroApartamento = target.value ?? '';
+    this.aplicarFiltroApartamentos();
+  }
+
+  limparFiltroApartamento(event: MouseEvent): void {
+    event.stopPropagation();
+    this.filtroApartamento = '';
+    this.aplicarFiltroApartamentos();
+  }
+
+  onApartamentoOpened(opened: boolean): void {
+    if (!opened) {
+      return;
+    }
+
+    this.filtroApartamento = '';
+    this.aplicarFiltroApartamentos();
+
+    setTimeout(() => {
+      const panel = this.apartamentoSelect?.panel?.nativeElement as HTMLElement | undefined;
+      panel?.scrollTo({ top: 0 });
+
+      const input = document.getElementById('filtro-apartamento-input') as HTMLInputElement | null;
+      input?.focus();
+    });
+  }
+
+  limparApartamentoSelecionado(event: MouseEvent): void {
+    event.stopPropagation();
+    this.form.patchValue({ apartamentoId: null });
+    this.filtroApartamento = '';
+    this.aplicarFiltroApartamentos();
+  }
+
+  onFiltroValorInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.filtroValor = target.value ?? '';
+    this.aplicarFiltroValores();
+  }
+
+  limparFiltroValor(event: MouseEvent): void {
+    event.stopPropagation();
+    this.filtroValor = '';
+    this.aplicarFiltroValores();
+  }
+
+  onValorOpened(opened: boolean): void {
+    if (!opened) {
+      return;
+    }
+
+    this.filtroValor = '';
+    this.aplicarFiltroValores();
+
+    setTimeout(() => {
+      const panel = this.valorSelect?.panel?.nativeElement as HTMLElement | undefined;
+      panel?.scrollTo({ top: 0 });
+
+      const input = document.getElementById('filtro-valor-input') as HTMLInputElement | null;
+      input?.focus();
+    });
+  }
+
+  limparValorSelecionado(event: MouseEvent): void {
+    event.stopPropagation();
+    this.form.patchValue({ valorId: null });
+    this.filtroValor = '';
+    this.aplicarFiltroValores();
+  }
+
+  private aplicarFiltroInquilinos(): void {
+    const termo = this.normalizarTexto(this.filtroInquilino);
+
+    if (!termo) {
+      this.inquilinosFiltrados = [...this.inquilinos];
+      return;
+    }
+
+    this.inquilinosFiltrados = this.inquilinos.filter(inquilino =>
+      this.normalizarTexto(inquilino.nome).includes(termo)
+    );
+  }
+
+  private aplicarFiltroApartamentos(): void {
+    const termo = this.normalizarTexto(this.filtroApartamento);
+
+    if (!termo) {
+      this.apartamentosFiltrados = [...this.apartamentos];
+      return;
+    }
+
+    this.apartamentosFiltrados = this.apartamentos.filter(apartamento => {
+      const texto = `${apartamento.numeroApartamento} ${apartamento.descricao ?? ''}`;
+      return this.normalizarTexto(texto).includes(termo);
+    });
+  }
+
+  private aplicarFiltroValores(): void {
+    const termo = this.normalizarTexto(this.filtroValor);
+
+    if (!termo) {
+      this.valoresFiltrados = [...this.valores];
+      return;
+    }
+
+    this.valoresFiltrados = this.valores.filter(valor =>
+      this.normalizarTexto(this.textoFiltroValor(valor)).includes(termo)
+    );
+  }
+
+  private textoFiltroValor(valor: ValorResponseDTO): string {
+    const bruto = String(valor.valor ?? '');
+    const brasil = Number(valor.valor ?? 0).toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    return `${bruto} ${brasil}`;
+  }
+
+  private normalizarTexto(valor: string | null | undefined): string {
+    return (valor ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
+
   carregarApartamentoPorId(id: number): void {
     this.apartamentoService.buscarPorId(id)
       .pipe(take(1))
@@ -192,6 +372,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
           
           if (!this.apartamentos.some(a => a.id === apartamento.id)) {
             this.apartamentos.push(apartamento);
+            this.aplicarFiltroApartamentos();
           }
 
           this.form.patchValue({
@@ -214,6 +395,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
           // adiciona na lista se ainda não existir
           if (!this.valores.some(v => v.id === valor.id)) {
             this.valores.push(valor);
+            this.aplicarFiltroValores();
           }
 
           this.form.patchValue({

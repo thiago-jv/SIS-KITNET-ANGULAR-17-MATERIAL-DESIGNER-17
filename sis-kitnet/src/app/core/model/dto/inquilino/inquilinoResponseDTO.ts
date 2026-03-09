@@ -7,4 +7,5 @@ export interface InquilinoResponseDTO {
   status: string;
   genero: string;
   cpf: string;
+  rg: string;
 }

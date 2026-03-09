@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,7 +11,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatDividerModule } from '@angular/material/divider';
 import { RelatorioService } from '../../service/relatorio.service';
 import { PredioService } from '../../service/predio.service';
@@ -64,8 +64,20 @@ export class RelatorioGerencialComponent implements OnInit {
 
   // Listas para os selects
   predios = signal<PredioResponseDTO[]>([]);
+  prediosFiltrados = signal<PredioResponseDTO[]>([]);
   apartamentos = signal<ApartamentoResponseDTO[]>([]);
+  apartamentosFiltrados = signal<ApartamentoResponseDTO[]>([]);
   inquilinos = signal<InquilinoResponseDTO[]>([]);
+  inquilinosFiltrados = signal<InquilinoResponseDTO[]>([]);
+
+  // Filtros de pesquisa
+  filtroPredio = '';
+  filtroApartamento = '';
+  filtroInquilino = '';
+
+  @ViewChild('predioSelect') predioSelect?: MatSelect;
+  @ViewChild('apartamentoSelect') apartamentoSelect?: MatSelect;
+  @ViewChild('inquilinoSelect') inquilinoSelect?: MatSelect;
 
   statusOptions = [
     { value: 'TODOS', label: 'Todos' },
@@ -89,6 +101,10 @@ export class RelatorioGerencialComponent implements OnInit {
       this.predios.set(predios);
       this.apartamentos.set(apartamentos);
       this.inquilinos.set(inquilinos);
+      
+      this.aplicarFiltroPredios();
+      this.aplicarFiltroApartamentos();
+      this.aplicarFiltroInquilinos();
     } catch (error) {
       console.error('Erro ao carregar dados iniciais:', error);
       this.snackBar.open('Erro ao carregar dados. Tente novamente.', 'Fechar', {
@@ -123,6 +139,148 @@ export class RelatorioGerencialComponent implements OnInit {
     } finally {
       this.carregando.set(false);
     }
+  }
+
+  // Métodos de filtro para Prédio
+  onFiltroPredioInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.filtroPredio = target.value ?? '';
+    this.aplicarFiltroPredios();
+  }
+
+  limparFiltroPredio(event: MouseEvent): void {
+    event.stopPropagation();
+    this.filtroPredio = '';
+    this.aplicarFiltroPredios();
+  }
+
+  onPredioOpened(opened: boolean): void {
+    if (!opened) return;
+    this.filtroPredio = '';
+    this.aplicarFiltroPredios();
+    setTimeout(() => {
+      const panel = this.predioSelect?.panel?.nativeElement as HTMLElement | undefined;
+      panel?.scrollTo({ top: 0 });
+      const input = document.getElementById('filtro-predio-input') as HTMLInputElement | null;
+      input?.focus();
+    });
+  }
+
+  limparPredioSelecionado(event: MouseEvent): void {
+    event.stopPropagation();
+    this.predioId.set(null);
+    this.filtroPredio = '';
+    this.aplicarFiltroPredios();
+  }
+
+  private aplicarFiltroPredios(): void {
+    const termo = this.normalizarTexto(this.filtroPredio);
+    if (!termo) {
+      this.prediosFiltrados.set([...this.predios()]);
+      return;
+    }
+    const filtrados = this.predios().filter(predio => {
+      const texto = `${predio.numero} ${predio.descricao ?? ''}`;
+      return this.normalizarTexto(texto).includes(termo);
+    });
+    this.prediosFiltrados.set(filtrados);
+  }
+
+  // Métodos de filtro para Apartamento
+  onFiltroApartamentoInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.filtroApartamento = target.value ?? '';
+    this.aplicarFiltroApartamentos();
+  }
+
+  limparFiltroApartamento(event: MouseEvent): void {
+    event.stopPropagation();
+    this.filtroApartamento = '';
+    this.aplicarFiltroApartamentos();
+  }
+
+  onApartamentoOpened(opened: boolean): void {
+    if (!opened) return;
+    this.filtroApartamento = '';
+    this.aplicarFiltroApartamentos();
+    setTimeout(() => {
+      const panel = this.apartamentoSelect?.panel?.nativeElement as HTMLElement | undefined;
+      panel?.scrollTo({ top: 0 });
+      const input = document.getElementById('filtro-apartamento-input') as HTMLInputElement | null;
+      input?.focus();
+    });
+  }
+
+  limparApartamentoSelecionado(event: MouseEvent): void {
+    event.stopPropagation();
+    this.apartamentoId.set(null);
+    this.filtroApartamento = '';
+    this.aplicarFiltroApartamentos();
+  }
+
+  private aplicarFiltroApartamentos(): void {
+    const termo = this.normalizarTexto(this.filtroApartamento);
+    if (!termo) {
+      this.apartamentosFiltrados.set([...this.apartamentos()]);
+      return;
+    }
+    const filtrados = this.apartamentos().filter(apartamento => {
+      const texto = `${apartamento.numeroApartamento} ${apartamento.descricao ?? ''}`;
+      return this.normalizarTexto(texto).includes(termo);
+    });
+    this.apartamentosFiltrados.set(filtrados);
+  }
+
+  // Métodos de filtro para Inquilino
+  onFiltroInquilinoInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.filtroInquilino = target.value ?? '';
+    this.aplicarFiltroInquilinos();
+  }
+
+  limparFiltroInquilino(event: MouseEvent): void {
+    event.stopPropagation();
+    this.filtroInquilino = '';
+    this.aplicarFiltroInquilinos();
+  }
+
+  onInquilinoOpened(opened: boolean): void {
+    if (!opened) return;
+    this.filtroInquilino = '';
+    this.aplicarFiltroInquilinos();
+    setTimeout(() => {
+      const panel = this.inquilinoSelect?.panel?.nativeElement as HTMLElement | undefined;
+      panel?.scrollTo({ top: 0 });
+      const input = document.getElementById('filtro-inquilino-input') as HTMLInputElement | null;
+      input?.focus();
+    });
+  }
+
+  limparInquilinoSelecionado(event: MouseEvent): void {
+    event.stopPropagation();
+    this.inquilinoId.set(null);
+    this.filtroInquilino = '';
+    this.aplicarFiltroInquilinos();
+  }
+
+  private aplicarFiltroInquilinos(): void {
+    const termo = this.normalizarTexto(this.filtroInquilino);
+    if (!termo) {
+      this.inquilinosFiltrados.set([...this.inquilinos()]);
+      return;
+    }
+    const filtrados = this.inquilinos().filter(inquilino =>
+      this.normalizarTexto(inquilino.nome).includes(termo)
+    );
+    this.inquilinosFiltrados.set(filtrados);
+  }
+
+  private normalizarTexto(valor: string | null | undefined): string {
+    return (valor ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
   }
 
   limparFiltros(): void {

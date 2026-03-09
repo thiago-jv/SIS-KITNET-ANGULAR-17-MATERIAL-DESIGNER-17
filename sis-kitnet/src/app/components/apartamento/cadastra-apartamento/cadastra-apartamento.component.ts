@@ -62,10 +62,7 @@ export class CadastraApartamentoComponent implements OnInit {
       nonNullable: true,
       validators: Validators.required
     }),
-    numero: new FormControl<number | null>(null, [
-      Validators.required,
-      Validators.min(1)
-    ]),
+    numero: new FormControl<number | null>(null, Validators.required),
     predioId: new FormControl<number | null>(null, Validators.required)
   });
 

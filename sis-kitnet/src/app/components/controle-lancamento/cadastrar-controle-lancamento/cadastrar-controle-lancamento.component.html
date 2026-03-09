@@ -23,11 +23,46 @@
         <div class="col-12 col-md-4">
           <label class="field-label mb-1">Inquilino</label>
           <mat-form-field appearance="outline" class="w-100">
-            <mat-select formControlName="inquilinoId">
-              <mat-option *ngFor="let inquilino of inquilinos" [value]="inquilino.id">
+            <mat-select #inquilinoSelect formControlName="inquilinoId" (openedChange)="onInquilinoOpened($event)">
+              <mat-option class="option-filtro-inquilino" disabled>
+                <div class="filtro-inquilino-wrapper" (click)="$event.stopPropagation()">
+                  <input
+                    id="filtro-inquilino-input"
+                    matInput
+                    type="text"
+                    placeholder="Digite para filtrar"
+                    [value]="filtroInquilino"
+                    (input)="onFiltroInquilinoInput($event)"
+                    (keydown)="$event.stopPropagation()"
+                  />
+                  <button
+                    *ngIf="filtroInquilino"
+                    mat-icon-button
+                    type="button"
+                    aria-label="Limpar filtro"
+                    (click)="limparFiltroInquilino($event)">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </mat-option>
+
+              <mat-option *ngFor="let inquilino of inquilinosFiltrados" [value]="inquilino.id">
                 {{ inquilino.nome }}
               </mat-option>
+
+              <mat-option *ngIf="inquilinosFiltrados.length === 0" disabled>
+                Nenhum inquilino encontrado.
+              </mat-option>
             </mat-select>
+            <button
+              *ngIf="form.controls['inquilinoId'].value"
+              mat-icon-button
+              matSuffix
+              type="button"
+              aria-label="Limpar inquilino selecionado"
+              (click)="limparInquilinoSelecionado($event)">
+              <mat-icon>close</mat-icon>
+            </button>
             <mat-error *ngIf="(form.controls['inquilinoId'].touched || formSubmitted) && form.controls['inquilinoId'].invalid">
               Inquilino é obrigatório.
             </mat-error>
@@ -37,11 +72,46 @@
         <div class="col-12 col-md-4">
           <label class="field-label mb-1">Apartamento</label>
           <mat-form-field appearance="outline" class="w-100">
-            <mat-select formControlName="apartamentoId">
-              <mat-option *ngFor="let apartamento of apartamentos" [value]="apartamento.id">
+            <mat-select #apartamentoSelect formControlName="apartamentoId" (openedChange)="onApartamentoOpened($event)">
+              <mat-option class="option-filtro-inquilino" disabled>
+                <div class="filtro-inquilino-wrapper" (click)="$event.stopPropagation()">
+                  <input
+                    id="filtro-apartamento-input"
+                    matInput
+                    type="text"
+                    placeholder="Digite para filtrar"
+                    [value]="filtroApartamento"
+                    (input)="onFiltroApartamentoInput($event)"
+                    (keydown)="$event.stopPropagation()"
+                  />
+                  <button
+                    *ngIf="filtroApartamento"
+                    mat-icon-button
+                    type="button"
+                    aria-label="Limpar filtro"
+                    (click)="limparFiltroApartamento($event)">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </mat-option>
+
+              <mat-option *ngFor="let apartamento of apartamentosFiltrados" [value]="apartamento.id">
                 {{ apartamento.numeroApartamento }}
               </mat-option>
+
+              <mat-option *ngIf="apartamentosFiltrados.length === 0" disabled>
+                Nenhum apartamento encontrado.
+              </mat-option>
             </mat-select>
+            <button
+              *ngIf="form.controls['apartamentoId'].value"
+              mat-icon-button
+              matSuffix
+              type="button"
+              aria-label="Limpar apartamento selecionado"
+              (click)="limparApartamentoSelecionado($event)">
+              <mat-icon>close</mat-icon>
+            </button>
             <mat-error *ngIf="(form.controls['apartamentoId'].touched || formSubmitted) && form.controls['apartamentoId'].invalid">
               Apartamento é obrigatório.
             </mat-error>
@@ -51,11 +121,46 @@
         <div class="col-12 col-md-4">
           <label class="field-label mb-1">Valor Mensal</label>
           <mat-form-field appearance="outline" class="w-100">
-            <mat-select formControlName="valorId">
-              <mat-option *ngFor="let valor of valores" [value]="valor.id">
+            <mat-select #valorSelect formControlName="valorId" (openedChange)="onValorOpened($event)">
+              <mat-option class="option-filtro-inquilino" disabled>
+                <div class="filtro-inquilino-wrapper" (click)="$event.stopPropagation()">
+                  <input
+                    id="filtro-valor-input"
+                    matInput
+                    type="text"
+                    placeholder="Digite para filtrar"
+                    [value]="filtroValor"
+                    (input)="onFiltroValorInput($event)"
+                    (keydown)="$event.stopPropagation()"
+                  />
+                  <button
+                    *ngIf="filtroValor"
+                    mat-icon-button
+                    type="button"
+                    aria-label="Limpar filtro"
+                    (click)="limparFiltroValor($event)">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+              </mat-option>
+
+              <mat-option *ngFor="let valor of valoresFiltrados" [value]="valor.id">
                 {{ valor.valor | number:'1.2-2' }}
               </mat-option>
+
+              <mat-option *ngIf="valoresFiltrados.length === 0" disabled>
+                Nenhum valor encontrado.
+              </mat-option>
             </mat-select>
+            <button
+              *ngIf="form.controls['valorId'].value"
+              mat-icon-button
+              matSuffix
+              type="button"
+              aria-label="Limpar valor selecionado"
+              (click)="limparValorSelecionado($event)">
+              <mat-icon>close</mat-icon>
+            </button>
             <mat-error *ngIf="(form.controls['valorId'].touched || formSubmitted) && form.controls['valorId'].invalid">
               Valor é obrigatório.
             </mat-error>

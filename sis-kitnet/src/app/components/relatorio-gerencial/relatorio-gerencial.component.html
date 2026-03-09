@@ -93,38 +93,137 @@
       <div class="filtros">
         <mat-form-field appearance="outline" class="campo-filtro">
           <mat-label>Prédio</mat-label>
-          <mat-select [(ngModel)]="predioId" [disabled]="carregandoDados()">
+          <mat-select #predioSelect [(ngModel)]="predioId" [disabled]="carregandoDados()" (openedChange)="onPredioOpened($event)">
+            <mat-option class="option-filtro-inquilino" disabled>
+              <div class="filtro-inquilino-wrapper" (click)="$event.stopPropagation()">
+                <input
+                  id="filtro-predio-input"
+                  matInput
+                  type="text"
+                  placeholder="Digite para filtrar"
+                  [value]="filtroPredio"
+                  (input)="onFiltroPredioInput($event)"
+                  (keydown)="$event.stopPropagation()"
+                />
+                <button
+                  *ngIf="filtroPredio"
+                  mat-icon-button
+                  type="button"
+                  aria-label="Limpar filtro"
+                  (click)="limparFiltroPredio($event)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </mat-option>
             <mat-option [value]="null">Todos</mat-option>
-            @for (predio of predios(); track predio.id) {
+            @for (predio of prediosFiltrados(); track predio.id) {
               <mat-option [value]="predio.id">
                 {{ predio.descricao }} - {{ predio.numero }}
               </mat-option>
             }
+            <mat-option *ngIf="prediosFiltrados().length === 0" disabled>
+              Nenhum prédio encontrado.
+            </mat-option>
           </mat-select>
+          <button
+            *ngIf="predioId()"
+            mat-icon-button
+            matSuffix
+            type="button"
+            aria-label="Limpar prédio selecionado"
+            (click)="limparPredioSelecionado($event)">
+            <mat-icon>close</mat-icon>
+          </button>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="campo-filtro">
           <mat-label>Apartamento</mat-label>
-          <mat-select [(ngModel)]="apartamentoId" [disabled]="carregandoDados()">
+          <mat-select #apartamentoSelect [(ngModel)]="apartamentoId" [disabled]="carregandoDados()" (openedChange)="onApartamentoOpened($event)">
+            <mat-option class="option-filtro-inquilino" disabled>
+              <div class="filtro-inquilino-wrapper" (click)="$event.stopPropagation()">
+                <input
+                  id="filtro-apartamento-input"
+                  matInput
+                  type="text"
+                  placeholder="Digite para filtrar"
+                  [value]="filtroApartamento"
+                  (input)="onFiltroApartamentoInput($event)"
+                  (keydown)="$event.stopPropagation()"
+                />
+                <button
+                  *ngIf="filtroApartamento"
+                  mat-icon-button
+                  type="button"
+                  aria-label="Limpar filtro"
+                  (click)="limparFiltroApartamento($event)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </mat-option>
             <mat-option [value]="null">Todos</mat-option>
-            @for (apartamento of apartamentos(); track apartamento.id) {
+            @for (apartamento of apartamentosFiltrados(); track apartamento.id) {
               <mat-option [value]="apartamento.id">
                 Apt {{ apartamento.numeroApartamento }}
               </mat-option>
             }
+            <mat-option *ngIf="apartamentosFiltrados().length === 0" disabled>
+              Nenhum apartamento encontrado.
+            </mat-option>
           </mat-select>
+          <button
+            *ngIf="apartamentoId()"
+            mat-icon-button
+            matSuffix
+            type="button"
+            aria-label="Limpar apartamento selecionado"
+            (click)="limparApartamentoSelecionado($event)">
+            <mat-icon>close</mat-icon>
+          </button>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="campo-filtro">
           <mat-label>Inquilino</mat-label>
-          <mat-select [(ngModel)]="inquilinoId" [disabled]="carregandoDados()">
+          <mat-select #inquilinoSelect [(ngModel)]="inquilinoId" [disabled]="carregandoDados()" (openedChange)="onInquilinoOpened($event)">
+            <mat-option class="option-filtro-inquilino" disabled>
+              <div class="filtro-inquilino-wrapper" (click)="$event.stopPropagation()">
+                <input
+                  id="filtro-inquilino-input"
+                  matInput
+                  type="text"
+                  placeholder="Digite para filtrar"
+                  [value]="filtroInquilino"
+                  (input)="onFiltroInquilinoInput($event)"
+                  (keydown)="$event.stopPropagation()"
+                />
+                <button
+                  *ngIf="filtroInquilino"
+                  mat-icon-button
+                  type="button"
+                  aria-label="Limpar filtro"
+                  (click)="limparFiltroInquilino($event)">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </mat-option>
             <mat-option [value]="null">Todos</mat-option>
-            @for (inquilino of inquilinos(); track inquilino.id) {
+            @for (inquilino of inquilinosFiltrados(); track inquilino.id) {
               <mat-option [value]="inquilino.id">
                 {{ inquilino.nome }}
               </mat-option>
             }
+            <mat-option *ngIf="inquilinosFiltrados().length === 0" disabled>
+              Nenhum inquilino encontrado.
+            </mat-option>
           </mat-select>
+          <button
+            *ngIf="inquilinoId()"
+            mat-icon-button
+            matSuffix
+            type="button"
+            aria-label="Limpar inquilino selecionado"
+            (click)="limparInquilinoSelecionado($event)">
+            <mat-icon>close</mat-icon>
+          </button>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="campo-filtro">
