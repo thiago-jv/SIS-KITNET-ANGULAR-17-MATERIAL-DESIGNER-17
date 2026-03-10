@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="relatorio-gerencial" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<parameter name="PREDIO_ID" class="java.lang.String"/>
+	<parameter name="APARTAMENTO_ID" class="java.lang.String"/>
+	<parameter name="INQUILINO_ID" class="java.lang.String"/>
+	<parameter name="DATA_INICIO" class="java.lang.String"/>
+	<parameter name="DATA_FIM" class="java.lang.String"/>
+	<parameter name="STATUS_PAGAMENTO" class="java.lang.String"/>
+	<parameter name="TOTAL_REGISTROS" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<field name="nomeInquilino" class="java.lang.String"/>
+	<field name="contatoInquilino" class="java.lang.String"/>
+	<field name="numeroApartamento" class="java.lang.String"/>
+	<field name="nomePredio" class="java.lang.String"/>
+	<field name="dataEntrada" class="java.time.LocalDate"/>
+	<field name="dataPagamento" class="java.time.LocalDate"/>
+	<field name="valorApartamento" class="java.math.BigDecimal"/>
+	<field name="valorPagoApartamento" class="java.math.BigDecimal"/>
+	<field name="valorDebitoApartamento" class="java.math.BigDecimal"/>
+	<field name="statusPagamentoDescricao" class="java.lang.String"/>
+	<variable name="rowNumber" class="java.lang.Integer" resetType="Page" calculation="Count">
+		<variableExpression><![CDATA[$F{nomeInquilino}]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<variable name="totalAReceber" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{valorApartamento}]]></variableExpression>
+	</variable>
+	<variable name="totalRecebido" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{valorPagoApartamento}]]></variableExpression>
+	</variable>
+	<variable name="totalDebito" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{valorDebitoApartamento}]]></variableExpression>
+	</variable>
+	<title>
+		<band height="60">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="0" width="802" height="60" backcolor="#2C3E50" uuid="f1e2d3c4-b5a6-4879-8b9c-0d1e2f3a4b5c"/>
+				<staticText>
+					<reportElement x="15" y="10" width="500" height="25" forecolor="#FFFFFF" uuid="a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d"/>
+					<textElement>
+						<font size="18" isBold="true"/>
+					</textElement>
+					<text><![CDATA[RELATÓRIO GERENCIAL - KITNETS]]></text>
+				</staticText>
+				<textField isBlankWhenNull="true">
+				<reportElement x="15" y="37" width="400" height="18" forecolor="#FFFFFF" uuid="a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5a"/>
+					<textElement>
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{DATA_INICIO} != null && $P{DATA_FIM} != null ? "Período: " + $P{DATA_INICIO} + " até " + $P{DATA_FIM} : null]]></textFieldExpression>
+				</textField>
+				<textField pattern="dd/MM/yyyy HH:mm">
+					<reportElement x="620" y="35" width="167" height="20" forecolor="#FFFFFF" uuid="b3c4d5e6-f7a8-4b9c-0d1e-2f3a4b5c6d7e"/>
+					<textElement textAlignment="Right">
+						<font size="10"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Emitido em: " + new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date())]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="65">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="5" width="802" height="60" backcolor="#F4F6F7" uuid="8a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d"/>
+				<box>
+					<pen lineWidth="1.0" lineColor="#D5DBDB"/>
+				</box>
+				<staticText>
+					<reportElement x="15" y="8" width="80" height="18" forecolor="#2C3E50" uuid="1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d"/>
+					<textElement>
+						<font size="11" isBold="true"/>
+					</textElement>
+					<text><![CDATA[FILTROS]]></text>
+				</staticText>
+				<textField isBlankWhenNull="true">
+				<reportElement x="15" y="30" width="500" height="15" uuid="b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e"/>
+					<textElement>
+						<font size="9"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{DATA_INICIO} != null && $P{DATA_FIM} != null ? "Período selecionado: " + $P{DATA_INICIO} + " até " + $P{DATA_FIM} : null]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="550" y="30" width="237" height="15" uuid="7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d"/>
+					<textElement textAlignment="Right">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Total de registros: " + $P{TOTAL_REGISTROS}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="30">
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="90" height="30" forecolor="#FFFFFF" backcolor="#34495E" uuid="c4d5e6f7-a8b9-4c0d-1e2f-3a4b5c6d7e8f"/>
+				<box><pen lineWidth="0.5" lineColor="#2C3E50"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Inquilino]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="90" y="0" width="70" height="30" forecolor="#FFFFFF" backcolor="#34495E" uuid="d5e6f7a8-b9c0-4d1e-2f3a-4b5c6d7e8f9a"/>
+				<box><pen lineWidth="0.5" lineColor="#2C3E50"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Contato]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="160" y="0" width="35" height="30" forecolor="#FFFFFF" backcolor="#34495E" uuid="e6f7a8b9-c0d1-4e2f-3a4b-5c6d7e8f9a0b"/>
+				<box><pen lineWidth="0.5" lineColor="#2C3E50"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Apt]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="195" y="0" width="75" height="30" forecolor="#FFFFFF" backcolor="#34495E" uuid="f7a8b9c0-d1e2-4f3a-4b5c-6d7e8f9a0b1c"/>
+				<box><pen lineWidth="0.5" lineColor="#2C3E50"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Prédio]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="270" y="0" width="55" height="30" forecolor="#FFFFFF" backcolor="#34495E" uuid="a8b9c0d1-e2f3-4a4b-5c6d-7e8f9a0b1c2d"/>
+				<box><pen lineWidth="0.5" lineColor="#2C3E50"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Entrada]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="325" y="0" width="55" height="30" forecolor="#FFFFFF" backcolor="#34495E" uuid="b9c0d1e2-f3a4-4b5c-6d7e-8f9a0b1c2d3e"/>
+				<box><pen lineWidth="0.5" lineColor="#2C3E50"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Vencimen.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="380" y="0" width="70" height="30" forecolor="#FFFFFF" backcolor="#34495E" uuid="c0d1e2f3-a4b5-4c6d-7e8f-9a0b1c2d3e4f"/>
+				<box><pen lineWidth="0.5" lineColor="#2C3E50"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[A Receber]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="450" y="0" width="70" height="30" forecolor="#FFFFFF" backcolor="#34495E" uuid="d1e2f3a4-b5c6-4d7e-8f9a-0b1c2d3e4f5a"/>
+				<box><pen lineWidth="0.5" lineColor="#2C3E50"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Recebido]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="520" y="0" width="70" height="30" forecolor="#FFFFFF" backcolor="#34495E" uuid="e2f3a4b5-c6d7-4e8f-9a0b-1c2d3e4f5a6b"/>
+				<box><pen lineWidth="0.5" lineColor="#2C3E50"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Débito]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="590" y="0" width="212" height="30" forecolor="#FFFFFF" backcolor="#34495E" uuid="a4b5c6d7-e8f9-4a0b-1c2d-3e4f5a6b7c8d"/>
+				<box><pen lineWidth="0.5" lineColor="#2C3E50"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Status]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="25">
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="0" y="0" width="90" height="25" backcolor="$V{rowNumber}%2==0 ? new Color(248,249,249) : new Color(255,255,255)" uuid="b5c6d7e8-f9a0-4b1c-2d3e-4f5a6b7c8d9e"/>
+				<box leftPadding="3"><pen lineWidth="0.5" lineColor="#E5E7E9"/></box>
+				<textElement verticalAlignment="Middle"><font size="8"/></textElement>
+				<textFieldExpression><![CDATA[$F{nomeInquilino}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="90" y="0" width="70" height="25" backcolor="$V{rowNumber}%2==0 ? new Color(248,249,249) : new Color(255,255,255)" uuid="c6d7e8f9-a0b1-4c2d-3e4f-5a6b7c8d9e0f"/>
+				<box leftPadding="3"><pen lineWidth="0.5" lineColor="#E5E7E9"/></box>
+				<textElement verticalAlignment="Middle"><font size="8"/></textElement>
+				<textFieldExpression><![CDATA[$F{contatoInquilino}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="160" y="0" width="35" height="25" backcolor="$V{rowNumber}%2==0 ? new Color(248,249,249) : new Color(255,255,255)" uuid="d7e8f9a0-b1c2-4d3e-4f5a-6b7c8d9e0f1a"/>
+				<box leftPadding="3"><pen lineWidth="0.5" lineColor="#E5E7E9"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"><font size="8"/></textElement>
+				<textFieldExpression><![CDATA[$F{numeroApartamento}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="195" y="0" width="75" height="25" backcolor="$V{rowNumber}%2==0 ? new Color(248,249,249) : new Color(255,255,255)" uuid="e8f9a0b1-c2d3-4e4f-5a6b-7c8d9e0f1a2b"/>
+				<box leftPadding="3"><pen lineWidth="0.5" lineColor="#E5E7E9"/></box>
+				<textElement verticalAlignment="Middle"><font size="8"/></textElement>
+				<textFieldExpression><![CDATA[$F{nomePredio}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="270" y="0" width="55" height="25" backcolor="$V{rowNumber}%2==0 ? new Color(248,249,249) : new Color(255,255,255)" uuid="f9a0b1c2-d3e4-4f5a-6b7c-8d9e0f1a2b3c"/>
+				<box leftPadding="3"><pen lineWidth="0.5" lineColor="#E5E7E9"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"><font size="8"/></textElement>
+				<textFieldExpression><![CDATA[$F{dataEntrada}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="325" y="0" width="55" height="25" backcolor="$V{rowNumber}%2==0 ? new Color(248,249,249) : new Color(255,255,255)" uuid="a0b1c2d3-e4f5-4a6b-7c8d-9e0f1a2b3c4d"/>
+				<box leftPadding="3"><pen lineWidth="0.5" lineColor="#E5E7E9"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"><font size="8"/></textElement>
+				<textFieldExpression><![CDATA[$F{dataPagamento}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" pattern="R$#,##0.00" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="380" y="0" width="70" height="25" backcolor="$V{rowNumber}%2==0 ? new Color(248,249,249) : new Color(255,255,255)" uuid="b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e"/>
+				<box rightPadding="3"><pen lineWidth="0.5" lineColor="#E5E7E9"/></box>
+				<textElement textAlignment="Right" verticalAlignment="Middle"><font size="8"/></textElement>
+				<textFieldExpression><![CDATA[$F{valorApartamento}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" pattern="R$#,##0.00" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="450" y="0" width="70" height="25" backcolor="$V{rowNumber}%2==0 ? new Color(248,249,249) : new Color(255,255,255)" uuid="c2d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f"/>
+				<box rightPadding="3"><pen lineWidth="0.5" lineColor="#E5E7E9"/></box>
+				<textElement textAlignment="Right" verticalAlignment="Middle"><font size="8"/></textElement>
+				<textFieldExpression><![CDATA[$F{valorPagoApartamento}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" pattern="R$#,##0.00" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="520" y="0" width="70" height="25" backcolor="$V{rowNumber}%2==0 ? new Color(248,249,249) : new Color(255,255,255)" uuid="d3e4f5a6-b7c8-4d9e-0f1a-2b3c4d5e6f7a"/>
+				<box rightPadding="3"><pen lineWidth="0.5" lineColor="#E5E7E9"/></box>
+				<textElement textAlignment="Right" verticalAlignment="Middle"><font size="8"/></textElement>
+				<textFieldExpression><![CDATA[$F{valorDebitoApartamento}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="590" y="0" width="212" height="25" backcolor="#D5F5E3" uuid="e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b">
+					<printWhenExpression><![CDATA[$F{statusPagamentoDescricao} != null && $F{statusPagamentoDescricao}.equals("PAGO")]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="3"><pen lineWidth="0.5" lineColor="#E5E7E9"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"><font size="9" isBold="true"/></textElement>
+				<textFieldExpression><![CDATA[$F{statusPagamentoDescricao}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="590" y="0" width="212" height="25" backcolor="#FADBD8" uuid="f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c">
+					<printWhenExpression><![CDATA[$F{statusPagamentoDescricao} != null && ($F{statusPagamentoDescricao}.equals("PENDENTE") || $F{statusPagamentoDescricao}.equals("DEBITO"))]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="3"><pen lineWidth="0.5" lineColor="#E5E7E9"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"><font size="9" isBold="true"/></textElement>
+				<textFieldExpression><![CDATA[$F{statusPagamentoDescricao}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="590" y="0" width="212" height="25" backcolor="#F9E79F" uuid="a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d">
+					<printWhenExpression><![CDATA[$F{statusPagamentoDescricao} != null && !$F{statusPagamentoDescricao}.equals("PAGO") && !$F{statusPagamentoDescricao}.equals("PENDENTE") && !$F{statusPagamentoDescricao}.equals("DEBITO")]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="3"><pen lineWidth="0.5" lineColor="#E5E7E9"/></box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"><font size="9" isBold="true"/></textElement>
+				<textFieldExpression><![CDATA[$F{statusPagamentoDescricao}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="40">
+			<line>
+				<reportElement x="0" y="8" width="802" height="1" forecolor="#D5DBDB" uuid="a7b8c9d0-e1f2-4a3b-4c5d-6e7f8a9b0c1d"/>
+			</line>
+			<staticText>
+				<reportElement x="10" y="15" width="400" height="18" forecolor="#7F8C8D" uuid="b8c9d0e1-f2a3-4b4c-5d6e-7f8a9b0c1d2e"/>
+				<textElement><font size="9"/></textElement>
+				<text><![CDATA[Sistema de Gestão de Kitnets]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="600" y="15" width="160" height="18" forecolor="#7F8C8D" uuid="a2b3c4d5-e6f7-48a9-bc0d-1e2f3a4b5c6d"/>
+				<textElement textAlignment="Right"><font size="9"/></textElement>
+				<textFieldExpression><![CDATA["Página " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="760" y="15" width="42" height="18" forecolor="#7F8C8D" uuid="b3c4d5e6-f7a8-49b0-c1de-2f3a4b5c6d7e"/>
+				<textElement><font size="9"/></textElement>
+				<textFieldExpression><![CDATA[" de " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="145">
+			<staticText>
+				<reportElement x="0" y="10" width="802" height="20" forecolor="#2C3E50" uuid="c9d0e1f2-a3b4-4c5d-6e7f-8a9b0c1d2e3f"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[RESUMO FINANCEIRO]]></text>
+			</staticText>
+			<frame>
+				<reportElement mode="Opaque" x="50" y="40" width="220" height="90" backcolor="#5DADE2" uuid="d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"/>
+				<box><pen lineWidth="2.0" lineColor="#3498DB"/></box>
+				<staticText>
+					<reportElement x="10" y="15" width="200" height="25" forecolor="#FFFFFF" uuid="a6b7c8d9-e0f1-4a2b-3c4d-5e6f7a8b9c0d"/>
+					<textElement textAlignment="Center"><font size="12" isBold="true"/></textElement>
+					<text><![CDATA[TOTAL A RECEBER]]></text>
+				</staticText>
+				<textField pattern="R$ #,##0.00">
+					<reportElement x="10" y="45" width="200" height="35" forecolor="#FFFFFF" uuid="3fce5c2f-4396-42df-a739-f007ec456e40"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"><font size="18" isBold="true"/></textElement>
+					<textFieldExpression><![CDATA[$V{totalAReceber}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement mode="Opaque" x="291" y="40" width="220" height="90" backcolor="#58D68D" uuid="e1f2a3b4-c5d6-4e7f-8a9b-0c1d2e3f4a5b"/>
+				<box><pen lineWidth="2.0" lineColor="#27AE60"/></box>
+				<staticText>
+					<reportElement x="10" y="15" width="200" height="25" forecolor="#FFFFFF" uuid="c8d9e0f1-a2b3-4c4d-5e6f-7a8b9c0d1e2f"/>
+					<textElement textAlignment="Center"><font size="12" isBold="true"/></textElement>
+					<text><![CDATA[TOTAL RECEBIDO]]></text>
+				</staticText>
+				<textField pattern="R$ #,##0.00">
+					<reportElement x="10" y="45" width="200" height="35" forecolor="#FFFFFF" uuid="d9e0f1a2-b3c4-4d5e-6f7a-8b9c0d1e2f3a"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"><font size="18" isBold="true"/></textElement>
+					<textFieldExpression><![CDATA[$V{totalRecebido}]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement mode="Opaque" x="532" y="40" width="220" height="90" backcolor="#EC7063" uuid="f2a3b4c5-d6e7-4f8a-9b0c-1d2e3f4a5b6c"/>
+				<box><pen lineWidth="2.0" lineColor="#C0392B"/></box>
+				<staticText>
+					<reportElement x="10" y="15" width="200" height="25" forecolor="#FFFFFF" uuid="e0f1a2b3-c4d5-4e6f-7a8b-9c0d1e2f3a4b"/>
+					<textElement textAlignment="Center"><font size="12" isBold="true"/></textElement>
+					<text><![CDATA[TOTAL EM DÉBITO]]></text>
+				</staticText>
+				<textField pattern="R$ #,##0.00">
+					<reportElement x="10" y="45" width="200" height="35" forecolor="#FFFFFF" uuid="f1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b5c"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"><font size="18" isBold="true"/></textElement>
+					<textFieldExpression><![CDATA[$V{totalDebito}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</summary>
+</jasperReport>

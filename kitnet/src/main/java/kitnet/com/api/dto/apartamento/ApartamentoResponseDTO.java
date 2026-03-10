@@ -1,18 +1,12 @@
 package kitnet.com.api.dto.apartamento;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import kitnet.com.api.dto.predio.PredioId;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-public class ApartamentoResponseDTO {
-
-    private Long id;
-    private String descricao;
-    private Long numero;
-
-}
+public record ApartamentoResponseDTO(
+    Long id,
+    String numeroApartamento,
+    String descricao,
+    String medidor,
+    String statusApartamento,
+    PredioId predio
+) {}

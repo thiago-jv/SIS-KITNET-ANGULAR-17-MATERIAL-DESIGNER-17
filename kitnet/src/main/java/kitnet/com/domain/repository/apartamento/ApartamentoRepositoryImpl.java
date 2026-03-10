@@ -11,6 +11,7 @@ import kitnet.com.api.dto.apartamento.ApartamentoFilterDTO;
 import kitnet.com.domain.model.Apartamento;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.lang.NonNull;
 import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class ApartamentoRepositoryImpl implements ApartamentoRepositoryQuery {
     private EntityManager manager;
 
     @Override
-    public Page<Apartamento> filter(ApartamentoFilterDTO apartamentoFilter, Pageable pageable) {
+    public @NonNull Page<Apartamento> filtrar(@NonNull ApartamentoFilterDTO apartamentoFilter, @NonNull Pageable pageable) {
         CriteriaBuilder builder = manager.getCriteriaBuilder();
         CriteriaQuery<Apartamento> criteria = builder.createQuery(Apartamento.class);
         Root<Apartamento> root = criteria.from(Apartamento.class);
@@ -37,8 +38,9 @@ public class ApartamentoRepositoryImpl implements ApartamentoRepositoryQuery {
         adicionarRestricoesDePaginacao(query, pageable);
 
         List<Apartamento> apartamentos = query.getResultList();
+        if (apartamentos == null) apartamentos = List.of();
 
-        return new PageImpl<>(apartamentos, pageable, total(apartamentoFilter));
+        return new PageImpl<>(apartamentos, pageable == null ? Pageable.unpaged() : pageable, total(apartamentoFilter));
     }
 
 
@@ -46,15 +48,15 @@ public class ApartamentoRepositoryImpl implements ApartamentoRepositoryQuery {
                                         Root<Apartamento> root) {
         List<Predicate> predicates = new ArrayList<>();
 
-        if (!Objects.isNull(apartamentoFilter.getNumero())) {
-            predicates.add(builder.equal((root.get("numero")), apartamentoFilter.getNumero()));
+        if (!Objects.isNull(apartamentoFilter.numeroApartamento())) {
+            predicates.add(builder.equal((root.get("numeroApartamento")), apartamentoFilter.numeroApartamento()));
         }
 
-        if (!Objects.isNull(apartamentoFilter.getDescricao())) {
+        if (!Objects.isNull(apartamentoFilter.descricao())) {
             predicates.add(
                     builder.like(
                             builder.lower(root.get("descricao")),
-                            "%" + apartamentoFilter.getDescricao().toLowerCase() + "%"
+                            "%" + apartamentoFilter.descricao().toLowerCase() + "%"
                     )
             );
         }

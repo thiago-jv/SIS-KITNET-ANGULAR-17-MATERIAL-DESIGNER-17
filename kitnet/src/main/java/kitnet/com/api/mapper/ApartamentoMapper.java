@@ -1,50 +1,57 @@
 package kitnet.com.api.mapper;
 
 
+import kitnet.com.api.dto.predio.PredioId;
 import kitnet.com.api.dto.apartamento.ApartamentoPostDTO;
 import kitnet.com.api.dto.apartamento.ApartamentoPutDTO;
 import kitnet.com.api.dto.apartamento.ApartamentoResponseDTO;
 import kitnet.com.domain.model.Apartamento;
+import kitnet.com.domain.model.Predio;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Mappings;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
-public class ApartamentoMapper {
+@Mapper(componentModel = "spring")
+public interface ApartamentoMapper {
 
-    public ApartamentoResponseDTO toApartamentoResponse(Apartamento apartamento) {
-        return new ApartamentoResponseDTO(apartamento.getId(), apartamento.getDescricao(),
-                apartamento.getNumero());
-    }
+    @Mappings({
+            @Mapping(target = "id", ignore = true),
+            @Mapping(source = "numeroApartamento", target = "numeroApartamento"),
+            @Mapping(source = "descricao", target = "descricao"),
+            @Mapping(source = "medidor", target = "medidor"),
+            @Mapping(source = "statusApartamento", target = "statusApartamento"),
+            @Mapping(source = "predio", target = "predio")
+    })
+    Apartamento toApartamento(ApartamentoPostDTO apartamentoPostDTO);
 
-    public Apartamento toApartamento(ApartamentoPostDTO apartamentoPost) {
-        Apartamento apartamento = new Apartamento();
-        apartamento.setDescricao(apartamentoPost.getDescricao());
-        apartamento.setNumero(apartamentoPost.getNumero());
-        return apartamento;
-    }
+    ApartamentoPutDTO toApartamentoPutDTO(Apartamento apartamento);
 
-    public List<ApartamentoResponseDTO> toListApartamentoResponse(List<Apartamento> apartamentos) {
-        return apartamentos.stream()
-                .map(apartamento -> new ApartamentoResponseDTO(apartamento.getId(), apartamento.getDescricao(),
-                        apartamento.getNumero()))
-                .collect(Collectors.toList());
-    }
+    @Mapping(source = "predio", target = "predio")
+    Apartamento toApartamento(ApartamentoPutDTO apartamentoPutDTO);
 
-    public Apartamento toApartamento(Apartamento apartamentoSave, ApartamentoPutDTO apartamentoPut) {
-        apartamentoSave.setDescricao(apartamentoPut.getDescricao());
-        apartamentoSave.setNumero(apartamentoPut.getNumero());
-        return apartamentoSave;
-    }
+    ApartamentoResponseDTO toApartamentoResponse(Apartamento apartamento);
 
-    public Page<ApartamentoResponseDTO> toPageApartamentoResponse(Page<Apartamento> apartamentoPage) {
+    List<ApartamentoResponseDTO> toListApartamentoResponse(List<Apartamento> apartamentos);
+
+    default Page<ApartamentoResponseDTO> toPageApartamentoResponse(Page<Apartamento> apartamentoPage) {
         List<ApartamentoResponseDTO> content = apartamentoPage.getContent().stream()
                 .map(this::toApartamentoResponse)
                 .collect(Collectors.toList());
         return new PageImpl<>(content, apartamentoPage.getPageable(), apartamentoPage.getTotalElements());
+    }
+
+    default Predio toPredio(PredioId predioId) {
+        if (predioId == null || predioId.id() == null) {
+            return null;
+        }
+        Predio predio = new Predio();
+        predio.setId(predioId.id());
+        return predio;
     }
 
 }

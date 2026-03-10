@@ -4,19 +4,27 @@ import kitnet.com.api.dto.apartamento.ApartamentoFilterDTO;
 import kitnet.com.api.dto.apartamento.ApartamentoPostDTO;
 import kitnet.com.api.dto.apartamento.ApartamentoPutDTO;
 import kitnet.com.api.dto.apartamento.ApartamentoResponseDTO;
+import kitnet.com.domain.model.Apartamento;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface ApartamentoService {
 
-    ApartamentoResponseDTO create(ApartamentoPostDTO apartamentoPost);
+    Page<ApartamentoResponseDTO> filtrar(ApartamentoFilterDTO apartamentoFilter, Pageable pageable);
 
-    Page<ApartamentoResponseDTO> filter(ApartamentoFilterDTO apartamentoFilter, Pageable pageable);
+    void remover(Long id);
 
-    void remove(Long id);
+    Apartamento buscarOuFalhar(Long id);
 
-    ApartamentoResponseDTO findById(Long id);
+    ApartamentoResponseDTO buscarPorId(Long id);
 
-    ApartamentoResponseDTO update(ApartamentoPutDTO apartamentoPut, Long id);
+    ApartamentoResponseDTO salvar(ApartamentoPostDTO apartamentoPostDTO);
+
+    ApartamentoResponseDTO atualizar(ApartamentoPutDTO apartamentoPut, Long id);
+
+    List<ApartamentoResponseDTO> listarTodos();
+
 
 }

@@ -7,5 +7,5 @@ import org.springframework.data.domain.Pageable;
 
 public interface ApartamentoRepositoryQuery {
 
-    Page<Apartamento> filter(ApartamentoFilterDTO apartamentoFilter, Pageable pageable);
+    Page<Apartamento> filtrar(ApartamentoFilterDTO apartamentoFilter, Pageable pageable);
 }
