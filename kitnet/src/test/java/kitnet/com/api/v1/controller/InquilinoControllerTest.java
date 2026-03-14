@@ -8,6 +8,9 @@ import kitnet.com.domain.service.InquilinoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -28,6 +31,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Testes do InquilinoController")
+@TestMethodOrder(OrderAnnotation.class)
 class InquilinoControllerTest {
 
     @Mock
@@ -56,13 +60,17 @@ class InquilinoControllerTest {
     }
 
     @Test
+    @Order(1)
     @DisplayName("Deve criar um novo inquilino")
     void deveCriarInquilino() {
+        // Arrange (Preparação)
         when(inquilinoService.salvar(any(InquilinoPostDTO.class)))
-                .thenReturn(inquilinoResponseDTO);
+            .thenReturn(inquilinoResponseDTO);
 
+        // Act (Ação)
         InquilinoResponseDTO response = inquilinoController.criar(inquilinoPostDTO);
 
+        // Assert (Verificação)
         assertThat(response).isNotNull();
         assertThat(response.id()).isEqualTo(1L);
         assertThat(response.nome()).isEqualTo("João Silva");
@@ -70,83 +78,106 @@ class InquilinoControllerTest {
     }
 
     @Test
+    @Order(2)
     @DisplayName("Deve buscar inquilino por ID")
     void deveBuscarInquilinoPorId() {
+        // Arrange (Preparação)
         when(inquilinoService.buscarOuFalhar(1L))
-                .thenReturn(inquilinoResponseDTO);
+            .thenReturn(inquilinoResponseDTO);
 
+        // Act (Ação)
         InquilinoResponseDTO response = inquilinoController.buscarPeloId(1L);
 
+        // Assert (Verificação)
         assertThat(response).isNotNull();
         assertThat(response.id()).isEqualTo(1L);
         verify(inquilinoService, times(1)).buscarOuFalhar(1L);
     }
 
     @Test
+    @Order(3)
     @DisplayName("Deve atualizar um inquilino")
     void deveAtualizarInquilino() {
+        // Arrange (Preparação)
         when(inquilinoService.atualizar(eq(1L), any(InquilinoPutDTO.class)))
-                .thenReturn(inquilinoResponseDTO);
+            .thenReturn(inquilinoResponseDTO);
 
+        // Act (Ação)
         InquilinoResponseDTO response = inquilinoController.atualizar(1L, inquilinoPutDTO);
 
+        // Assert (Verificação)
         assertThat(response).isNotNull();
         verify(inquilinoService, times(1)).atualizar(eq(1L), any(InquilinoPutDTO.class));
     }
 
     @Test
+    @Order(4)
     @DisplayName("Deve deletar um inquilino")
     void deveDeletearInquilino() {
+        // Arrange (Preparação)
         doNothing().when(inquilinoService).excluir(1L);
 
+        // Act (Ação)
         inquilinoController.remover(1L);
 
+        // Assert (Verificação)
         verify(inquilinoService, times(1)).excluir(1L);
     }
 
     @Test
+    @Order(5)
     @DisplayName("Deve listar todos os inquilinos")
     void deveListarTodosInquilinos() {
+        // Arrange (Preparação)
         List<InquilinoResponseDTO> inquilinos = List.of(inquilinoResponseDTO);
         when(inquilinoService.listarTodos()).thenReturn(inquilinos);
 
+        // Act (Ação)
         List<InquilinoResponseDTO> response = inquilinoController.listar();
 
+        // Assert (Verificação)
         assertThat(response).isNotEmpty();
         assertThat(response).hasSize(1);
         verify(inquilinoService, times(1)).listarTodos();
     }
 
     @Test
+    @Order(6)
     @DisplayName("Deve listar inquilinos ativos")
     void deveListarInquilianosAtivos() {
+        // Arrange (Preparação)
         List<InquilinoResponseDTO> inquilinos = List.of(inquilinoResponseDTO);
         when(inquilinoService.listarAtivos()).thenReturn(inquilinos);
 
+        // Act (Ação)
         List<InquilinoResponseDTO> response = inquilinoController.listarAtivos();
 
+        // Assert (Verificação)
         assertThat(response).isNotEmpty();
         assertThat(response).hasSize(1);
         verify(inquilinoService, times(1)).listarAtivos();
     }
 
     @Test
+    @Order(7)
     @DisplayName("Deve filtrar inquilinos com paginação")
     void deveFiltrarInquilinos() {
+        // Arrange (Preparação)
         InquilinoFilterDTO filterDTO = new InquilinoFilterDTO("João Silva", "12345678901", "1234567", "ATIVO");
-        @NonNull List<InquilinoResponseDTO> inquilinosPage = List.of(inquilinoResponseDTO);
+        List<InquilinoResponseDTO> inquilinosPage = List.of(inquilinoResponseDTO);
         Page<InquilinoResponseDTO> page = new PageImpl<>(
             inquilinosPage,
             PageRequest.of(0, 10),
             1
         );
-
         when(inquilinoService.filtrar(any(InquilinoFilterDTO.class), any()))
-                .thenReturn(page);
+            .thenReturn(page);
 
+        // Act (Ação)
         ResponseEntity<Page<InquilinoResponseDTO>> response = 
-                inquilinoController.filtrar(filterDTO, PageRequest.of(0, 10));
+            inquilinoController.filtrar(filterDTO, PageRequest.of(0, 10));
 
+        // Assert (Verificação)
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).isNotNull();

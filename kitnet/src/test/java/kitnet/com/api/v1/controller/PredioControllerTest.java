@@ -8,6 +8,9 @@ import kitnet.com.domain.service.PredioService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -28,6 +31,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Testes do PredioController")
+@TestMethodOrder(OrderAnnotation.class)
 class PredioControllerTest {
 
     @Mock
@@ -59,13 +63,17 @@ class PredioControllerTest {
     }
 
     @Test
-    @DisplayName("Deve criar um novo prédio")
-    void deveCriarPredio() {
+        @Order(1)
+        @DisplayName("Deve criar um novo prédio")
+        void deveCriarPredio() {
+        // Arrange (Preparação)
         when(predioService.salvar(any(PredioPostDTO.class)))
                 .thenReturn(predioResponseDTO);
 
+        // Act (Ação)
         PredioResponseDTO response = predioController.criar(predioPostDTO);
 
+        // Assert (Verificação)
         assertThat(response).isNotNull();
         assertThat(response.id()).isEqualTo(1L);
         assertThat(response.descricao()).isEqualTo("Prédio Centro");
@@ -73,71 +81,90 @@ class PredioControllerTest {
     }
 
     @Test
-    @DisplayName("Deve buscar prédio por ID")
-    void deveBuscarPredioPorId() {
+        @Order(2)
+        @DisplayName("Deve buscar prédio por ID")
+        void deveBuscarPredioPorId() {
+        // Arrange (Preparação)
         when(predioService.buscarOuFalhar(1L))
                 .thenReturn(predioResponseDTO);
 
+        // Act (Ação)
         PredioResponseDTO response = predioController.buscarPeloId(1L);
 
+        // Assert (Verificação)
         assertThat(response).isNotNull();
         assertThat(response.id()).isEqualTo(1L);
         verify(predioService, times(1)).buscarOuFalhar(1L);
     }
 
     @Test
-    @DisplayName("Deve atualizar um prédio")
-    void deveAtualizarPredio() {
+        @Order(3)
+        @DisplayName("Deve atualizar um prédio")
+        void deveAtualizarPredio() {
+        // Arrange (Preparação)
         when(predioService.atualizar(eq(1L), any(PredioPutDTO.class)))
                 .thenReturn(predioResponseDTO);
 
+        // Act (Ação)
         PredioResponseDTO response = predioController.atualizar(1L, predioPutDTO);
 
+        // Assert (Verificação)
         assertThat(response).isNotNull();
         verify(predioService, times(1)).atualizar(eq(1L), any(PredioPutDTO.class));
     }
 
     @Test
-    @DisplayName("Deve deletar um prédio")
-    void deveDeletearPredio() {
-        doNothing().when(predioService).excluir(1L);
+        @Order(4)
+        @DisplayName("Deve deletar um prédio")
+        void deveDeletearPredio() {
+                // Arrange (Preparação)
+                doNothing().when(predioService).excluir(1L);
 
-        predioController.remover(1L);
+                // Act (Ação)
+                predioController.remover(1L);
 
-        verify(predioService, times(1)).excluir(1L);
+                // Assert (Verificação)
+                verify(predioService, times(1)).excluir(1L);
     }
 
     @Test
-    @DisplayName("Deve listar todos os prédios")
-    void deveListarTodosPredios() {
-        List<PredioResponseDTO> predios = List.of(predioResponseDTO);
-        when(predioService.todos()).thenReturn(predios);
+        @Order(5)
+        @DisplayName("Deve listar todos os prédios")
+        void deveListarTodosPredios() {
+                // Arrange (Preparação)
+                List<PredioResponseDTO> predios = List.of(predioResponseDTO);
+                when(predioService.todos()).thenReturn(predios);
 
-        ResponseEntity<List<PredioResponseDTO>> response = predioController.todos();
+                // Act (Ação)
+                ResponseEntity<List<PredioResponseDTO>> response = predioController.todos();
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotEmpty();
-        assertThat(response.getBody()).hasSize(1);
-        verify(predioService, times(1)).todos();
+                // Assert (Verificação)
+                assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+                assertThat(response.getBody()).isNotEmpty();
+                assertThat(response.getBody()).hasSize(1);
+                verify(predioService, times(1)).todos();
     }
 
     @Test
-    @DisplayName("Deve filtrar prédios com paginação")
-    void deveFiltrarPredios() {
+        @Order(6)
+        @DisplayName("Deve filtrar prédios com paginação")
+        void deveFiltrarPredios() {
+        // Arrange (Preparação)
         PredioFilterDTO filterDTO = new PredioFilterDTO("Prédio Centro", "1");
-        @NonNull List<PredioResponseDTO> prediosPage = List.of(predioResponseDTO);
+        List<PredioResponseDTO> prediosPage = List.of(predioResponseDTO);
         Page<PredioResponseDTO> page = new PageImpl<>(
                 prediosPage,
                 PageRequest.of(0, 10),
                 1
         );
-
         when(predioService.filtrar(any(PredioFilterDTO.class), any()))
                 .thenReturn(page);
 
+        // Act (Ação)
         ResponseEntity<Page<PredioResponseDTO>> response = 
                 predioController.filtrar(filterDTO, PageRequest.of(0, 10));
 
+        // Assert (Verificação)
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).isNotNull();

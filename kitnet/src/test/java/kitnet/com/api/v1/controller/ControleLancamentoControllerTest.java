@@ -8,6 +8,9 @@ import kitnet.com.domain.service.ControleLancamentoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -30,6 +33,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Testes do ControleLancamentoController")
+@TestMethodOrder(OrderAnnotation.class)
 class ControleLancamentoControllerTest {
 
     @Mock
@@ -72,70 +76,89 @@ class ControleLancamentoControllerTest {
     }
 
     @Test
-    @DisplayName("Deve criar um novo controle de lançamento")
-    void deveCriarControleLancamento() {
+        @Order(1)
+        @DisplayName("Deve criar um novo controle de lançamento")
+        void deveCriarControleLancamento() {
+        // Arrange (Preparação)
         when(controleLancamentoService.salvar(any(ControleLancamentoPostDTO.class)))
                 .thenReturn(controleLancamentoResponseDTO);
 
+        // Act (Ação)
         ControleLancamentoResponseDTO response = controleLancamentoController.criar(controleLancamentoPostDTO);
 
+        // Assert (Verificação)
         assertThat(response).isNotNull();
         assertThat(response.id()).isEqualTo(1L);
         verify(controleLancamentoService, times(1)).salvar(any(ControleLancamentoPostDTO.class));
     }
 
     @Test
-    @DisplayName("Deve atualizar um controle de lançamento")
-    void deveAtualizarControleLancamento() {
+        @Order(2)
+        @DisplayName("Deve atualizar um controle de lançamento")
+        void deveAtualizarControleLancamento() {
+        // Arrange (Preparação)
         when(controleLancamentoService.atualizar(eq(1L), any(ControleLancamentoPutDTO.class)))
                 .thenReturn(controleLancamentoResponseDTO);
 
+        // Act (Ação)
         ControleLancamentoResponseDTO response = 
                 controleLancamentoController.atualizar(1L, controleLancamentoPutDTO);
 
+        // Assert (Verificação)
         assertThat(response).isNotNull();
         verify(controleLancamentoService, times(1)).atualizar(eq(1L), any(ControleLancamentoPutDTO.class));
     }
 
     @Test
-    @DisplayName("Deve deletar um controle de lançamento")
-    void deveDeletearControleLancamento() {
-        doNothing().when(controleLancamentoService).excluir(1L);
+        @Order(3)
+        @DisplayName("Deve deletar um controle de lançamento")
+        void deveDeletearControleLancamento() {
+                // Arrange (Preparação)
+                doNothing().when(controleLancamentoService).excluir(1L);
 
-        controleLancamentoController.remover(1L);
+                // Act (Ação)
+                controleLancamentoController.remover(1L);
 
-        verify(controleLancamentoService, times(1)).excluir(1L);
+                // Assert (Verificação)
+                verify(controleLancamentoService, times(1)).excluir(1L);
     }
 
     @Test
-    @DisplayName("Deve alternar status do controle")
-    void deveAlternarStatusControle() {
-        doNothing().when(controleLancamentoService).alternarStatusControle(1L);
+        @Order(4)
+        @DisplayName("Deve alternar status do controle")
+        void deveAlternarStatusControle() {
+                // Arrange (Preparação)
+                doNothing().when(controleLancamentoService).alternarStatusControle(1L);
 
-        controleLancamentoController.atualizarStatus(1L);
+                // Act (Ação)
+                controleLancamentoController.atualizarStatus(1L);
 
-        verify(controleLancamentoService, times(1)).alternarStatusControle(1L);
+                // Assert (Verificação)
+                verify(controleLancamentoService, times(1)).alternarStatusControle(1L);
     }
 
     @Test
-    @DisplayName("Deve filtrar controles de lançamento com paginação")
-    void deveFiltrarControles() {
+        @Order(5)
+        @DisplayName("Deve filtrar controles de lançamento com paginação")
+        void deveFiltrarControles() {
+        // Arrange (Preparação)
         ControleFilterDTO filterDTO = new ControleFilterDTO(
                 "PAGO", null, null, null, null, null, null
         );
-        @NonNull List<ControleLancamentoResponseDTO> controlesPage = List.of(controleLancamentoResponseDTO);
+        List<ControleLancamentoResponseDTO> controlesPage = List.of(controleLancamentoResponseDTO);
         Page<ControleLancamentoResponseDTO> page = new PageImpl<>(
                 controlesPage,
                 PageRequest.of(0, 10),
                 1
         );
-
         when(controleLancamentoService.buscarComFiltro(any(ControleFilterDTO.class), any()))
                 .thenReturn(page);
 
+        // Act (Ação)
         ResponseEntity<Page<ControleLancamentoResponseDTO>> response = 
                 controleLancamentoController.filtrar(filterDTO, PageRequest.of(0, 10));
 
+        // Assert (Verificação)
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).isNotNull();

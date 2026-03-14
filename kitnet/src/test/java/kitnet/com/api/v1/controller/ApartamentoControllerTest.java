@@ -9,6 +9,9 @@ import kitnet.com.domain.service.ApartamentoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -28,6 +31,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Testes do ApartamentoController")
+@TestMethodOrder(OrderAnnotation.class)
 class ApartamentoControllerTest {
 
     @Mock
@@ -60,13 +64,17 @@ class ApartamentoControllerTest {
     }
 
     @Test
+    @Order(1)
     @DisplayName("Deve criar um novo apartamento")
     void deveCriarApartamento() {
+        // Arrange (Preparação)
         when(apartamentoService.salvar(any(ApartamentoPostDTO.class)))
-                .thenReturn(apartamentoResponseDTO);
+            .thenReturn(apartamentoResponseDTO);
 
+        // Act (Ação)
         ResponseEntity<ApartamentoResponseDTO> response = apartamentoController.criar(apartamentoPostDTO);
 
+        // Assert (Verificação)
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().id()).isEqualTo(1L);
@@ -74,13 +82,17 @@ class ApartamentoControllerTest {
     }
 
     @Test
+    @Order(2)
     @DisplayName("Deve buscar apartamento por ID")
     void deveBuscarApartamentoPorId() throws Exception {
+        // Arrange (Preparação)
         when(apartamentoService.buscarPorId(1L))
-                .thenReturn(apartamentoResponseDTO);
+            .thenReturn(apartamentoResponseDTO);
 
+        // Act (Ação)
         ResponseEntity<ApartamentoResponseDTO> response = apartamentoController.buscarPorId(1L);
 
+        // Assert (Verificação)
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().id()).isEqualTo(1L);
@@ -88,57 +100,72 @@ class ApartamentoControllerTest {
     }
 
     @Test
+    @Order(3)
     @DisplayName("Deve atualizar um apartamento")
     void deveAtualizarApartamento() {
+        // Arrange (Preparação)
         when(apartamentoService.atualizar(any(ApartamentoPutDTO.class), eq(1L)))
-                .thenReturn(apartamentoResponseDTO);
+            .thenReturn(apartamentoResponseDTO);
 
+        // Act (Ação)
         ResponseEntity<ApartamentoResponseDTO> response = apartamentoController.atualizar(1L, apartamentoPutDTO);
 
+        // Assert (Verificação)
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         verify(apartamentoService, times(1)).atualizar(any(ApartamentoPutDTO.class), eq(1L));
     }
 
     @Test
+    @Order(4)
     @DisplayName("Deve deletar um apartamento")
     void deveDeletearApartamento() {
+        // Arrange (Preparação)
         doNothing().when(apartamentoService).remover(1L);
 
+        // Act (Ação)
         apartamentoController.remover(1L);
 
+        // Assert (Verificação)
         verify(apartamentoService, times(1)).remover(1L);
     }
 
     @Test
+    @Order(5)
     @DisplayName("Deve listar todos os apartamentos")
     void deveListarTodosApartamentos() {
+        // Arrange (Preparação)
         List<ApartamentoResponseDTO> apartamentos = List.of(apartamentoResponseDTO);
         when(apartamentoService.listarTodos()).thenReturn(apartamentos);
 
+        // Act (Ação)
         List<ApartamentoResponseDTO> response = apartamentoController.listar();
 
+        // Assert (Verificação)
         assertThat(response).isNotEmpty();
         assertThat(response).hasSize(1);
         verify(apartamentoService, times(1)).listarTodos();
     }
 
     @Test
+    @Order(6)
     @DisplayName("Deve filtrar apartamentos com paginação")
     void deveFiltrarApartamentos() {
+        // Arrange (Preparação)
         ApartamentoFilterDTO filterDTO = new ApartamentoFilterDTO("Apartamento 101", "101", "DISPONÍVEL");
         Page<ApartamentoResponseDTO> page = new PageImpl<>(
-                List.of(apartamentoResponseDTO),
-                PageRequest.of(0, 10),
-                1
+            List.of(apartamentoResponseDTO),
+            PageRequest.of(0, 10),
+            1
         );
-
         when(apartamentoService.filtrar(any(ApartamentoFilterDTO.class), any()))
-                .thenReturn(page);
+            .thenReturn(page);
 
+        // Act (Ação)
         ResponseEntity<Page<ApartamentoResponseDTO>> response = 
-                apartamentoController.filtrar(filterDTO, PageRequest.of(0, 10));
+            apartamentoController.filtrar(filterDTO, PageRequest.of(0, 10));
 
+        // Assert (Verificação)
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).isNotNull();
