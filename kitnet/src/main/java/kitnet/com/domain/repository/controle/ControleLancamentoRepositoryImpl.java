@@ -28,6 +28,10 @@ public class ControleLancamentoRepositoryImpl implements ControleLancamentoRepos
 		CriteriaBuilder builder = manager.getCriteriaBuilder();
 		CriteriaQuery<ControleLancamento> criteria = builder.createQuery(ControleLancamento.class);
 		Root<ControleLancamento> root = criteria.from(ControleLancamento.class);
+		// Evita N+1: faz fetch join nos relacionamentos LAZY
+		root.fetch("valor", jakarta.persistence.criteria.JoinType.LEFT);
+		root.fetch("inquilino", jakarta.persistence.criteria.JoinType.LEFT);
+		root.fetch("apartamento", jakarta.persistence.criteria.JoinType.LEFT);
         
 		criteria.orderBy(builder.asc(root.get("status").get("statusControle")));
         
@@ -39,8 +43,9 @@ public class ControleLancamentoRepositoryImpl implements ControleLancamentoRepos
 		adicionarRestricoesDePaginacao(query, pageable);
 
 		List<ControleLancamento> result = query.getResultList();
-		if (result == null) result = List.of();
-
+		if (result == null) {
+			result = java.util.Collections.emptyList();
+		}
 		return new PageImpl<>(result, pageable == null ? Pageable.unpaged() : pageable, total(controleFilter));
 	}
 

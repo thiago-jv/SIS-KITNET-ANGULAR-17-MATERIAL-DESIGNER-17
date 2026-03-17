@@ -39,7 +39,9 @@ public class PredioRepositoryImpl implements PredioRepositoryQuery {
 		adicionarRestricoesDePaginacao(query, pageable);
 
 		List<Predio> result = query.getResultList();
-		if (result == null) result = List.of();
+		if (result == null) {
+			result = java.util.Collections.emptyList();
+		}
 		return new PageImpl<>(result, pageable == null ? Pageable.unpaged() : pageable, total(predioFilter));
 	}
 	

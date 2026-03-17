@@ -188,6 +188,11 @@ public class ControleLancamentoServiceImpl implements ControleLancamentoService 
                 dados, predioId, apartamentoId, inquilinoId, dataInicio, dataFim, statusPagamento);
     }
 
+    @Override
+    public List<ControleLancamentoResponseDTO> listarTodos() {
+        return controleLancamentoMapper.toListControleLancamentoResponse(controleLancamentoRepository.findAll());
+    }
+
     private RelatorioGerencialDTO converterParaRelatorioGerencial(ControleLancamento lancamento) {
         var inquilino = lancamento.getInquilino();
         var apartamento = lancamento.getApartamento();

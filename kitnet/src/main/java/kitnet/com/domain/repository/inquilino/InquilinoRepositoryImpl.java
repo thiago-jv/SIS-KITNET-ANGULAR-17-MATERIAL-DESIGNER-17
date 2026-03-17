@@ -38,8 +38,9 @@ public class InquilinoRepositoryImpl implements InquilinoRepositoryQuery{
 		adicionarRestricoesDePaginacao(query, pageable);
 
 		List<Inquilino> result = query.getResultList();
-		if (result == null) result = List.of();
-
+		if (result == null) {
+			result = java.util.Collections.emptyList();
+		}
 		return new PageImpl<>(result, pageable == null ? Pageable.unpaged() : pageable, total(inquilinoFilter));
 	}
 	

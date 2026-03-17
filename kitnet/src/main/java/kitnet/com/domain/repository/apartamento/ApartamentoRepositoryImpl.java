@@ -28,6 +28,8 @@ public class ApartamentoRepositoryImpl implements ApartamentoRepositoryQuery {
         CriteriaBuilder builder = manager.getCriteriaBuilder();
         CriteriaQuery<Apartamento> criteria = builder.createQuery(Apartamento.class);
         Root<Apartamento> root = criteria.from(Apartamento.class);
+        // Evita N+1: faz fetch join no relacionamento LAZY
+        root.fetch("predio", jakarta.persistence.criteria.JoinType.LEFT);
 
         criteria.orderBy(builder.asc(root.get("id")));
 
@@ -38,8 +40,9 @@ public class ApartamentoRepositoryImpl implements ApartamentoRepositoryQuery {
         adicionarRestricoesDePaginacao(query, pageable);
 
         List<Apartamento> apartamentos = query.getResultList();
-        if (apartamentos == null) apartamentos = List.of();
-
+        if (apartamentos == null) {
+            apartamentos = java.util.Collections.emptyList();
+        }
         return new PageImpl<>(apartamentos, pageable == null ? Pageable.unpaged() : pageable, total(apartamentoFilter));
     }
 
