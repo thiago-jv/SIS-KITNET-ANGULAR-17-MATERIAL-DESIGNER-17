@@ -11,7 +11,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
 import { ApartamentoService } from '../../../service/apartamento.service';
@@ -111,7 +110,6 @@ export class CadastraApartamentoComponent implements OnInit {
           return;
         }
 
-        // adiciona na lista se ainda não existir
         if (!this.predios.some(p => p.id === predio.id)) {
           this.predios.push(predio);
         }

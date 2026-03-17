@@ -1,0 +1,230 @@
+<div class="form-wrapper container-fluid px-4">
+  <div class="card shadow-sm p-4">
+
+    <mat-toolbar class="mb-4 btn-blue toolbar-responsivo">
+
+      <div class="toolbar-content">
+        <div class="button-group-left">
+          <button mat-raised-button color="primary" type="submit" form="formMovimento">
+            Salvar
+          </button>
+          <button mat-raised-button color="warn" type="button" (click)="form.reset(); formSubmitted=false">
+            Cancelar
+          </button>
+        </div>
+
+        <div class="button-group-right">
+          <button mat-raised-button color="accent" routerLink="/listar-movimento-financeiro" type="button">
+            Listar
+          </button>
+        </div>
+
+      </div>
+
+    </mat-toolbar>
+
+    <mat-card class="mb-3 filters-card">
+
+      <mat-card-header>
+        <mat-card-title>Dados do Movimento</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+
+        <form id="formMovimento" [formGroup]="form" (ngSubmit)="onSubmit()">
+
+          <div class="row g-3">
+
+            <div class="col-12 col-md-4">
+
+              <mat-form-field appearance="outline" class="w-100">
+
+                <mat-label>Tipo *</mat-label>
+
+                <mat-select formControlName="tipo" required>
+
+                  <mat-option *ngFor="let t of tipos" [value]="t.value">
+
+                    {{ t.label }}
+
+                  </mat-option>
+
+                </mat-select>
+
+              </mat-form-field>
+
+            </div>
+
+            <div class="col-12 col-md-4">
+
+              <mat-form-field appearance="outline" class="w-100">
+
+                <mat-label>Categoria *</mat-label>
+
+                <mat-select formControlName="categoria" required>
+
+                  <mat-option *ngFor="let c of categorias" [value]="c.value">
+
+                    {{ c.label }}
+
+                  </mat-option>
+
+                </mat-select>
+
+              </mat-form-field>
+
+            </div>
+
+            <!-- VALOR -->
+            <div class="col-12 col-md-4">
+
+              <mat-form-field appearance="outline" class="w-100">
+
+                <mat-label>Valor *</mat-label>
+
+                <input matInput appCurrencyBr formControlName="valor">
+
+                <mat-error *ngIf="(form.controls['valor'].touched || formSubmitted) && form.controls['valor'].invalid">
+
+                  Valor é obrigatório
+
+                </mat-error>
+
+              </mat-form-field>
+
+            </div>
+
+            <div class="col-12 col-md-6">
+
+              <mat-form-field appearance="outline" class="w-100">
+
+                <mat-label>Descrição *</mat-label>
+
+                <input matInput maxlength="255" formControlName="descricao">
+
+              </mat-form-field>
+
+            </div>
+
+            <div class="col-12 col-md-6">
+
+              <mat-form-field appearance="outline" class="w-100">
+
+                <mat-label>Data *</mat-label>
+
+                <input matInput [matDatepicker]="pickerData" formControlName="data">
+
+                <mat-datepicker-toggle matIconSuffix [for]="pickerData">
+
+                </mat-datepicker-toggle>
+
+                <mat-datepicker #pickerData></mat-datepicker>
+
+              </mat-form-field>
+
+            </div>
+
+            <div class="col-12 col-md-4">
+
+              <mat-form-field appearance="outline" class="w-100">
+
+                <mat-label>Apartamento</mat-label>
+
+                <mat-select #apartamentoSelect formControlName="apartamentoId"
+                  (openedChange)="onApartamentoOpened($event)">
+
+                  <mat-option disabled>
+
+                    <div class="filtro-select" (click)="$event.stopPropagation()">
+
+                      <input id="filtro-apartamento-input" matInput type="text" placeholder="Buscar..."
+                        [value]="filtroApartamento" (input)="onFiltroApartamentoInput($event)"
+                        (keydown)="$event.stopPropagation()">
+
+                      <button *ngIf="filtroApartamento" mat-icon-button type="button"
+                        (click)="limparFiltroApartamento($event)">
+
+                        <mat-icon>close</mat-icon>
+
+                      </button>
+
+                    </div>
+
+                  </mat-option>
+
+                  <mat-option *ngFor="let apartamento of apartamentosFiltrados" [value]="apartamento.id">
+
+                    {{ apartamento.numeroApartamento }}
+
+                  </mat-option>
+
+                </mat-select>
+
+                <button *ngIf="form.controls['apartamentoId'].value" mat-icon-button matSuffix type="button"
+                  (click)="limparApartamentoSelecionado($event)">
+
+                  <mat-icon>close</mat-icon>
+
+                </button>
+
+              </mat-form-field>
+
+            </div>
+
+            <div class="col-12 col-md-4">
+
+              <mat-form-field appearance="outline" class="w-100">
+
+                <mat-label>Inquilino</mat-label>
+
+                <mat-select #inquilinoSelect formControlName="inquilinoId" (openedChange)="onInquilinoOpened($event)">
+
+                  <mat-option disabled>
+
+                    <div class="filtro-select" (click)="$event.stopPropagation()">
+
+                      <input id="filtro-inquilino-input" matInput type="text" placeholder="Buscar..."
+                        [value]="filtroInquilino" (input)="onFiltroInquilinoInput($event)"
+                        (keydown)="$event.stopPropagation()">
+
+                      <button *ngIf="filtroInquilino" mat-icon-button type="button"
+                        (click)="limparFiltroInquilino($event)">
+
+                        <mat-icon>close</mat-icon>
+
+                      </button>
+
+                    </div>
+
+                  </mat-option>
+
+                  <mat-option *ngFor="let inquilino of inquilinosFiltrados" [value]="inquilino.id">
+
+                    {{ inquilino.nome }}
+
+                  </mat-option>
+
+                </mat-select>
+
+                <button *ngIf="form.controls['inquilinoId'].value" mat-icon-button matSuffix type="button"
+                  (click)="limparInquilinoSelecionado($event)">
+
+                  <mat-icon>close</mat-icon>
+
+                </button>
+
+              </mat-form-field>
+
+            </div>
+
+          </div>
+
+        </form>
+
+      </mat-card-content>
+
+    </mat-card>
+
+  </div>
+
+</div>

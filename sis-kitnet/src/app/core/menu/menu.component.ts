@@ -42,7 +42,8 @@ export class MenuComponent {
         { label: 'Apartamento', icon: 'apartment', route: '/listar-apartamento', exact: true },
         { label: 'Prédio', icon: 'location_city', route: '/listar-predio', exact: true },
         { label: 'Inquilino', icon: 'person_add', route: '/inquilino' },
-        { label: 'Valor', icon: 'attach_money', route: '/listar-valor', exact: true }
+        { label: 'Valor', icon: 'attach_money', route: '/listar-valor', exact: true },
+        { label: 'Movimento Financeiro', icon: 'account_balance_wallet', route: '/listar-movimento-financeiro', exact: true }
       ]
     },
     {

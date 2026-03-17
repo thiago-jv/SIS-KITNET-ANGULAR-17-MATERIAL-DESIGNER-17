@@ -115,6 +115,30 @@ export const routes: Routes = [
         .then(c => c.ListarControleLancamentoComponent)
   },
   {
+    path: 'listar-movimento-financeiro',
+    loadComponent: () =>
+      import('./components/movimento-financeiro/listar-movimento-financeiro/listar-movimento-financeiro.component')
+        .then(c => c.ListarMovimentoFinanceiroComponent)
+  },
+  {
+    path: 'cadastrar-movimento-financeiro',
+    loadComponent: () =>
+      import('./components/movimento-financeiro/cadastrar-movimento-financeiro/cadastrar-movimento-financeiro.component')
+        .then(c => c.CadastrarMovimentoFinanceiroComponent)
+  },
+  {
+    path: 'movimento-financeiro',
+    loadComponent: () =>
+      import('./components/movimento-financeiro/movimento-financeiro.component')
+        .then(c => c.MovimentoFinanceiroComponent)
+  },
+  {
+    path: 'movimento-financeiro/:id',
+    loadComponent: () =>
+      import('./components/movimento-financeiro/movimento-financeiro.component')
+        .then(c => c.MovimentoFinanceiroComponent)
+  },
+  {
     path: 'relatorio-gerencial',
     loadComponent: () =>
       import('./components/relatorio-gerencial/relatorio-gerencial.component')

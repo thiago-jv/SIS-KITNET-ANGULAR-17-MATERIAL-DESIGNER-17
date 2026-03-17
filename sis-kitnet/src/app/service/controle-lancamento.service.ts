@@ -93,4 +93,11 @@ export class ControleLancamentoService {
     );
   }
 
+  async buscarTodosControlesLancamento(): Promise<ControleLancamentoResponseDTO[]> {
+    const response = await firstValueFrom(
+      this.http.get<ControleLancamentoResponseDTO[]>(`${this.controleLancamentoUrl}/todos`)
+    );
+    return response;
+  }
+
 }
