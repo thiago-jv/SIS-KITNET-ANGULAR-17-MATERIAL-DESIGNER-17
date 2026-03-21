@@ -162,5 +162,15 @@ public class ControleLancamentoController {
 				.headers(headers)
 				.body(bytesPdf);
 	}
+
+	@Operation(summary = "Listar todos os controles lançamentos", description = "Retorna todos os controles cadastrados.")
+	@ApiResponses({
+			@ApiResponse(responseCode = "200", description = "Lista de controles retornada com sucesso"),
+			@ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
+	})
+	@GetMapping("/todos")
+	public List<ControleLancamentoResponseDTO> listar() {
+		return controleLancamentoService.listarTodos();
+	}
 	
 }

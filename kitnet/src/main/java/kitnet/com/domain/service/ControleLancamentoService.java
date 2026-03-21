@@ -36,5 +36,7 @@ public interface ControleLancamentoService {
             LocalDate dataInicio,
             LocalDate dataFim,
             String statusPagamento);
+
+    List<ControleLancamentoResponseDTO> listarTodos();
 }
 
