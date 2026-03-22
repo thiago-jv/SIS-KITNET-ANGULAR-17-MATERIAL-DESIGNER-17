@@ -26,6 +26,7 @@ import { AuthService } from './auth.service';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
+  
   form: FormGroup;
   loading = false;
   error: string | null = null;
