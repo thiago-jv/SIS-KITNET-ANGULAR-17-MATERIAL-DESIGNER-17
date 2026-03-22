@@ -1,5 +1,6 @@
 package kitnet.com.api.v1.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kitnet.com.api.dto.auth.AuthRequestDTO;
 import kitnet.com.api.dto.auth.AuthResponseDTO;
 import kitnet.com.security.AuthService;
@@ -17,10 +18,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/v1/auth")
+@Tag(name = "Auth", description = "Auth da aplicação")
 @RequiredArgsConstructor
 public class AuthController {
-   
+
     private final AuthService authService;
    
     @Operation(

@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RestController
-@RequestMapping(value = "apartamentos", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/v1/apartamentos", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Apartamentos", description = "Operações relacionadas a apartamentos")
 public class ApartamentoController {
     private static final Logger logger = LoggerFactory.getLogger(ApartamentoController.class);
