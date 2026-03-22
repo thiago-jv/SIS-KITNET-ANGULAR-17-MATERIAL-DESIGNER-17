@@ -40,16 +40,12 @@ class ApartamentoControllerTest {
     @InjectMocks
     private ApartamentoController apartamentoController;
 
-        // private MockMvc mockMvc; // Removido campo não utilizado
-
     private ApartamentoResponseDTO apartamentoResponseDTO;
     private ApartamentoPostDTO apartamentoPostDTO;
     private ApartamentoPutDTO apartamentoPutDTO;
 
     @BeforeEach
     void setUp() {
-        // mockMvc removido: não utilizado
-
         apartamentoResponseDTO = new ApartamentoResponseDTO(
                 1L, "101", "Apartamento 101", "MED001", "DISPONÍVEL", new PredioId(1L)
         );

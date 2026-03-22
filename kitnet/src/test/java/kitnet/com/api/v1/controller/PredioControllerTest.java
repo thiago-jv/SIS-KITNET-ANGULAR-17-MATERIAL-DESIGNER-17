@@ -22,7 +22,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -153,7 +152,7 @@ class PredioControllerTest {
         PredioFilterDTO filterDTO = new PredioFilterDTO("Prédio Centro", "1");
         List<PredioResponseDTO> prediosPage = List.of(predioResponseDTO);
         Page<PredioResponseDTO> page = new PageImpl<>(
-                prediosPage,
+                (List<PredioResponseDTO>) prediosPage,
                 PageRequest.of(0, 10),
                 1
         );
@@ -166,6 +165,7 @@ class PredioControllerTest {
 
         // Assert (Verificação)
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getContent()).hasSize(1);

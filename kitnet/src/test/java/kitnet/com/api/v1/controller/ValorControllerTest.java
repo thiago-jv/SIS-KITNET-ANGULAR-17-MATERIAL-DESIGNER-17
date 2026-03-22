@@ -23,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -142,7 +141,7 @@ class ValorControllerTest {
         ValorFilterDTO filterDTO = new ValorFilterDTO(new BigDecimal("1500.00"));
         List<ValorResponseDTO> valoresPage = List.of(valorResponseDTO);
         Page<ValorResponseDTO> page = new PageImpl<>(
-            valoresPage,
+            (List<ValorResponseDTO>) valoresPage,
             PageRequest.of(0, 10),
             1
         );
@@ -155,6 +154,7 @@ class ValorControllerTest {
 
         // Assert (Verificação)
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getContent()).hasSize(1);

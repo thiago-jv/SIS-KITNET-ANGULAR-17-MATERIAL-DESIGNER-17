@@ -24,7 +24,6 @@ import org.springframework.http.ResponseEntity;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -147,7 +146,7 @@ class ControleLancamentoControllerTest {
         );
         List<ControleLancamentoResponseDTO> controlesPage = List.of(controleLancamentoResponseDTO);
         Page<ControleLancamentoResponseDTO> page = new PageImpl<>(
-                controlesPage,
+                (List<ControleLancamentoResponseDTO>) controlesPage,
                 PageRequest.of(0, 10),
                 1
         );
@@ -160,6 +159,7 @@ class ControleLancamentoControllerTest {
 
         // Assert (Verificação)
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getContent()).hasSize(1);

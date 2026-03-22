@@ -22,7 +22,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import org.springframework.lang.NonNull;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -166,7 +165,7 @@ class InquilinoControllerTest {
         InquilinoFilterDTO filterDTO = new InquilinoFilterDTO("João Silva", "12345678901", "1234567", "ATIVO");
         List<InquilinoResponseDTO> inquilinosPage = List.of(inquilinoResponseDTO);
         Page<InquilinoResponseDTO> page = new PageImpl<>(
-            inquilinosPage,
+            (List<InquilinoResponseDTO>) inquilinosPage,
             PageRequest.of(0, 10),
             1
         );
@@ -179,6 +178,7 @@ class InquilinoControllerTest {
 
         // Assert (Verificação)
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getContent()).hasSize(1);
