@@ -39,8 +39,8 @@ export class IndicadoresResumoComponent implements OnInit {
 
   carregando = signal(false);
   erro = signal<string | null>(null);
-  dataInicio = signal<Date | null>(null);
-  dataFim = signal<Date | null>(null);
+  dataInicial = signal<Date | null>(null);
+  dataFinal = signal<Date | null>(null);
   status = signal<string>('AMBOS');
 
   statusOptions = [
@@ -65,11 +65,12 @@ export class IndicadoresResumoComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.setarDatasMesAtual();
     this.carregarResumo();
   }
 
   async carregarResumo(): Promise<void> {
-    if (!this.dataInicio() || !this.dataFim()) {
+    if (!this.dataInicial() || !this.dataFinal()) {
       this.erro.set('As datas inicial e final são obrigatórias.');
       return;
     }
@@ -79,8 +80,8 @@ export class IndicadoresResumoComponent implements OnInit {
 
     try {
       const dados = await this.indicadoresService.obterResumo(
-        this.dataInicio() || undefined,
-        this.dataFim() || undefined,
+        this.dataInicial() || undefined,
+        this.dataFinal() || undefined,
         this.status()
       );
       this.resumo.set(dados);
@@ -96,8 +97,8 @@ export class IndicadoresResumoComponent implements OnInit {
   }
 
   limparFiltro(): void {
-    this.dataInicio.set(null);
-    this.dataFim.set(null);
+    this.dataInicial.set(null);
+    this.dataFinal.set(null);
     this.status.set('ABERTO');
     this.carregarResumo();
   }
@@ -108,4 +109,13 @@ export class IndicadoresResumoComponent implements OnInit {
       currency: 'BRL'
     }).format(valor ?? 0);
   }
+
+  setarDatasMesAtual(): void {
+    const now = new Date();
+    const primeiroDia = new Date(now.getFullYear(), now.getMonth(), 1);
+    const ultimoDia = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    this.dataInicial.set(primeiroDia);
+    this.dataFinal.set(ultimoDia);
+  }
+  
 }
