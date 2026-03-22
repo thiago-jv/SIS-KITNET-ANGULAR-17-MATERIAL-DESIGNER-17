@@ -13,7 +13,7 @@ import {ApartamentoFilterDTO} from "../core/model/dto/apartamento/apartamentoFil
 export class ApartamentoService {
 
   private http = inject(HttpClient);
-  private apartamentoUrl: string = `${environment.apiUrl}/apartamentos`;
+  private apartamentoUrl: string = `${environment.apiUrl}/v1/apartamentos`;
 
   apartamentoCriado = signal<ApartamentoResponseDTO | null>(null);
 
