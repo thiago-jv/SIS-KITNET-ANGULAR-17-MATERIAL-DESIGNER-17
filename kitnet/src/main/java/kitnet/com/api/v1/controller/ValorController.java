@@ -1,5 +1,7 @@
 package kitnet.com.api.v1.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import jakarta.validation.Valid;
 import kitnet.com.api.dto.valor.ValorFilterDTO;
 import kitnet.com.api.dto.valor.ValorPostDTO;
@@ -23,11 +25,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import kitnet.com.api.dto.ApiErrorDTO;
+import kitnet.com.api.dto.error.ApiErrorDTO;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping(value = "/v1/valores", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Valores", description = "Operações relacionadas a valores")
@@ -43,6 +44,7 @@ public class ValorController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @GetMapping("/filter")
+    @PreAuthorize("hasAuthority('PERM_VALOR_LIST')")
     public ResponseEntity<Page<ValorResponseDTO>> filtrar(
             @Parameter(description = "Filtros para busca de valores") ValorFilterDTO valorFilterDTO,
             @Parameter(description = "Informações de paginação e ordenação") Pageable pageable) {
@@ -56,6 +58,7 @@ public class ValorController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @GetMapping("/todos")
+    @PreAuthorize("hasAuthority('PERM_VALOR_LIST')")
     public List<ValorResponseDTO> listar() {
         return valorService.listarTodos();
     }
@@ -67,6 +70,7 @@ public class ValorController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('PERM_VALOR_LIST')")
     public ValorResponseDTO buscarPeloId(@PathVariable Long id) {
         return valorService.buscarOuFalhar(id);
     }
@@ -79,6 +83,7 @@ public class ValorController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @PostMapping
+    @PreAuthorize("hasAuthority('PERM_VALOR_CREATE')")
     public ValorResponseDTO criar(@Valid @RequestBody ValorPostDTO valorPostDTO) {
         try {
             return valorService.salvar(valorPostDTO);
@@ -96,6 +101,7 @@ public class ValorController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('PERM_PREDIO_UPDATE')")
     public ValorResponseDTO atualizar(@PathVariable Long id, @Valid @RequestBody ValorPutDTO valorPutDTO) {
         return this.valorService.atualizar(id, valorPutDTO);
     }
@@ -109,6 +115,7 @@ public class ValorController {
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('PERM_VALOR_DELETE')")
     public void remover(@PathVariable Long id) {
         valorService.excluir(id);
     }

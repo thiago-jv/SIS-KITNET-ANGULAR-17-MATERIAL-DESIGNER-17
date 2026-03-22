@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,12 +23,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import kitnet.com.api.dto.ApiErrorDTO;
+import kitnet.com.api.dto.error.ApiErrorDTO;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping(value = "/v1/controles", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Lançamentos", description = "Operações relacionadas a lançamentos de controle")
@@ -43,6 +43,7 @@ public class ControleLancamentoController {
 		@ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
 	})
 	@GetMapping("/filter")
+	@PreAuthorize("hasAuthority('PERM_LANCAMENTO_LIST')")
 	public ResponseEntity<Page<ControleLancamentoResponseDTO>> filtrar(
 			@Parameter(description = "Filtros para busca de lançamentos") ControleFilterDTO controleFilterDTO,
 			@Parameter(description = "Informações de paginação e ordenação") Pageable pageable) {
@@ -58,6 +59,7 @@ public class ControleLancamentoController {
 		@ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
 	})
 	@PostMapping
+	@PreAuthorize("hasAuthority('PERM_LANCAMENTO_CREATE')")
 	public ControleLancamentoResponseDTO criar(@Valid @RequestBody ControleLancamentoPostDTO controleLancamento) {
 		try {
 			 return controleLancamentoService.salvar(controleLancamento);
@@ -75,6 +77,7 @@ public class ControleLancamentoController {
 	})
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@PreAuthorize("hasAuthority('PERM_LANCAMENTO_DELETE')")
 	public void remover(@PathVariable Long id) {
 		controleLancamentoService.excluir(id);
 	}
@@ -88,6 +91,7 @@ public class ControleLancamentoController {
 		@ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
 	})
 	@PutMapping("/{id}")
+	@PreAuthorize("hasAuthority('PERM_LANCAMENTO_UPDATE')")
 	public ControleLancamentoResponseDTO atualizar(@PathVariable Long id,
 			@Valid @RequestBody ControleLancamentoPutDTO controleLancamento) {
 		return controleLancamentoService.atualizar(id, controleLancamento);
@@ -100,6 +104,7 @@ public class ControleLancamentoController {
 		  @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
 	 })
 	 @PutMapping("/{id}/status")
+	 @PreAuthorize("hasAuthority('PERM_LANCAMENTO_UPDATE')")
 	 public void atualizarStatus(@PathVariable Long id) {
 		 this.controleLancamentoService.alternarStatusControle(id);
 	 }
@@ -111,11 +116,13 @@ public class ControleLancamentoController {
 		@ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
 	})
 	@GetMapping("/{id}")
+	@PreAuthorize("hasAuthority('PERM_LANCAMENTO_LIST')")
 	public ControleLancamentoResponseDTO buscarPeloId(@PathVariable Long id) {
 		return controleLancamentoService.buscarOuFalhar(id);
 	}
 	
 	@GetMapping(path = "/relatorio/por-controle-lancamento", produces = MediaType.APPLICATION_PDF_VALUE)
+	@PreAuthorize("hasAuthority('PERM_LANCAMENTO_LIST')")
 	public ResponseEntity<byte[]> relatorioPorLancamentoControlePdf(Long idLancamento) {
 		byte[] bytesPdf = controleLancamentoService.gerarRelatorioPdf(idLancamento);
 		
@@ -129,6 +136,7 @@ public class ControleLancamentoController {
 	}
 
 	@PostMapping("/{id}/renovar")
+	@PreAuthorize("hasAuthority('PERM_LANCAMENTO_CREATE')")
 	public List<ControleLancamentoResponseDTO> renovar(
 			@PathVariable Long id,
 			@Valid @RequestBody RenovarLancamentoDTO renovarDTO) {
@@ -140,6 +148,7 @@ public class ControleLancamentoController {
 	}
 
 	@GetMapping(path = "/relatorio/gerencial/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+	@PreAuthorize("hasAuthority('PERM_LANCAMENTO_LIST')")
 	public ResponseEntity<byte[]> relatorioGerencialPdf(
 			@RequestParam(required = false) Long predioId,
 			@RequestParam(required = false) Long apartamentoId,
@@ -169,6 +178,7 @@ public class ControleLancamentoController {
 			@ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
 	})
 	@GetMapping("/todos")
+	@PreAuthorize("hasAuthority('PERM_LANCAMENTO_LIST')")
 	public List<ControleLancamentoResponseDTO> listar() {
 		return controleLancamentoService.listarTodos();
 	}

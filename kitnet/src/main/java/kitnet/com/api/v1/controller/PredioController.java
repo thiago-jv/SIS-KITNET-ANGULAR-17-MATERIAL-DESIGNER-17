@@ -1,5 +1,7 @@
 package kitnet.com.api.v1.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import jakarta.validation.Valid;
 import kitnet.com.api.dto.predio.PredioFilterDTO;
 import kitnet.com.api.dto.predio.PredioPostDTO;
@@ -23,11 +25,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import kitnet.com.api.dto.ApiErrorDTO;
+import kitnet.com.api.dto.error.ApiErrorDTO;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping(value = "/v1/predios", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Prédios", description = "Operações relacionadas a prédios")
@@ -42,6 +43,7 @@ public class PredioController {
 		@ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
 	})
 	@GetMapping("/todos")
+	@PreAuthorize("hasAuthority('PERM_PREDIO_LIST')")
 	public ResponseEntity<List<PredioResponseDTO>> todos() {
 		return ResponseEntity.status(HttpStatus.OK).body(predioService.todos());
 	}
@@ -53,6 +55,7 @@ public class PredioController {
 		@ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
 	})
 	@GetMapping("/filter")
+	@PreAuthorize("hasAuthority('PERM_PREDIO_LIST')")
 	public ResponseEntity<Page<PredioResponseDTO>> filtrar(
 			@Parameter(description = "Filtros para busca de prédios") PredioFilterDTO predioFilterDTO,
 			@Parameter(description = "Informações de paginação e ordenação") Pageable pageable) {
@@ -68,6 +71,7 @@ public class PredioController {
 		@ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
 	})
 	@PostMapping
+	@PreAuthorize("hasAuthority('PERM_PREDIO_CREATE')")
 	public PredioResponseDTO criar(@Valid @RequestBody PredioPostDTO predioPostDTO) {
 		try {
 			return predioService.salvar(predioPostDTO);
@@ -85,6 +89,7 @@ public class PredioController {
 	})
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@PreAuthorize("hasAuthority('PERM_PREDIO_DELETE')")
 	public void remover(@PathVariable Long id) {
 		predioService.excluir(id);
 	}
@@ -98,6 +103,7 @@ public class PredioController {
 		@ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
 	})
 	@PutMapping("/{id}")
+	@PreAuthorize("hasAuthority('PERM_PREDIO_UPDATE')")
 	public PredioResponseDTO atualizar(@PathVariable Long id, @Valid @RequestBody PredioPutDTO predioPutDTO) {
 		return this.predioService.atualizar(id, predioPutDTO);
 	}
@@ -109,6 +115,7 @@ public class PredioController {
 		@ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
 	})
 	@GetMapping("/{id}")
+	@PreAuthorize("hasAuthority('PERM_PREDIO_LIST')")
 	public PredioResponseDTO buscarPeloId(@PathVariable Long id) {
 		return predioService.buscarOuFalhar(id);
 	}

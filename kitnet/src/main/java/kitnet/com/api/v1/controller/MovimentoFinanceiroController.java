@@ -1,5 +1,7 @@
 package kitnet.com.api.v1.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,7 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import kitnet.com.api.dto.financeiro.MovimentoFinanceiroResponseDTO;
 import kitnet.com.api.dto.financeiro.MovimentoFinanceiroFilterDTO;
-import kitnet.com.api.dto.ApiErrorDTO;
+import kitnet.com.api.dto.error.ApiErrorDTO;
 
 import kitnet.com.api.dto.financeiro.MovimentoFinanceiroPostDTO;
 import kitnet.com.domain.service.MovimentoFinanceiroService;
@@ -25,7 +27,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping(value = "/v1/financeiro/movimentos", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Movimento Financeiro", description = "Movimentos financeiros relacionados a receitas e despesas do condominio.")
@@ -41,6 +42,7 @@ public class MovimentoFinanceiroController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @GetMapping("/filter")
+    @PreAuthorize("hasAuthority('PERM_MOVIMENTO_FINANCEIRO_LIST')")
     public ResponseEntity<Page<MovimentoFinanceiroResponseDTO>> filtrar(
             @Parameter(description = "Filtros para busca de movimentos financeiros") MovimentoFinanceiroFilterDTO filterDTO,
             @Parameter(description = "Informações de paginação e ordenação") Pageable pageable) {
@@ -56,7 +58,8 @@ public class MovimentoFinanceiroController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @PostMapping
-    public ResponseEntity<MovimentoFinanceiroResponseDTO> criar(@RequestBody MovimentoFinanceiroPostDTO dto) {
+    @PreAuthorize("hasAuthority('PERM_MOVIMENTO_FINANCEIRO_CREATE')")
+    public ResponseEntity<MovimentoFinanceiroResponseDTO> criar(@jakarta.validation.Valid @RequestBody MovimentoFinanceiroPostDTO dto) {
         MovimentoFinanceiroResponseDTO response = service.criar(dto);
         return ResponseEntity.ok(response);
     }
@@ -68,11 +71,11 @@ public class MovimentoFinanceiroController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @GetMapping
+    @PreAuthorize("hasAuthority('PERM_MOVIMENTO_FINANCEIRO_LIST')")
     public ResponseEntity<List<MovimentoFinanceiroResponseDTO>> listarTodos() {
         List<MovimentoFinanceiroResponseDTO> dtos = service.listarTodosDTO();
         return ResponseEntity.ok(dtos);
     }
-
 
     @Operation(summary = "Buscar movimento financeiro por ID", description = "Busca um movimento financeiro pelo ID.")
     @ApiResponses({
@@ -81,6 +84,7 @@ public class MovimentoFinanceiroController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('PERM_MOVIMENTO_FINANCEIRO_LIST')")
     public ResponseEntity<MovimentoFinanceiroResponseDTO> buscarPorId(@PathVariable Long id) {
         MovimentoFinanceiroResponseDTO dto = service.buscarPorIdDTO(id);
         if (dto == null) {
@@ -89,7 +93,6 @@ public class MovimentoFinanceiroController {
         return ResponseEntity.ok(dto);
     }
 
-
     @Operation(summary = "Deletar movimento financeiro", description = "Remove um movimento financeiro pelo ID.")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Movimento removido com sucesso"),
@@ -97,22 +100,24 @@ public class MovimentoFinanceiroController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('PERM_MOVIMENTO_FINANCEIRO_DELETE')")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         service.remover(id);
         return ResponseEntity.noContent().build();
     }
 
-        @Operation(summary = "Atualizar movimento financeiro", description = "Atualiza um movimento financeiro pelo ID.")
-        @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Movimento atualizado com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Movimento não encontrado", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class))),
-            @ApiResponse(responseCode = "409", description = "Conflito de dados", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class))),
-            @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
-        })
-        @PutMapping("/{id}")
-        public ResponseEntity<MovimentoFinanceiroResponseDTO> atualizar(@PathVariable Long id, @RequestBody MovimentoFinanceiroPutDTO dto) {
-            MovimentoFinanceiroResponseDTO atualizado = service.atualizar(dto, id);
-            return ResponseEntity.ok(atualizado);
-        }
+    @Operation(summary = "Atualizar movimento financeiro", description = "Atualiza um movimento financeiro pelo ID.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Movimento atualizado com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Movimento não encontrado", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class))),
+        @ApiResponse(responseCode = "409", description = "Conflito de dados", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class))),
+        @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
+    })
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('PERM_MOVIMENTO_FINANCEIRO_UPDATE')")
+    public ResponseEntity<MovimentoFinanceiroResponseDTO> atualizar(@PathVariable Long id, @jakarta.validation.Valid @RequestBody MovimentoFinanceiroPutDTO dto) {
+        MovimentoFinanceiroResponseDTO atualizado = service.atualizar(dto, id);
+        return ResponseEntity.ok(atualizado);
+    }
 }

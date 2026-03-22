@@ -1,5 +1,7 @@
 package kitnet.com.api.v1.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import jakarta.validation.Valid;
 import kitnet.com.api.dto.inquilino.InquilinoFilterDTO;
 import kitnet.com.api.dto.inquilino.InquilinoPostDTO;
@@ -23,11 +25,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import kitnet.com.api.dto.ApiErrorDTO;
+import kitnet.com.api.dto.error.ApiErrorDTO;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping(value = "/v1/inquilinos", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Inquilinos", description = "Operações relacionadas a inquilinos")
@@ -43,6 +44,7 @@ public class InquilinoController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @GetMapping("/filter")
+    @PreAuthorize("hasAuthority('PERM_INQUILINO_LIST')")
     public ResponseEntity<Page<InquilinoResponseDTO>> filtrar(
             @Parameter(description = "Filtros para busca de inquilinos") InquilinoFilterDTO inquilinoFilterDTO,
             @Parameter(description = "Informações de paginação e ordenação") Pageable pageable) {
@@ -56,6 +58,7 @@ public class InquilinoController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @GetMapping("/todos")
+    @PreAuthorize("hasAuthority('PERM_INQUILINO_LIST')")
     public List<InquilinoResponseDTO> listar() {
         return inquilinoService.listarTodos();
     }
@@ -66,6 +69,7 @@ public class InquilinoController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @GetMapping("/todos/ativos")
+    @PreAuthorize("hasAuthority('PERM_INQUILINO_LIST')")
     public List<InquilinoResponseDTO> listarAtivos() {
         return inquilinoService.listarAtivos();
     }
@@ -78,6 +82,7 @@ public class InquilinoController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @PostMapping
+    @PreAuthorize("hasAuthority('PERM_INQUILINO_CREATE')")
     public InquilinoResponseDTO criar(@Valid @RequestBody InquilinoPostDTO inquilinoPostDTO) {
         try {
             return inquilinoService.salvar(inquilinoPostDTO);
@@ -95,6 +100,7 @@ public class InquilinoController {
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('PERM_INQUILINO_DELETE')")
     public void remover(@PathVariable Long id) {
         inquilinoService.excluir(id);
     }
@@ -108,6 +114,7 @@ public class InquilinoController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('PERM_INQUILINO_UPDATE')")
     public InquilinoResponseDTO atualizar(@PathVariable Long id, @Valid @RequestBody InquilinoPutDTO inquilinoPutDTO) {
         return this.inquilinoService.atualizar(id, inquilinoPutDTO);
     }
@@ -119,6 +126,7 @@ public class InquilinoController {
         @ApiResponse(responseCode = "500", description = "Erro interno", content = @Content(schema = @Schema(implementation = ApiErrorDTO.class)))
     })
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('PERM_INQUILINO_LIST')")
     public InquilinoResponseDTO buscarPeloId(@PathVariable Long id) {
         return inquilinoService.buscarOuFalhar(id);
     }
