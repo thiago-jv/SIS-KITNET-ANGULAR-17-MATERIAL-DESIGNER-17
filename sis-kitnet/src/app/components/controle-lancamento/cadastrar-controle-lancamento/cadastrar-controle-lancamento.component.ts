@@ -549,7 +549,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
         this.errorHandler.exibirSucesso(Constants.SALVO_COM_SUCESSO);
       }
 
-      this.router.navigate(['/listar-controle-lancamento']);
+      this.router.navigate(['/controle-lancamento']);
 
     } catch (error: any) {
       this.errorHandler.exibirErro(error, 'salvar ou atualizar controle de lançamento');
@@ -557,7 +557,7 @@ export class CadastrarControleLancamentoComponent implements OnInit {
   }
 
   cancelar(): void {
-    this.router.navigate(['/listar-controle-lancamento']);
+    this.router.navigate(['/controle-lancamento']);
   }
 
   carregarDados(id: number): void {

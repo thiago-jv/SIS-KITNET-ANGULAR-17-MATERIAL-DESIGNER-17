@@ -105,7 +105,7 @@ export class CadastrarValorComponent implements OnInit {
         this.errorHandler.exibirSucesso(Constants.SALVO_COM_SUCESSO);
       }
 
-      this.router.navigate(['/listar-valor']);
+      this.router.navigate(['/valor/listar']);
 
     } catch (error: any) {
       this.errorHandler.exibirErro(error, 'salvar ou atualizar valor');
@@ -113,7 +113,7 @@ export class CadastrarValorComponent implements OnInit {
   }
 
   cancelar(): void {
-    this.router.navigate(['/listar-valor']);
+    this.router.navigate(['/valor/listar']);
   }
 
   carregarDados(id: number): void {

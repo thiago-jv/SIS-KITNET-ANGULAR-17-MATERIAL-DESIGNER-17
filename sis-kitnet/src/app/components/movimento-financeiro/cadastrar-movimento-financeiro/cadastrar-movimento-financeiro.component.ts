@@ -327,7 +327,7 @@ export class CadastrarMovimentoFinanceiroComponent implements OnInit {
       (this.movimentoService as any).atualizarMovimento(this.idMovimento, dto).subscribe({
         next: () => {
           this.errorHandler.exibirSucesso('Movimento atualizado com sucesso!');
-          this.router.navigate(['/listar-movimento-financeiro']);
+          this.router.navigate(['/movimento-financeiro']);
         },
         error: (error: any) => {
           this.errorHandler.exibirErro(error, 'atualizar movimento');
@@ -337,7 +337,7 @@ export class CadastrarMovimentoFinanceiroComponent implements OnInit {
       this.movimentoService.criarMovimento(dto).subscribe({
         next: () => {
           this.errorHandler.exibirSucesso('Movimento cadastrado com sucesso!');
-          this.router.navigate(['/listar-movimento-financeiro']);
+          this.router.navigate(['/movimento-financeiro']);
         },
         error: (error: any) => {
           this.errorHandler.exibirErro(error, 'cadastrar movimento');

@@ -161,11 +161,11 @@ export class CadastraApartamentoComponent implements OnInit {
       if (this.id) {
         await this.apartamentoService.atualizarApartamento(this.id, dados);
         this.errorHandler.exibirSucesso(Constants.ATUALIZADO_COM_SUCESSO);
-        this.router.navigate(['/listar-apartamento']);
+        this.router.navigate(['/apartamento/listar']);
       } else {
         await this.apartamentoService.criarApartamento(dados);
         this.errorHandler.exibirSucesso(Constants.SALVO_COM_SUCESSO);
-        this.router.navigate(['/listar-apartamento']);
+        this.router.navigate(['/apartamento/listar']);
       }
     } catch (error) {
       this.errorHandler.exibirErro(error, 'salvar ou atualizar');
@@ -174,7 +174,7 @@ export class CadastraApartamentoComponent implements OnInit {
 
   cancelar(): void {
     if (this.id) {
-      this.router.navigate(['/listar-apartamento']);
+      this.router.navigate(['/apartamento/listar']);
     } else {
       this.form.reset();
       this.formSubmitted = false;

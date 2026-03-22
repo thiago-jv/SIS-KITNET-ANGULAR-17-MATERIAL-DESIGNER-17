@@ -4,7 +4,7 @@
 		<mat-toolbar class="btn-blue mb-0">
 			<span class="flex-spacer"></span>
 			<div class="d-flex justify-content-end w-100">
-				<button mat-raised-button color="accent" routerLink="/cadastrar-movimento-financeiro">Novo</button>
+				<button mat-raised-button color="accent" routerLink="/movimento-financeiro/novo">Novo</button>
 			</div>
 		</mat-toolbar>
 	</div>
@@ -81,7 +81,7 @@
 							<mat-icon>more_vert</mat-icon>
 						</button>
 						<mat-menu #menuAcoes="matMenu">
-							<button mat-menu-item [routerLink]="['/movimento-financeiro', item.id]">
+							<button mat-menu-item [routerLink]="['/movimento-financeiro', item.id, 'editar']">
 								<mat-icon>edit</mat-icon>
 								<span>Editar</span>
 							</button>

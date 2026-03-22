@@ -7,7 +7,7 @@
     <mat-toolbar class="btn-blue mb-0">
       <span class="flex-spacer"></span>
       <div class="d-flex justify-content-end w-100">
-        <button mat-raised-button color="accent" routerLink="/controle-lancamento">Novo</button>
+        <button mat-raised-button color="accent" routerLink="/controle-lancamento/novo">Novo</button>
       </div>
     </mat-toolbar>
   </div>
@@ -274,7 +274,7 @@
 
           <mat-menu #menu="matMenu">
             <button mat-menu-item 
-                    [routerLink]="['/controle-lancamento', item.id]"
+                    [routerLink]="['/controle-lancamento', item.id, 'editar']"
                     [disabled]="!podeEditar(item)"
                     [matTooltip]="obterDicaEdicao(item)"
                     [matTooltipDisabled]="podeEditar(item)">

@@ -81,13 +81,13 @@ export class CadastrarPredioComponent {
         const resp = await this.predioService.atualizarPredio(this.id, dados);
 
         this.errorHandler.exibirSucesso(Constants.ATUALIZADO_COM_SUCESSO);
-        this.router.navigate(['/listar-predio']);
+        this.router.navigate(['/predio/listar']);
 
       } else {
         const resp = await this.predioService.criarPredio(dados);
 
         this.errorHandler.exibirSucesso(Constants.SALVO_COM_SUCESSO);
-        this.router.navigate(['/listar-predio']);
+        this.router.navigate(['/predio/listar']);
       }
 
     } catch (error) {
@@ -97,7 +97,7 @@ export class CadastrarPredioComponent {
 
   cancelar(): void {
     if (this.id) {
-       this.router.navigate(['/listar-predio']);
+      this.router.navigate(['/predio/listar']);
     } else {
       this.form.reset();
       this.formSubmitted = false;

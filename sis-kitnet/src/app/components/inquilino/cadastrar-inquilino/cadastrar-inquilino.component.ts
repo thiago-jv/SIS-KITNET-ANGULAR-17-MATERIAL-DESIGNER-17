@@ -95,7 +95,7 @@ export class CadastrarInquilinoComponent implements OnInit {
         this.errorHandler.exibirSucesso(Constants.SALVO_COM_SUCESSO);
       }
 
-      this.router.navigate(['/listar-inquilino']);
+      this.router.navigate(['/inquilino/listar']);
 
     } catch (error: any) {
       this.errorHandler.exibirErro(error, 'salvar ou atualizar inquilino');
@@ -103,7 +103,7 @@ export class CadastrarInquilinoComponent implements OnInit {
   }
 
   cancelar(): void {
-    this.router.navigate(['/listar-inquilino']);
+    this.router.navigate(['/inquilino/listar']);
   }
 
   carregarDados(id: number): void {

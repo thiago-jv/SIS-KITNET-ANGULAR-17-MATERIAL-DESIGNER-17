@@ -5,7 +5,7 @@
     <mat-toolbar class="btn-blue mb-0">
       <span class="flex-spacer"></span>
       <div class="d-flex justify-content-end w-100 gap-2">
-        <button mat-raised-button color="primary" (click)="aplicarFiltro()" [disabled]="!dataInicio() || !dataFim() || carregando()">
+        <button mat-raised-button color="primary" (click)="aplicarFiltro()" [disabled]="!dataInicial() || !dataFinal() || carregando()">
           <mat-icon>filter_list</mat-icon>
           Filtrar
         </button>
@@ -13,7 +13,7 @@
           <mat-icon>clear</mat-icon>
           Limpar
         </button>
-        <button mat-raised-button color="accent" (click)="carregarResumo()" [disabled]="!dataInicio() || !dataFim() || carregando()">
+        <button mat-raised-button color="accent" (click)="carregarResumo()" [disabled]="!dataInicial() || !dataFinal() || carregando()">
           <mat-icon>refresh</mat-icon>
           Atualizar
         </button>
@@ -34,19 +34,19 @@
       <div class="col-12 col-md-6">
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Data de Início</mat-label>
-          <input matInput [matDatepicker]="pickerInicio" [(ngModel)]="dataInicio" (ngModelChange)="dataInicio.set($event)" required>
+          <input matInput [matDatepicker]="pickerInicio" [(ngModel)]="dataInicial" (ngModelChange)="dataInicial.set($event)" required>
           <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
           <mat-datepicker #pickerInicio></mat-datepicker>
-          <mat-error *ngIf="!dataInicio()">Data inicial é obrigatória</mat-error>
+          <mat-error *ngIf="!dataInicial()">Data inicial é obrigatória</mat-error>
         </mat-form-field>
       </div>
       <div class="col-12 col-md-6">
         <mat-form-field appearance="outline" class="w-100">
           <mat-label>Data de Fim</mat-label>
-          <input matInput [matDatepicker]="pickerFim" [(ngModel)]="dataFim" (ngModelChange)="dataFim.set($event)" required>
+          <input matInput [matDatepicker]="pickerFim" [(ngModel)]="dataFinal" (ngModelChange)="dataFinal.set($event)" required>
           <mat-datepicker-toggle matIconSuffix [for]="pickerFim"></mat-datepicker-toggle>
           <mat-datepicker #pickerFim></mat-datepicker>
-          <mat-error *ngIf="!dataFim()">Data final é obrigatória</mat-error>
+          <mat-error *ngIf="!dataFinal()">Data final é obrigatória</mat-error>
         </mat-form-field>
       </div>
     </div>

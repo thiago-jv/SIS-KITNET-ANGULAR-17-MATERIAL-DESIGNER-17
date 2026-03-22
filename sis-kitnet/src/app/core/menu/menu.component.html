@@ -1,17 +1,21 @@
-<div class="menu-container">
+<div class="menu-container" *ngIf="isAuthenticated">
   <div class="menu-section" *ngFor="let section of menuSections; trackBy: rastrearPorTituloSecao">
     <h3 class="menu-section-title">{{ section.title }}</h3>
 
-    <button
-      mat-button
-      class="menu-item"
-      *ngFor="let item of section.items; trackBy: rastrearPorRota"
-      [routerLink]="item.route"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
-    >
-      <mat-icon class="menu-icon">{{ item.icon }}</mat-icon>
-      <span class="menu-label">{{ item.label }}</span>
-    </button>
+    <ng-container *ngFor="let item of section.items; trackBy: rastrearPorRota">
+      <button
+        mat-button
+        class="menu-item"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+        [disabled]="item.permission && !auth.hasPermission(item.permission)"
+        [matTooltip]="item.permission && !auth.hasPermission(item.permission) ? 'Você não tem permissão para acessar este item.' : ''"
+      >
+        <mat-icon class="menu-icon">{{ item.icon }}</mat-icon>
+        <span class="menu-label">{{ item.label }}</span>
+      </button>
+    </ng-container>
+
   </div>
 </div>
