@@ -1,3 +1,4 @@
+
 package kitnet.com.domain.service.impl;
 
 import kitnet.com.api.dto.controleLancamento.*;
@@ -5,6 +6,7 @@ import kitnet.com.api.handler.ControleLancamentoNaoEncontadoException;
 import kitnet.com.api.handler.EntidadeEmUsoException;
 import kitnet.com.api.handler.PredioNaoEncontadoException;
 import kitnet.com.api.mapper.ControleLancamentoMapper;
+import kitnet.com.api.mapper.RelatorioGerencialMapper;
 import kitnet.com.domain.model.*;
 import kitnet.com.domain.model.lancamento.interfaces.CalculadoraDias;
 import kitnet.com.domain.model.lancamento.interfaces.CalculadoraValorDiaria;
@@ -12,9 +14,9 @@ import kitnet.com.domain.model.lancamento.interfaces.CalculadoraValorPago;
 import kitnet.com.domain.repository.ControleLancamentoRepository;
 import kitnet.com.domain.service.ApartamentoService;
 import kitnet.com.domain.service.ApartamentoStatusService;
+import kitnet.com.domain.service.ControleLancamentoReportService;
 import kitnet.com.domain.service.ControleLancamentoService;
 import kitnet.com.domain.validator.ControleLancamentoValidator;
-import kitnet.com.infra.report.ControleLancamentoReportService;
 import kitnet.com.infra.utils.ApartamentoMessages;
 import kitnet.com.infra.utils.Constantes;
 import kitnet.com.infra.utils.ControleMessages;
@@ -40,6 +42,7 @@ public class ControleLancamentoServiceImpl implements ControleLancamentoService 
     private final CalculadoraDias calculaDias;
     private final CalculadoraValorPago calcularValorPago;
     private final ControleLancamentoMapper controleLancamentoMapper;
+    private final RelatorioGerencialMapper relatorioGerencialMapper;
     private final CalculadoraValorDiaria calculaValoresDiaria;
     private final ControleLancamentoReportService controleLancamentoReportService;
     private final ControleLancamentoValidator controleLancamentoValidator;
@@ -157,7 +160,7 @@ public class ControleLancamentoServiceImpl implements ControleLancamentoService 
         return controleLancamentoMapper.toListControleLancamentoResponse(renovados);
     }
 
-    private List<RelatorioGerencialDTO> gerarRelatorioGerencial(
+        private List<RelatorioGerencialDTO> gerarRelatorioGerencial(
             Long predioId,
             Long apartamentoId,
             Long inquilinoId,
@@ -166,12 +169,12 @@ public class ControleLancamentoServiceImpl implements ControleLancamentoService 
             String statusPagamento) {
 
         List<ControleLancamento> lancamentos = controleLancamentoRepository.buscarDadosRelatorioGerencial(
-                predioId, apartamentoId, inquilinoId, dataInicio, dataFim, statusPagamento);
+            predioId, apartamentoId, inquilinoId, dataInicio, dataFim, statusPagamento);
 
         return lancamentos.stream()
-                .map(this::converterParaRelatorioGerencial)
-                .collect(java.util.stream.Collectors.toList());
-    }
+            .map(relatorioGerencialMapper::toDto)
+            .collect(java.util.stream.Collectors.toList());
+        }
 
     @Override
     public byte[] gerarRelatorioGerencialPdf(
@@ -192,65 +195,5 @@ public class ControleLancamentoServiceImpl implements ControleLancamentoService 
     public List<ControleLancamentoResponseDTO> listarTodos() {
         return controleLancamentoMapper.toListControleLancamentoResponse(controleLancamentoRepository.findAll());
     }
-
-    private RelatorioGerencialDTO converterParaRelatorioGerencial(ControleLancamento lancamento) {
-        var inquilino = lancamento.getInquilino();
-        var apartamento = lancamento.getApartamento();
-        var predio = apartamento.getPredio();
-        var valores = lancamento.getValores();
-        var status = lancamento.getStatus();
-        
-        RelatorioGerencialDTO dto = RelatorioGerencialDTO.builder()
-                // Informações do Inquilino
-                .inquilinoId(inquilino.getId())
-                .nomeInquilino(inquilino.getNome())
-                .cpfInquilino(inquilino.getCpf())
-                .contatoInquilino(inquilino.getContato())
-                .emailInquilino(inquilino.getEmail())
-                .statusInquilino(inquilino.getStatus())
-                
-                // Informações do Apartamento
-                .apartamentoId(apartamento.getId())
-                .numeroApartamento(apartamento.getNumeroApartamento())
-                .descricaoApartamento(apartamento.getDescricao())
-                .statusApartamento(apartamento.getStatusApartamento())
-                
-                // Informações do Prédio
-                .predioId(predio.getId())
-                .nomePredio(predio.getDescricao())
-                .numeroPredio(predio.getNumero())
-                .enderecoPredio(predio.getLogradouro())
-                .bairroPredio(predio.getBairro())
-                .cidadePredio(predio.getLocalidade())
-                .ufPredio(predio.getUf())
-                .cepPredio(predio.getCep())
-                
-                // Informações do Lançamento
-                .lancamentoId(lancamento.getId())
-                .dataEntrada(lancamento.getDataEntrada())
-                .dataPagamento(lancamento.getDataPagamento())
-                .dataLancamento(lancamento.getDataLancamento())
-                .diasLocacao(valores.getDia())
-                .observacao(lancamento.getObservacao())
-                
-                // Informações Financeiras
-                .valorApartamento(valores.getValorApartamento())
-                .valorPagoApartamento(valores.getValorPagoApartamento())
-                .valorDebitoApartamento(valores.getValorDebitoApartamento())
-                .valorDiaria(valores.getValorDiaria())
-                .valorTotalDiaria(valores.getValorTotalDiaria())
-                
-                // Status
-                .statusPagamento(status.getStatusApartamePagamento())
-                .statusControle(status.isStatusControle())
-                
-                .build();
-        
-        // Calcula campos derivados
-        dto.calcularPercentualAdimplencia();
-        dto.verificarVencimento();
-        
-        return dto;
-    }
-
+  
 }

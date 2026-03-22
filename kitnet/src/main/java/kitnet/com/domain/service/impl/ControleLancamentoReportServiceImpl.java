@@ -1,4 +1,4 @@
-package kitnet.com.infra.report;
+package kitnet.com.domain.service.impl;
 
 import kitnet.com.api.dto.controleLancamento.RelatorioGerencialDTO;
 import kitnet.com.api.handler.ReportException;
@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Locale;
 
 @Service
-public class ControleLancamentoReportService {
+public class ControleLancamentoReportServiceImpl implements kitnet.com.domain.service.ControleLancamentoReportService {
 
     @Autowired
     private ControleLancamentoRepository controleLancamentoRepository;

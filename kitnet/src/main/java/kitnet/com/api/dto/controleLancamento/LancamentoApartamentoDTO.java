@@ -1,15 +1,24 @@
 package kitnet.com.api.dto.controleLancamento;
 
-public record LancamentoApartamentoDTO(
-    Long idLancamento,
-    String dataEntrada,
-    String nomeInquilino,
-    String valor,
-    String predio,
-    String numeroQuarto,
-    String cep,
-    String bairro,
-    String uf,
-    String localidade,
-    String logradouro
-) {}
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class LancamentoApartamentoDTO {
+    private Long idLancamento;
+    private String dataEntrada;
+    private String nomeInquilino;
+    private String valor;
+    private String predio;
+    private String numeroQuarto;
+    private String cep;
+    private String bairro;
+    private String uf;
+    private String localidade;
+    private String logradouro;
+}
