@@ -18,6 +18,8 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrls: ['./filter-bar.component.scss']
 })
 export class FilterBarComponent {
+
   @Output() apply = new EventEmitter<void>();
   @Output() clear = new EventEmitter<void>();
+  
 }
