@@ -30,10 +30,40 @@
       }
 
       <!-- Usuário -->
-      <div class="user-card ms-auto">
-        <div class="user-info">
-          <div class="user-name">THIAGO.SILVA</div>
+      <div class="user-card ms-auto" *ngIf="userEmail">
+        <div class="user-info" style="display: flex; align-items: center; gap: 8px;">
+          <mat-icon color="primary" style="cursor:pointer" [matMenuTriggerFor]="permsMenu" title="Ver permissões">verified_user</mat-icon>
+          <div class="user-name"><b>{{ userEmail }}</b></div>
+          <button mat-stroked-button color="primary" size="small" (click)="logout()" style="margin-left: 8px;">Sair</button>
         </div>
+        <mat-menu #permsMenu="matMenu" [overlapTrigger]="false" class="perms-menu-custom-width" xPosition="after" yPosition="below" panelClass="perms-menu-panel-center">
+          <ng-container *ngIf="groupedPermissions.length; else noPerms">
+            <div *ngFor="let group of groupedPermissions">
+              <button
+                class="group-header"
+                (click)="toggleGroup(group.group); $event.stopPropagation()"
+              >
+                <span class="group-title">
+                  {{ group.group.replace('_',' ').toLowerCase() }}
+                </span>
+                <mat-icon>
+                  {{ expandedGroup === group.group ? 'expand_less' : 'expand_more' }}
+                </mat-icon>
+              </button>
+              <div *ngIf="expandedGroup === group.group" style="padding-left: 16px;">
+                <button mat-menu-item disabled *ngFor="let perm of group.perms" style="opacity:0.95;">
+                  <mat-icon>lock</mat-icon>
+                  <span style="font-size:13px; white-space: normal; word-break: break-word;">
+                    {{ perm }}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #noPerms>
+            <span style="padding: 8px; display: block;">Nenhuma permissão encontrada.</span>
+          </ng-template>
+        </mat-menu>
       </div>
 
     </mat-toolbar>
