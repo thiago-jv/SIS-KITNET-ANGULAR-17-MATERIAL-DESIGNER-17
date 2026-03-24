@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    container_name: kitnet-db
+    restart: always
+    environment:
+      POSTGRES_DB: kitnet
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./kitnet
+    container_name: kitnet-backend
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/kitnet
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+    ports:
+      - "8090:8089"
+    restart: always
+
+  frontend:
+    build: ./sis-kitnet
+    container_name: kitnet-frontend
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+    restart: always
+
+volumes:
+  db_data:

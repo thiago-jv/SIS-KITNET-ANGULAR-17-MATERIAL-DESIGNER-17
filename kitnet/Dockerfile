@@ -1,19 +1,23 @@
-FROM eclipse-temurin:17-jdk-jammy
+# Build
+FROM maven:3.9-eclipse-temurin-17 AS builder
 
-# Create non-root user
+WORKDIR /build
+COPY . .
+RUN mvn clean package -DskipTests
+
+# Runtime
+FROM eclipse-temurin:17-jre-jammy
+
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
 WORKDIR /app
 
-# Copia o JAR gerado (finalName definido como kitnet-backend)
-COPY target/kitnet-backend.jar app.jar
+COPY --from=builder /build/target/*.jar app.jar
 
-# copy entrypoint that will load secrets at runtime
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh && chown appuser:appgroup /app/app.jar /entrypoint.sh
+RUN chown -R appuser:appgroup /app
 
 USER appuser
 
-EXPOSE 8089
+EXPOSE 8080
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
