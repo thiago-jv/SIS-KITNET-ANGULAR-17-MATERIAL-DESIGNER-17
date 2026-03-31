@@ -1,13 +1,11 @@
 pipeline {
     agent any
 
-    stages {
+    environment {
+        JWT_SECRET = credentials('JWT_SECRET')
+    }
 
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
+    stages {
 
         stage('Build') {
             steps {
@@ -17,24 +15,17 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
-            steps {
-                dir('kitnet') {
-                    sh 'docker build -t kitnet-backend .'
-                }
-            }
-        }
-
         stage('Deploy') {
             steps {
-                sh '''
+                sh """
                 docker stop kitnet-backend || true
                 docker rm kitnet-backend || true
                 docker run -d -p 8090:8089 \
                   --name kitnet-backend \
                   --network rede-local \
+                  -e JWT_SECRET=${JWT_SECRET} \
                   kitnet-backend
-                '''
+                """
             }
         }
     }
