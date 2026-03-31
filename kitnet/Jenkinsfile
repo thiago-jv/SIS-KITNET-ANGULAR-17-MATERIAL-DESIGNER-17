@@ -7,6 +7,12 @@ pipeline {
 
     stages {
 
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build') {
             steps {
                 dir('kitnet') {
@@ -15,8 +21,17 @@ pipeline {
             }
         }
 
+        stage('Docker Build') {
+            steps {
+                dir('kitnet') {
+                    sh 'docker build -t kitnet-backend .'
+                }
+            }
+        }
+
         stage('Deploy') {
             steps {
+                sh '''
                 sh """
                 docker stop kitnet-backend || true
                 docker rm kitnet-backend || true
@@ -25,6 +40,7 @@ pipeline {
                   --network rede-local \
                   -e JWT_SECRET=${JWT_SECRET} \
                   kitnet-backend
+                '''
                 """
             }
         }
