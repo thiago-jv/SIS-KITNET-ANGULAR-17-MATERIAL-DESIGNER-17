@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir('kitnet') {
+                    sh './mvnw clean package -DskipTests'
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir('kitnet') {
+                    sh 'docker build -t kitnet-backend .'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                docker stop kitnet-backend || true
+                docker rm kitnet-backend || true
+                docker run -d -p 8090:8089 \
+                  --name kitnet-backend \
+                  --network rede-local \
+                  kitnet-backend
+                '''
+            }
+        }
+    }
+}
