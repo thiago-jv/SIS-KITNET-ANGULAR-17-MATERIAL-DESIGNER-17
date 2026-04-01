@@ -8,6 +8,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'kitnet-frontend'
+        PROJECT_DIR = '.'
         SONAR_QUBE_URL = 'http://localhost:9000'
         DSONAR_LOGIN = credentials('DSONAR_LOGIN_SIS_KITNET_FRONTEND')
     }
@@ -20,14 +21,18 @@ pipeline {
             }
         }
 
+        stage('Prepare Project Path') {
+            steps {
+                script {
+                    env.PROJECT_DIR = fileExists('sis-kitnet/package-lock.json') ? 'sis-kitnet' : '.'
+                    echo "Diretorio do projeto: ${env.PROJECT_DIR}"
+                }
+            }
+        }
+
         stage('Build Frontend (Node via Docker)') {
             steps {
                 sh '''
-                                PROJECT_DIR="."
-                                if [ -f "sis-kitnet/package-lock.json" ]; then
-                                    PROJECT_DIR="sis-kitnet"
-                                fi
-
                 docker run --rm \
                   --user "$(id -u):$(id -g)" \
                                     -e HOME=/tmp \
@@ -45,14 +50,8 @@ pipeline {
                 withSonarQubeEnv('SONAR_LOCAL') {
                     script {
                         def scannerHome = tool 'SONAR_SCANNER'
-                        sh """
-                                                PROJECT_DIR="."
-                                                if [ -d "sis-kitnet/src" ]; then
-                                                    PROJECT_DIR="sis-kitnet"
-                                                fi
-
-                                                cd "\$PROJECT_DIR"
-
+                        dir(env.PROJECT_DIR) {
+                            sh """
                         ${scannerHome}/bin/sonar-scanner \\
                         -Dsonar.projectKey=SIS_KITNET_FRONTEND \\
                         -Dsonar.projectName=SIS_KITNET_FRONTEND \\
@@ -64,6 +63,7 @@ pipeline {
                         -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/dist/** \\
                         -Dsonar.typescript.tsconfigPath=tsconfig.json
                         """
+                        }
                     }
                 }
             }
@@ -71,8 +71,7 @@ pipeline {
 
         stage('Quality Gate') {
             steps {
-                sleep(3)
-                timeout(time: 3, unit: 'MINUTES') {
+                timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
@@ -80,17 +79,12 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh '''
-                                PROJECT_DIR="."
-                                if [ -f "sis-kitnet/Dockerfile" ]; then
-                                    PROJECT_DIR="sis-kitnet"
-                                fi
-
-                                cd "$PROJECT_DIR"
-
-                docker build -t $IMAGE_NAME:latest \
-                             -t $IMAGE_NAME:$BUILD_NUMBER .
-                '''
+                dir(env.PROJECT_DIR) {
+                    sh '''
+                    docker build -t $IMAGE_NAME:latest \
+                                 -t $IMAGE_NAME:$BUILD_NUMBER .
+                    '''
+                }
             }
         }
 
@@ -113,10 +107,10 @@ pipeline {
 
     post {
         success {
-            echo "Deploy realizado com sucesso!"
+            echo "Pipeline concluido com sucesso. Build ${BUILD_NUMBER}."
         }
         failure {
-            echo "Erro no pipeline."
+            echo "Pipeline falhou. Verifique os logs das stages."
         }
         always {
             cleanWs()
