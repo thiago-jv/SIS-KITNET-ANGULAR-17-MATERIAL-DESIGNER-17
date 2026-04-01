@@ -1,7 +1,14 @@
 pipeline {
     agent any
 
+    options {
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
     environment {
+        IMAGE_NAME = 'kitnet-backend'
+        PROJECT_DIR = '.'
         JWT_SECRET = credentials('JWT_SECRET')
         SONAR_QUBE_URL = 'http://localhost:9000'
         DSONAR_LOGIN = credentials('DSONAR_LOGIN')
@@ -15,9 +22,18 @@ pipeline {
             }
         }
 
+        stage('Prepare Project Path') {
+            steps {
+                script {
+                    env.PROJECT_DIR = fileExists('pom.xml') ? '.' : 'kitnet'
+                    echo "Diretorio do projeto: ${env.PROJECT_DIR}"
+                }
+            }
+        }
+
         stage('Build') {
             steps {
-                dir('kitnet') {
+                dir(env.PROJECT_DIR) {
                     sh './mvnw clean package -DskipTests'
                 }
             }
@@ -26,14 +42,21 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SONAR_LOCAL') {
-                    dir('kitnet') {
-                        sh """
-                        ${tool 'SONAR_SCANNER'}/bin/sonar-scanner \
-                        -Dsonar.projectKey=SIS_KITNET_BACKEND \
-                        -Dsonar.host.url=${env.SONAR_QUBE_URL} \
-                        -Dsonar.login=${env.DSONAR_LOGIN} \
-                        -Dsonar.java.binaries=target/classes
-                        """
+                    script {
+                        def scannerHome = tool 'SONAR_SCANNER'
+                        dir(env.PROJECT_DIR) {
+                            sh """
+                            ${scannerHome}/bin/sonar-scanner \\
+                            -Dsonar.projectKey=SIS_KITNET_BACKEND \\
+                            -Dsonar.projectName=SIS_KITNET_BACKEND \\
+                            -Dsonar.host.url=${env.SONAR_QUBE_URL} \\
+                            -Dsonar.token=${env.DSONAR_LOGIN} \\
+                            -Dsonar.sources=src/main/java,src/main/resources \\
+                            -Dsonar.tests=src/test/java \\
+                            -Dsonar.java.binaries=target/classes \\
+                            -Dsonar.java.test.binaries=target/test-classes
+                            """
+                        }
                     }
                 }
             }
@@ -41,8 +64,7 @@ pipeline {
 
         stage('Quality Gate') {
             steps {
-                sleep(10)
-                timeout(time: 3, unit: 'MINUTES') {
+                timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
@@ -50,8 +72,11 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                dir('kitnet') {
-                    sh 'docker build -t kitnet-backend:latest .'
+                dir(env.PROJECT_DIR) {
+                    sh '''
+                    docker build -t $IMAGE_NAME:latest \
+                                 -t $IMAGE_NAME:$BUILD_NUMBER .
+                    '''
                 }
             }
         }
@@ -63,15 +88,15 @@ pipeline {
                     docker network inspect rede-local >/dev/null 2>&1 || docker network create rede-local
 
                     # Para e remove container antigo
-                    docker stop kitnet-backend || true
-                    docker rm kitnet-backend || true
+                    docker stop $IMAGE_NAME || true
+                    docker rm $IMAGE_NAME || true
 
                     # Sobe novo container
                     docker run -d -p 8090:8089 \
-                      --name kitnet-backend \
+                      --name $IMAGE_NAME \
                       --network rede-local \
                       -e JWT_SECRET="${JWT_SECRET}" \
-                      kitnet-backend:latest
+                      $IMAGE_NAME:latest
                 '''
             }
         }
@@ -79,13 +104,13 @@ pipeline {
 
     post {
         success {
-            echo "✅ Pipeline executado com sucesso!"
+            echo "Pipeline concluido com sucesso. Build ${BUILD_NUMBER}."
         }
         failure {
-            echo "❌ Pipeline falhou!"
+            echo "Pipeline falhou. Verifique os logs das stages."
         }
         always {
-            echo "🏁 Pipeline finalizada."
+            cleanWs()
         }
     }
 }
