@@ -6,8 +6,8 @@ services:
     container_name: kitnet-backend
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db_kitnet:5432/kitnet
-      SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATASOURCE_PASSWORD: admin
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:?SPRING_DATASOURCE_USERNAME is required}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:?SPRING_DATASOURCE_PASSWORD is required}
     ports:
       - "8090:8089"
     restart: always
