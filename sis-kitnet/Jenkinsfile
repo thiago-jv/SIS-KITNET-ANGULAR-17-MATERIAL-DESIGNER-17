@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir('sis-kitnet') {
+                    sh 'docker build -t kitnet-frontend .'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                docker stop kitnet-frontend || true
+                docker rm kitnet-frontend || true
+                docker run -d -p 4200:80 \
+                  --name kitnet-frontend \
+                  --network rede-local \
+                  kitnet-frontend
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deploy realizado com sucesso!'
+        }
+        failure {
+            echo 'Erro no deploy. Verifique o pipeline.'
+        }
+    }
+}
