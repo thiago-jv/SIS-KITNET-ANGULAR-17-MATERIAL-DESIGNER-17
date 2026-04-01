@@ -41,11 +41,19 @@ pipeline {
             steps {
                 dir(env.PROJECT_DIR) {
                                         sh '''
+                                        set -e
                                         if [ -f ./mvnw ]; then
+                                            # Corrige CRLF em agentes Linux para evitar "./mvnw: not found"
+                                            sed -i 's/\r$//' ./mvnw || true
                                             chmod +x ./mvnw
                                             ./mvnw clean package -DskipTests
                                         else
-                                            mvn clean package -DskipTests
+                                            if command -v mvn >/dev/null 2>&1; then
+                                                mvn clean package -DskipTests
+                                            else
+                                                echo "Erro: mvnw nao encontrado e mvn indisponivel no agente."
+                                                exit 1
+                                            fi
                                         fi
                                         '''
                 }
