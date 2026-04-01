@@ -3,9 +3,12 @@ pipeline {
 
     environment {
         JWT_SECRET = credentials('JWT_SECRET')
+        SONAR_QUBE_URL = 'http://localhost:9000'
+        DSONAR_LOGIN = credentials('DSONAR_LOGIN')
     }
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -20,10 +23,35 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SONAR_LOCAL') {
+                    dir('kitnet') {
+                        sh """
+                        ${tool 'SONAR_SCANNER'}/bin/sonar-scanner \
+                        -Dsonar.projectKey=SIS_KITNET_BACKEND \
+                        -Dsonar.host.url=${env.SONAR_QUBE_URL} \
+                        -Dsonar.login=${env.DSONAR_LOGIN} \
+                        -Dsonar.java.binaries=target/classes
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                sleep(10)
+                timeout(time: 3, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
         stage('Docker Build') {
             steps {
                 dir('kitnet') {
-                    sh 'docker build -t kitnet-backend .'
+                    sh 'docker build -t kitnet-backend:latest .'
                 }
             }
         }
@@ -31,23 +59,33 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
+                    # Garante que a rede existe
+                    docker network inspect rede-local >/dev/null 2>&1 || docker network create rede-local
+
+                    # Para e remove container antigo
                     docker stop kitnet-backend || true
                     docker rm kitnet-backend || true
+
+                    # Sobe novo container
                     docker run -d -p 8090:8089 \
                       --name kitnet-backend \
                       --network rede-local \
-                      -e JWT_SECRET=$JWT_SECRET \
-                      kitnet-backend
+                      -e JWT_SECRET="${JWT_SECRET}" \
+                      kitnet-backend:latest
                 '''
             }
         }
     }
+
     post {
         success {
-            echo "Pipeline executado com sucesso!"
+            echo "✅ Pipeline executado com sucesso!"
         }
         failure {
-            echo "Pipeline falhou!"
+            echo "❌ Pipeline falhou!"
+        }
+        always {
+            echo "🏁 Pipeline finalizada."
         }
     }
 }
