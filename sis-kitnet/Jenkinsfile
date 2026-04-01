@@ -8,6 +8,8 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'kitnet-frontend'
+        SONAR_QUBE_URL = 'http://localhost:9000'
+        DSONAR_LOGIN = credentials('DSONAR_LOGIN_SIS_KITNET_FRONTEND')
     }
 
     stages {
@@ -41,26 +43,27 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SONAR_LOCAL') {
-                    withCredentials([string(credentialsId: 'DSONAR_LOGIN_SIS_KITNET_FRONTEND', variable: 'SONAR_TOKEN')]) {
-                        sh '''
+                    script {
+                        def scannerHome = tool 'SONAR_SCANNER'
+                        sh """
                                                 PROJECT_DIR="."
                                                 if [ -d "sis-kitnet/src" ]; then
                                                     PROJECT_DIR="sis-kitnet"
                                                 fi
 
-                                                cd "$PROJECT_DIR"
+                                                cd "\$PROJECT_DIR"
 
-                        /opt/sonar-scanner/bin/sonar-scanner \
-                        -Dsonar.projectKey=SIS_KITNET_FRONTEND \
-                        -Dsonar.projectName=SIS_KITNET_FRONTEND \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.token=$SONAR_TOKEN \
-                        -Dsonar.sources=src \
-                        -Dsonar.tests=src \
-                        -Dsonar.test.inclusions=**/*.spec.ts \
-                        -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/dist/** \
+                        ${scannerHome}/bin/sonar-scanner \\
+                        -Dsonar.projectKey=SIS_KITNET_FRONTEND \\
+                        -Dsonar.projectName=SIS_KITNET_FRONTEND \\
+                        -Dsonar.host.url=${env.SONAR_QUBE_URL} \\
+                        -Dsonar.token=${env.DSONAR_LOGIN} \\
+                        -Dsonar.sources=src \\
+                        -Dsonar.tests=src \\
+                        -Dsonar.test.inclusions=**/*.spec.ts \\
+                        -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/dist/** \\
                         -Dsonar.typescript.tsconfigPath=tsconfig.json
-                        '''
+                        """
                     }
                 }
             }
@@ -68,6 +71,7 @@ pipeline {
 
         stage('Quality Gate') {
             steps {
+                sleep(3)
                 timeout(time: 3, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
@@ -93,6 +97,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
+                docker network inspect rede-local >/dev/null 2>&1 || docker network create rede-local
+
                 docker stop $IMAGE_NAME || true
                 docker rm $IMAGE_NAME || true
 
@@ -107,10 +113,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Deploy realizado com sucesso!"
+            echo "Deploy realizado com sucesso!"
         }
         failure {
-            echo "❌ Erro no pipeline."
+            echo "Erro no pipeline."
         }
         always {
             cleanWs()
