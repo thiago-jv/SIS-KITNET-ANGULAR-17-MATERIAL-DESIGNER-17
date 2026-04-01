@@ -18,15 +18,16 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Build Frontend (Node via Docker)') {
             steps {
-                sh 'npm ci'
-            }
-        }
-
-        stage('Build Frontend') {
-            steps {
-                sh 'npm run build -- --configuration production'
+                sh '''
+                docker run --rm \
+                  --user "$(id -u):$(id -g)" \
+                  -v $PWD:/app \
+                  -w /app \
+                  node:18 \
+                  sh -c "npm ci && npm run build -- --configuration production"
+                '''
             }
         }
 
@@ -85,10 +86,10 @@ pipeline {
 
     post {
         success {
-            echo "Deploy realizado com sucesso! Build: ${BUILD_NUMBER}"
+            echo "✅ Deploy realizado com sucesso!"
         }
         failure {
-            echo "Erro no pipeline. Verifique os logs."
+            echo "❌ Erro no pipeline."
         }
         always {
             cleanWs()

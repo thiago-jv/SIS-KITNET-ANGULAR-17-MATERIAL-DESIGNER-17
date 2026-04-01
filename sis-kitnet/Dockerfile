@@ -1,18 +1,15 @@
-
-# Build Angular
-FROM node:20 AS builder
+FROM node:18-alpine AS builder
 
 WORKDIR /app
-COPY . .
-RUN npm install
-RUN npm run build -- --configuration production --project sis-kitnet
+COPY package*.json ./
+RUN npm ci
 
-# Servir com Nginx
+COPY . .
+RUN npm run build -- --configuration production
+
 FROM nginx:alpine
 
 COPY --from=builder /app/dist/sis-kitnet/browser /usr/share/nginx/html
-
-# Copia a configuração customizada do Nginx para suportar rotas SPA
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
