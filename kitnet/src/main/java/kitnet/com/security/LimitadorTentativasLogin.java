@@ -67,4 +67,13 @@ public class LimitadorTentativasLogin {
             }
         }
     }
+
+    /**
+     * Remove o histórico de tentativas para a chave informada.
+     * Deve ser usado após login bem-sucedido para evitar bloqueio indevido.
+     * @param chave Identificador único (ex: IP do cliente)
+     */
+    public void limparTentativas(String chave) {
+        tentativas.remove(chave);
+    }
 }

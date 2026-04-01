@@ -59,12 +59,11 @@ public class AuthService implements UserDetailsService {
                     return new UsernameNotFoundException("Usuário não encontrado");
                 });
             if (!validarSenha(usuario.getSenha(), request.senha())) {
-                limitadorTentativasLogin.registrarTentativa(ipCliente);
                 logger.warn("[LOGIN] Senha inválida para usuário: {} (IP: {})", request.email(), ipCliente);
                 throw new BadCredentialsException("Senha inválida");
             }
             // Login bem-sucedido: limpa tentativas
-            limitadorTentativasLogin.registrarTentativa(ipCliente);
+            limitadorTentativasLogin.limparTentativas(ipCliente);
             logger.info("[LOGIN] Sucesso para usuário: {} (IP: {})", request.email(), ipCliente);
             // Loga as authorities do usuário no login
             if (usuario.getPermissoes() != null && !usuario.getPermissoes().isEmpty()) {
