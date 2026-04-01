@@ -1,14 +1,8 @@
 pipeline {
     agent any
 
-    options {
-        timestamps()
-        buildDiscarder(logRotator(numToKeepStr: '10'))
-    }
-
     environment {
         IMAGE_NAME = 'kitnet-backend'
-        PROJECT_DIR = '.'
         JWT_SECRET = credentials('JWT_SECRET')
         SONAR_QUBE_URL = 'http://localhost:9000'
         DSONAR_LOGIN = credentials('DSONAR_LOGIN')
@@ -22,40 +16,10 @@ pipeline {
             }
         }
 
-        stage('Prepare Project Path') {
-            steps {
-                script {
-                    if (fileExists('mvnw') && fileExists('pom.xml')) {
-                        env.PROJECT_DIR = '.'
-                    } else if (fileExists('kitnet/mvnw') && fileExists('kitnet/pom.xml')) {
-                        env.PROJECT_DIR = 'kitnet'
-                    } else {
-                        error('Nao foi possivel localizar mvnw/pom.xml em . ou kitnet')
-                    }
-                    echo "Diretorio do projeto: ${env.PROJECT_DIR}"
-                }
-            }
-        }
-
         stage('Build') {
             steps {
-                dir(env.PROJECT_DIR) {
-                                        sh '''
-                                        set -e
-                                        if [ -f ./mvnw ]; then
-                                            # Corrige CRLF em agentes Linux para evitar "./mvnw: not found"
-                                            sed -i 's/\r$//' ./mvnw || true
-                                            chmod +x ./mvnw
-                                            ./mvnw clean package -DskipTests
-                                        else
-                                            if command -v mvn >/dev/null 2>&1; then
-                                                mvn clean package -DskipTests
-                                            else
-                                                echo "Erro: mvnw nao encontrado e mvn indisponivel no agente."
-                                                exit 1
-                                            fi
-                                        fi
-                                        '''
+                dir('kitnet') {
+                    sh 'chmod +x ./mvnw && ./mvnw clean package -DskipTests'
                 }
             }
         }
@@ -63,21 +27,14 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SONAR_LOCAL') {
-                    script {
-                        def scannerHome = tool 'SONAR_SCANNER'
-                        dir(env.PROJECT_DIR) {
-                            sh """
-                            ${scannerHome}/bin/sonar-scanner \\
-                            -Dsonar.projectKey=SIS_KITNET_BACKEND \\
-                            -Dsonar.projectName=SIS_KITNET_BACKEND \\
-                            -Dsonar.host.url=${env.SONAR_QUBE_URL} \\
-                            -Dsonar.token=${env.DSONAR_LOGIN} \\
-                            -Dsonar.sources=src/main/java,src/main/resources \\
-                            -Dsonar.tests=src/test/java \\
-                            -Dsonar.java.binaries=target/classes \\
-                            -Dsonar.java.test.binaries=target/test-classes
-                            """
-                        }
+                    dir('kitnet') {
+                        sh """
+                        ${tool 'SONAR_SCANNER'}/bin/sonar-scanner \\
+                        -Dsonar.projectKey=SIS_KITNET_BACKEND \\
+                        -Dsonar.host.url=${env.SONAR_QUBE_URL} \\
+                        -Dsonar.login=${env.DSONAR_LOGIN} \\
+                        -Dsonar.java.binaries=target/classes
+                        """
                     }
                 }
             }
@@ -85,7 +42,8 @@ pipeline {
 
         stage('Quality Gate') {
             steps {
-                timeout(time: 10, unit: 'MINUTES') {
+                sleep(10)
+                timeout(time: 3, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
@@ -93,11 +51,9 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                dir(env.PROJECT_DIR) {
-                    sh '''
-                    docker build -t $IMAGE_NAME:latest \
-                                 -t $IMAGE_NAME:$BUILD_NUMBER .
-                    '''
+                dir('kitnet') {
+                    sh 'docker build -t $IMAGE_NAME .'
+                    sh 'docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:${BUILD_NUMBER} .'
                 }
             }
         }
@@ -109,15 +65,15 @@ pipeline {
                     docker network inspect rede-local >/dev/null 2>&1 || docker network create rede-local
 
                     # Para e remove container antigo
-                    docker stop $IMAGE_NAME || true
-                    docker rm $IMAGE_NAME || true
+                                        docker stop $IMAGE_NAME || true
+                                        docker rm $IMAGE_NAME || true
 
                     # Sobe novo container
                     docker run -d -p 8090:8089 \
-                      --name $IMAGE_NAME \
+                                            --name $IMAGE_NAME \
                       --network rede-local \
                       -e JWT_SECRET="${JWT_SECRET}" \
-                      $IMAGE_NAME:latest
+                                            $IMAGE_NAME:latest
                 '''
             }
         }
@@ -125,13 +81,13 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline concluido com sucesso. Build ${BUILD_NUMBER}."
+            echo "Pipeline executado com sucesso! Build ${BUILD_NUMBER}."
         }
         failure {
-            echo "Pipeline falhou. Verifique os logs das stages."
+            echo "Pipeline falhou! Verifique os logs das stages."
         }
         always {
-            cleanWs()
+            echo "Pipeline finalizada."
         }
     }
 }
