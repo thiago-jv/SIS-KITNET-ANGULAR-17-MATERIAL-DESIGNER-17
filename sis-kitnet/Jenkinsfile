@@ -21,10 +21,17 @@ pipeline {
         stage('Build Frontend (Node via Docker)') {
             steps {
                 sh '''
+                                PROJECT_DIR="."
+                                if [ -f "sis-kitnet/package-lock.json" ]; then
+                                    PROJECT_DIR="sis-kitnet"
+                                fi
+
                 docker run --rm \
                   --user "$(id -u):$(id -g)" \
+                                    -e HOME=/tmp \
+                                    -e npm_config_cache=/tmp/.npm \
                   -v $PWD:/app \
-                  -w /app \
+                                    -w /app/$PROJECT_DIR \
                   node:18 \
                   sh -c "npm ci && npm run build -- --configuration production"
                 '''
@@ -36,6 +43,13 @@ pipeline {
                 withSonarQubeEnv('SONAR_LOCAL') {
                     withCredentials([string(credentialsId: 'DSONAR_LOGIN_SIS_KITNET_FRONTEND', variable: 'SONAR_TOKEN')]) {
                         sh '''
+                                                PROJECT_DIR="."
+                                                if [ -d "sis-kitnet/src" ]; then
+                                                    PROJECT_DIR="sis-kitnet"
+                                                fi
+
+                                                cd "$PROJECT_DIR"
+
                         /opt/sonar-scanner/bin/sonar-scanner \
                         -Dsonar.projectKey=SIS_KITNET_FRONTEND \
                         -Dsonar.projectName=SIS_KITNET_FRONTEND \
@@ -63,6 +77,13 @@ pipeline {
         stage('Docker Build') {
             steps {
                 sh '''
+                                PROJECT_DIR="."
+                                if [ -f "sis-kitnet/Dockerfile" ]; then
+                                    PROJECT_DIR="sis-kitnet"
+                                fi
+
+                                cd "$PROJECT_DIR"
+
                 docker build -t $IMAGE_NAME:latest \
                              -t $IMAGE_NAME:$BUILD_NUMBER .
                 '''
