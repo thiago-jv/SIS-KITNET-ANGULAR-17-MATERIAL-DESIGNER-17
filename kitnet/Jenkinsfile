@@ -25,7 +25,13 @@ pipeline {
         stage('Prepare Project Path') {
             steps {
                 script {
-                    env.PROJECT_DIR = fileExists('pom.xml') ? '.' : 'kitnet'
+                    if (fileExists('mvnw') && fileExists('pom.xml')) {
+                        env.PROJECT_DIR = '.'
+                    } else if (fileExists('kitnet/mvnw') && fileExists('kitnet/pom.xml')) {
+                        env.PROJECT_DIR = 'kitnet'
+                    } else {
+                        error('Nao foi possivel localizar mvnw/pom.xml em . ou kitnet')
+                    }
                     echo "Diretorio do projeto: ${env.PROJECT_DIR}"
                 }
             }
@@ -34,7 +40,14 @@ pipeline {
         stage('Build') {
             steps {
                 dir(env.PROJECT_DIR) {
-                    sh './mvnw clean package -DskipTests'
+                                        sh '''
+                                        if [ -f ./mvnw ]; then
+                                            chmod +x ./mvnw
+                                            ./mvnw clean package -DskipTests
+                                        else
+                                            mvn clean package -DskipTests
+                                        fi
+                                        '''
                 }
             }
         }
