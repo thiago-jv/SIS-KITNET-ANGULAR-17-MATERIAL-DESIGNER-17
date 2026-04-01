@@ -1,6 +1,15 @@
 pipeline {
     agent any
 
+    options {
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    environment {
+        IMAGE_NAME = 'kitnet-frontend'
+    }
+
     stages {
 
         stage('Checkout') {
@@ -9,23 +18,66 @@ pipeline {
             }
         }
 
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm ci'
+            }
+        }
+
+        stage('Build Frontend') {
+            steps {
+                sh 'npm run build -- --configuration production'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SONAR_LOCAL') {
+                    withCredentials([string(credentialsId: 'DSONAR_LOGIN_SIS_KITNET_FRONTEND', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                        /opt/sonar-scanner/bin/sonar-scanner \
+                        -Dsonar.projectKey=SIS_KITNET_FRONTEND \
+                        -Dsonar.projectName=SIS_KITNET_FRONTEND \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.token=$SONAR_TOKEN \
+                        -Dsonar.sources=src \
+                        -Dsonar.tests=src \
+                        -Dsonar.test.inclusions=**/*.spec.ts \
+                        -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/dist/** \
+                        -Dsonar.typescript.tsconfigPath=tsconfig.json
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 3, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
         stage('Docker Build') {
             steps {
-                dir('sis-kitnet') {
-                    sh 'docker build -t kitnet-frontend .'
-                }
+                sh '''
+                docker build -t $IMAGE_NAME:latest \
+                             -t $IMAGE_NAME:$BUILD_NUMBER .
+                '''
             }
         }
 
         stage('Deploy') {
             steps {
                 sh '''
-                docker stop kitnet-frontend || true
-                docker rm kitnet-frontend || true
+                docker stop $IMAGE_NAME || true
+                docker rm $IMAGE_NAME || true
+
                 docker run -d -p 4200:80 \
-                  --name kitnet-frontend \
+                  --name $IMAGE_NAME \
                   --network rede-local \
-                  kitnet-frontend
+                  $IMAGE_NAME:latest
                 '''
             }
         }
@@ -33,10 +85,13 @@ pipeline {
 
     post {
         success {
-            echo 'Deploy realizado com sucesso!'
+            echo "Deploy realizado com sucesso! Build: ${BUILD_NUMBER}"
         }
         failure {
-            echo 'Erro no deploy. Verifique o pipeline.'
+            echo "Erro no pipeline. Verifique os logs."
+        }
+        always {
+            cleanWs()
         }
     }
 }
