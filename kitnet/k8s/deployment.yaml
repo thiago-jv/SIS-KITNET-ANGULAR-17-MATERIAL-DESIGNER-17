@@ -1,0 +1,151 @@
+# Recurso 1: Deployment
+# Voces estao usando Deployment. Ele controla rollout, escala e versionamento.
+# Ao aplicar este Deployment, o Kubernetes cria/gerencia automaticamente um ReplicaSet
+# e os Pods. Entao voces usam Pod e ReplicaSet de forma indireta.
+# Fluxo mental: Deployment -> ReplicaSet -> Pods.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Nome unico do Deployment dentro do namespace.
+  # Esse nome e usado nos comandos kubectl (ex.: rollout, scale, describe).
+  name: sis-kitnet-backend
+spec:
+  # Quantidade de Pods desejada (escalabilidade horizontal).
+  # Se um Pod cair, o Deployment recria para manter esse numero.
+  # Em producao, aumentar para 3+ garante always-on durante updates.
+  replicas: 3
+  
+  # Estrategia de RollingUpdate para zero-downtime deployment.
+  # Evita derrubar todos os pods ao mesmo tempo.
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # Durante update, pode ter ate N+1 pods no total.
+      # Isso significa 1 novo pod subindo enquanto 1 antigo ainda responde.
+      maxSurge: 1
+      # ZERO pods indisponivel de uma vez = zero downtime!
+      # Kubernetes só mata um pod quando o novo está Ready.
+      maxUnavailable: 0
+  
+  selector:
+    matchLabels:
+      # O Deployment so gerencia Pods que tenham exatamente este label.
+      # Importante: este valor precisa combinar com template.metadata.labels.
+      app: sis-kitnet-backend
+  template:
+    metadata:
+      labels:
+        # Label aplicado em cada Pod novo criado pelo Deployment.
+        # O Service usa esse label para descobrir os Pods alvo.
+        app: sis-kitnet-backend
+    spec:
+      containers:
+        # Aqui comeca a definicao do container da aplicacao.
+        - # Nome logico do container dentro do Pod
+          name: sis-kitnet-backend
+          # Imagem do container no registry.
+          # Em CI/CD, a pipeline pode sobrescrever essa tag para BUILD_ID.
+          image: docjv/sis_kitnet_backend:latest
+          # Always garante sempre fazer pull da imagem (importante para :latest tag).
+          imagePullPolicy: Always
+          env:
+            # Perfil Spring em modo producao.
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+            # No k3d, o banco que roda fora do cluster pode ser acessado via host.k3d.internal.
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://host.k3d.internal:5432/kitnet
+            # As proximas variaveis vem de Secret no cluster (sem hardcode no YAML).
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: sis-kitnet-backend-secret
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sis-kitnet-backend-secret
+                  key: SPRING_DATASOURCE_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: sis-kitnet-backend-secret
+                  key: JWT_SECRET
+          ports:
+            - # Porta onde a aplicacao escuta dentro do container.
+              # Nao e porta publica externa, e apenas interna ao Pod.
+              name: http
+              containerPort: 8089
+              protocol: TCP
+          
+          # ReadinessProbe: Kubernetes APENAS envia trafego quando a app está ready.
+          # Se falhar, o Pod fica "NotReady" e o trafego é desviado para outros Pods.
+          # Essencial para zero-downtime: novo Pod só recebe trafego quando server.
+          readinessProbe:
+            httpGet:
+              # Usa o endpoint /actuator/health que agora é publico (sem autenticacao).
+              path: /actuator/health
+              port: 8089
+            # Aguarda 30s antes de fazer o primeiro check (app startup leva tempo).
+            initialDelaySeconds: 30
+            # Verifica a cada 5s se ainda está ready.
+            periodSeconds: 5
+            # Se 3 checks falharem seguidos, marca como NotReady.
+            failureThreshold: 3
+            timeoutSeconds: 3
+          
+          # LivenessProbe: Detecta se a app está viva (não travada, locked, etc).
+          # Se falhar, Kubernetes automaticamente mata e recria o Pod.
+          # Diferente de readinessProbe que só remove trafego.
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8089
+            # Começa check mais tarde que readiness (app já deve estar estável).
+            initialDelaySeconds: 40
+            # Verifica a cada 10s.
+            periodSeconds: 10
+            # Se 3 checks falharem, mata o Pod.
+            failureThreshold: 3
+            timeoutSeconds: 3
+          
+          # Lifecycle hooks: ações do Kubernetes durante startup/shutdown do Pod.
+          lifecycle:
+            # preStop: executado ANTES de matar o Pod (durante RollingUpdate).
+            # Serve pra drena conexões gracefully.
+            # `sleep 15` da 15 segundos pro Pod terminar requests antes de morrer.
+            # Assim clientes não perdem conexões abruptamente.
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 15"]
+
+---
+
+# Recurso 2: Service
+# Agora o Service esta como NodePort para permitir acesso externo via navegador.
+# O trafego entra pela porta 30001 do node/loadbalancer e segue para a app na 8089.
+# O Kubernetes continua criando Endpoints/EndpointSlices automaticamente.
+# Fluxo mental: Navegador -> NodePort(30001) -> Service -> Pod(8089).
+apiVersion: v1
+kind: Service
+metadata:
+  # Nome DNS interno do servico no cluster.
+  # Exemplo de uso interno: http://sis-kitnet-backend:8089
+  name: sis-kitnet-backend
+spec:
+  selector:
+    # Seleciona os Pods do Deployment pelo mesmo label.
+    # Se o label nao bater, o Service fica sem endpoint.
+    app: sis-kitnet-backend
+  ports:
+    - # Porta do Service dentro do cluster.
+      name: http
+      port: 8089
+      # Porta real no container (Pod).
+      # O Service encaminha port -> targetPort.
+      targetPort: 8089
+      # Porta publicada no node para acesso externo.
+      nodePort: 30001
+      protocol: TCP
+  # NodePort = acesso externo simples para laboratorio/estudo.
+  type: NodePort

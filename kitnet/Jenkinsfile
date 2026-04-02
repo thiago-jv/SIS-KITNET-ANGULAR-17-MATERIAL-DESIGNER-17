@@ -4,7 +4,10 @@ pipeline {
     agent any
 
     environment {
-        CONTAINER_NAME = 'kitnet-backend'
+        K8S_NAMESPACE = 'default'
+        K8S_DEPLOYMENT = 'sis-kitnet-backend'
+        K8S_CONTAINER = 'sis-kitnet-backend'
+        KUBECONFIG_CREDENTIALS_ID = 'kubeconfig'
         DOCKERHUB_REPO = 'docjv/sis_kitnet_backend'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
         JWT_SECRET = credentials('JWT_SECRET')
@@ -69,50 +72,110 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', env.DOCKERHUB_CREDENTIALS_ID) {
-                        dockerapp.push('latest')
                         dockerapp.push("${env.BUILD_ID}")
+                        dockerapp.push('latest')
                     }
                 }
             }
         }
 
-
-        stage('Deploy') {
+        stage('Deploy Kubernetes') {
             steps {
-                sh '''
-                    # Garante que a rede existe
-                    docker network inspect rede-local >/dev/null 2>&1 || docker network create rede-local
+                                // Carrega o kubeconfig salvo como credencial (arquivo) no Jenkins.
+                                // Isso evita depender do ~/.kube/config da maquina do agente.
+                withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                                        // Garante que os comandos rodem na pasta do projeto onde estao os manifests.
+                    dir('kitnet') {
+                        sh '''
+                                                        # Diz ao kubectl qual arquivo de configuracao do cluster usar.
+                            export KUBECONFIG="$KUBECONFIG_FILE"
 
-                    # Para e remove container antigo
-                    docker stop $CONTAINER_NAME || true
-                    docker rm $CONTAINER_NAME || true
+                                                        # Validacoes rapidas de ambiente para facilitar troubleshooting.
+                            kubectl version --client
+                            kubectl config current-context
 
-                    # Garante a imagem mais recente do Docker Hub
-                    docker pull $DOCKERHUB_REPO:latest
+                                                        # Cria/atualiza o Secret com credenciais vindas do Jenkins.
+                                                        # --dry-run=client -o yaml gera o YAML sem aplicar direto.
+                                                        # O pipe para kubectl apply torna o comando idempotente (create ou update).
+                            kubectl create secret generic sis-kitnet-backend-secret \
+                              --from-literal=SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
+                              --from-literal=SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
+                              --from-literal=JWT_SECRET="$JWT_SECRET" \
+                              --dry-run=client -o yaml -n $K8S_NAMESPACE | kubectl apply -f -
 
-                    # Sobe novo container
-                    docker run -d -p 8090:8089 \
-                      --name $CONTAINER_NAME \
-                      --network rede-local \
-                      -e SPRING_PROFILES_ACTIVE=prod \
-                      -e SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
-                      -e SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
-                      -e JWT_SECRET="${JWT_SECRET}" \
-                      $DOCKERHUB_REPO:latest
-                '''
+                                                        # Aplica Deployment + Service definidos no manifesto.
+                            kubectl apply -f k8s/deployment.yaml -n $K8S_NAMESPACE
+
+                                                        # Atualiza a imagem para a tag imutavel do build atual.
+                                                        # Isso evita depender de latest para deploy.
+                            kubectl set image deployment/$K8S_DEPLOYMENT \
+                              $K8S_CONTAINER=$DOCKERHUB_REPO:$BUILD_ID \
+                              -n $K8S_NAMESPACE
+
+                                                        # Aguarda rollout terminar e mostra status final dos recursos.
+                            kubectl rollout status deployment/$K8S_DEPLOYMENT -n $K8S_NAMESPACE --timeout=180s
+                            kubectl get pods -n $K8S_NAMESPACE -l app=sis-kitnet-backend -o wide
+                            kubectl get svc -n $K8S_NAMESPACE sis-kitnet-backend
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Health Check Post-Deploy') {
+            steps {
+                withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                    dir('kitnet') {
+                        sh '''
+                            export KUBECONFIG="$KUBECONFIG_FILE"
+                            
+                            # Aguarda 10 segundos para a aplicacao iniciar
+                            echo "Aguardando aplicacao iniciar..."
+                            sleep 10
+                            
+                            # Testa /actuator/health diretamente no cluster
+                            echo "Verificando saude da aplicacao..."
+                            kubectl run curltest-${BUILD_NUMBER} \
+                              --image=curlimages/curl:latest \
+                              --restart=Never \
+                              -n $K8S_NAMESPACE \
+                              -- curl -f http://${K8S_DEPLOYMENT}:8089/actuator/health || true
+                            
+                            # Aguarda a conclusao e limpa o pod de teste
+                            sleep 5
+                            kubectl delete pod curltest-${BUILD_NUMBER} -n $K8S_NAMESPACE --ignore-not-found=true
+                        '''
+                    }
+                }
             }
         }
     }
 
     post {
         success {
-            echo "Pipeline executado com sucesso! Build ${BUILD_NUMBER}."
+            script {
+                echo "Pipeline executado com sucesso! Build ${BUILD_NUMBER}."
+                // Descomente para usar Slack (configure SLACK_WEBHOOK_URL primeiro)
+                // sh '''
+                // curl -X POST -H 'Content-type: application/json' \
+                //   --data '{"text":"✅ Deployment de SIS-KITNET-BACKEND (Build ${BUILD_NUMBER}) foi bem-sucedido!"}' \
+                //   $SLACK_WEBHOOK_URL
+                // '''
+            }
         }
         failure {
-            echo "Pipeline falhou! Verifique os logs das stages."
+            script {
+                echo "Pipeline falhou! Verifique os logs das stages."
+                // Descomente para usar Slack (configure SLACK_WEBHOOK_URL primeiro)
+                // sh '''
+                // curl -X POST -H 'Content-type: application/json' \
+                //   --data '{"text":"❌ Deployment de SIS-KITNET-BACKEND (Build ${BUILD_NUMBER}) falhou. Verifique os logs."}' \
+                //   $SLACK_WEBHOOK_URL
+                // '''
+            }
         }
         always {
-            echo "Pipeline finalizada."
+            echo "Pipeline finalizada em $(date)."
         }
     }
 }
