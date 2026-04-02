@@ -1,8 +1,12 @@
+def dockerapp
+
 pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'kitnet-backend'
+        CONTAINER_NAME = 'kitnet-backend'
+        DOCKERHUB_REPO = 'docjv/sis_kitnet_backend'
+        DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
         JWT_SECRET = credentials('JWT_SECRET')
         SPRING_DATASOURCE_USERNAME = credentials('DB_USERNAME_SIS_KITNET_BACKEND_API_PROD')
         SPRING_DATASOURCE_PASSWORD = credentials('DB_PASSWORD_SIS_KITNET_BACKEND_API_PROD')
@@ -51,14 +55,27 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage('Build Docker Image') {
             steps {
                 dir('kitnet') {
-                    sh 'docker build -t $IMAGE_NAME .'
-                    sh 'docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:${BUILD_NUMBER} .'
+                    script {
+                        dockerapp = docker.build("${env.DOCKERHUB_REPO}:${env.BUILD_ID}", "-f Dockerfile .")
+                    }
                 }
             }
         }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', env.DOCKERHUB_CREDENTIALS_ID) {
+                        dockerapp.push('latest')
+                        dockerapp.push("${env.BUILD_ID}")
+                    }
+                }
+            }
+        }
+
 
         stage('Deploy') {
             steps {
@@ -67,18 +84,21 @@ pipeline {
                     docker network inspect rede-local >/dev/null 2>&1 || docker network create rede-local
 
                     # Para e remove container antigo
-                    docker stop $IMAGE_NAME || true
-                    docker rm $IMAGE_NAME || true
+                    docker stop $CONTAINER_NAME || true
+                    docker rm $CONTAINER_NAME || true
+
+                    # Garante a imagem mais recente do Docker Hub
+                    docker pull $DOCKERHUB_REPO:latest
 
                     # Sobe novo container
                     docker run -d -p 8090:8089 \
-                      --name $IMAGE_NAME \
+                      --name $CONTAINER_NAME \
                       --network rede-local \
                       -e SPRING_PROFILES_ACTIVE=prod \
-                                            -e SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
-                                            -e SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
+                      -e SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
+                      -e SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
                       -e JWT_SECRET="${JWT_SECRET}" \
-                      $IMAGE_NAME:latest
+                      $DOCKERHUB_REPO:latest
                 '''
             }
         }
