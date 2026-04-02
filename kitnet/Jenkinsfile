@@ -155,23 +155,11 @@ pipeline {
         success {
             script {
                 echo "Pipeline executado com sucesso! Build ${BUILD_NUMBER}."
-                // Descomente para usar Slack (configure SLACK_WEBHOOK_URL primeiro)
-                // sh '''
-                // curl -X POST -H 'Content-type: application/json' \
-                //   --data '{"text":"✅ Deployment de SIS-KITNET-BACKEND (Build ${BUILD_NUMBER}) foi bem-sucedido!"}' \
-                //   $SLACK_WEBHOOK_URL
-                // '''
             }
         }
         failure {
             script {
                 echo "Pipeline falhou! Verifique os logs das stages."
-                // Descomente para usar Slack (configure SLACK_WEBHOOK_URL primeiro)
-                // sh '''
-                // curl -X POST -H 'Content-type: application/json' \
-                //   --data '{"text":"❌ Deployment de SIS-KITNET-BACKEND (Build ${BUILD_NUMBER}) falhou. Verifique os logs."}' \
-                //   $SLACK_WEBHOOK_URL
-                // '''
             }
         }
         always {
