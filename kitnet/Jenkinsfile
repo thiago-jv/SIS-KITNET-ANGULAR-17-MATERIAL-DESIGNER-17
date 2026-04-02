@@ -175,7 +175,7 @@ pipeline {
             }
         }
         always {
-            echo "Pipeline finalizada em $(date)."
+            echo "Pipeline finalizada em \$(date)."
         }
     }
 }
