@@ -91,13 +91,40 @@ pipeline {
                                                         # Em alguns ambientes k3d, o server vem como 0.0.0.0, o que quebra o kubectl no Jenkins.
                             KUBECONFIG_TMP=$(mktemp /tmp/kubeconfig-jenkins-XXXXXX.yaml)
                             cp "$KUBECONFIG_FILE" "$KUBECONFIG_TMP"
-                            sed -i 's#https://0.0.0.0:#https://127.0.0.1:#g' "$KUBECONFIG_TMP"
+
+                            # Se Jenkins roda em Docker, 127.0.0.1 aponta para o proprio container.
+                            # Tenta detectar o IP do host via gateway da rede Docker (172.17.0.1 por padrao).
+                            HOST_GW=$(ip route show default 2>/dev/null | awk '/default/ {print $3; exit}')
+                            if [ -n "$HOST_GW" ]; then
+                                echo "Gateway detectado: $HOST_GW — substituindo 0.0.0.0/127.0.0.1 pelo IP do host."
+                                sed -i "s#https://0.0.0.0:#https://$HOST_GW:#g" "$KUBECONFIG_TMP"
+                                sed -i "s#https://127.0.0.1:#https://$HOST_GW:#g" "$KUBECONFIG_TMP"
+                            else
+                                sed -i 's#https://0.0.0.0:#https://127.0.0.1:#g' "$KUBECONFIG_TMP"
+                            fi
+
                             export KUBECONFIG="$KUBECONFIG_TMP"
                             trap "rm -f $KUBECONFIG_TMP" EXIT
 
-                                                        # Validacoes rapidas de ambiente para facilitar troubleshooting.
+                            # Validacoes rapidas de ambiente para facilitar troubleshooting.
                             kubectl version --client
                             kubectl config current-context
+
+                            # Aguarda o API server ficar disponivel (ate 60s).
+                            echo "Verificando conectividade com o API server..."
+                            for i in $(seq 1 12); do
+                                if kubectl cluster-info --request-timeout=5s > /dev/null 2>&1; then
+                                    echo "API server disponivel."
+                                    break
+                                fi
+                                echo "Tentativa $i/12 — API server indisponivel, aguardando 5s..."
+                                sleep 5
+                                if [ "$i" -eq 12 ]; then
+                                    echo "API server nao respondeu apos 60s. Abortando."
+                                    kubectl cluster-info || true
+                                    exit 1
+                                fi
+                            done
 
                                                         # Cria/atualiza o Secret com credenciais vindas do Jenkins.
                                                         # --dry-run=client -o yaml gera o YAML sem aplicar direto.
