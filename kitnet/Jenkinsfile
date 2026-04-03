@@ -87,11 +87,13 @@ pipeline {
                                         // Garante que os comandos rodem na pasta do projeto onde estao os manifests.
                     dir('kitnet') {
                         sh '''
-                                                        # Copia o kubeconfig para um arquivo temporario editavel.
+                                                        # Copia o kubeconfig para um arquivo temporario editavel em /tmp.
                                                         # Em alguns ambientes k3d, o server vem como 0.0.0.0, o que quebra o kubectl no Jenkins.
-                            cp "$KUBECONFIG_FILE" kubeconfig-jenkins.yaml
-                            sed -i 's#https://0.0.0.0:#https://127.0.0.1:#g' kubeconfig-jenkins.yaml
-                            export KUBECONFIG="$PWD/kubeconfig-jenkins.yaml"
+                            KUBECONFIG_TMP=$(mktemp /tmp/kubeconfig-jenkins-XXXXXX.yaml)
+                            cp "$KUBECONFIG_FILE" "$KUBECONFIG_TMP"
+                            sed -i 's#https://0.0.0.0:#https://127.0.0.1:#g' "$KUBECONFIG_TMP"
+                            export KUBECONFIG="$KUBECONFIG_TMP"
+                            trap "rm -f $KUBECONFIG_TMP" EXIT
 
                                                         # Validacoes rapidas de ambiente para facilitar troubleshooting.
                             kubectl version --client
@@ -151,9 +153,11 @@ pipeline {
                 withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
                     dir('kitnet') {
                         sh '''
-                            cp "$KUBECONFIG_FILE" kubeconfig-jenkins.yaml
-                            sed -i 's#https://0.0.0.0:#https://127.0.0.1:#g' kubeconfig-jenkins.yaml
-                            export KUBECONFIG="$PWD/kubeconfig-jenkins.yaml"
+                            KUBECONFIG_TMP=$(mktemp /tmp/kubeconfig-jenkins-XXXXXX.yaml)
+                            cp "$KUBECONFIG_FILE" "$KUBECONFIG_TMP"
+                            sed -i 's#https://0.0.0.0:#https://127.0.0.1:#g' "$KUBECONFIG_TMP"
+                            export KUBECONFIG="$KUBECONFIG_TMP"
+                            trap "rm -f $KUBECONFIG_TMP" EXIT
                             
                             # Aguarda 10 segundos para a aplicacao iniciar
                             echo "Aguardando aplicacao iniciar..."
