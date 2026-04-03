@@ -87,8 +87,11 @@ pipeline {
                                         // Garante que os comandos rodem na pasta do projeto onde estao os manifests.
                     dir('kitnet') {
                         sh '''
-                                                        # Diz ao kubectl qual arquivo de configuracao do cluster usar.
-                            export KUBECONFIG="$KUBECONFIG_FILE"
+                                                        # Copia o kubeconfig para um arquivo temporario editavel.
+                                                        # Em alguns ambientes k3d, o server vem como 0.0.0.0, o que quebra o kubectl no Jenkins.
+                            cp "$KUBECONFIG_FILE" kubeconfig-jenkins.yaml
+                            sed -i 's#https://0.0.0.0:#https://127.0.0.1:#g' kubeconfig-jenkins.yaml
+                            export KUBECONFIG="$PWD/kubeconfig-jenkins.yaml"
 
                                                         # Validacoes rapidas de ambiente para facilitar troubleshooting.
                             kubectl version --client
@@ -101,10 +104,10 @@ pipeline {
                               --from-literal=SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
                               --from-literal=SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
                               --from-literal=JWT_SECRET="$JWT_SECRET" \
-                              --dry-run=client -o yaml -n $K8S_NAMESPACE | kubectl apply -f -
+                                                            --dry-run=client -o yaml -n $K8S_NAMESPACE | kubectl apply --validate=false -f -
 
                                                         # Aplica Deployment + Service definidos no manifesto.
-                            kubectl apply -f k8s/deployment.yaml -n $K8S_NAMESPACE
+                                                        kubectl apply --validate=false -f k8s/deployment.yaml -n $K8S_NAMESPACE
 
                                                         # Atualiza a imagem para a tag imutavel do build atual.
                                                         # Isso evita depender de latest para deploy.
@@ -148,7 +151,9 @@ pipeline {
                 withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
                     dir('kitnet') {
                         sh '''
-                            export KUBECONFIG="$KUBECONFIG_FILE"
+                            cp "$KUBECONFIG_FILE" kubeconfig-jenkins.yaml
+                            sed -i 's#https://0.0.0.0:#https://127.0.0.1:#g' kubeconfig-jenkins.yaml
+                            export KUBECONFIG="$PWD/kubeconfig-jenkins.yaml"
                             
                             # Aguarda 10 segundos para a aplicacao iniciar
                             echo "Aguardando aplicacao iniciar..."
