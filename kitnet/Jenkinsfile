@@ -90,7 +90,6 @@ pipeline {
 
                             KUBECONFIG_TMP=$(mktemp /tmp/kubeconfig-jenkins-XXXXXX.yaml)
                             cp "$KUBECONFIG_FILE" "$KUBECONFIG_TMP"
-                            sed -i 's#https://0.0.0.0:#https://127.0.0.1:#g' "$KUBECONFIG_TMP"
                             export KUBECONFIG="$KUBECONFIG_TMP"
                             trap "rm -f $KUBECONFIG_TMP" EXIT
 
