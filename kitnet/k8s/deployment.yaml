@@ -52,9 +52,12 @@ spec:
             # Perfil Spring em modo producao.
             - name: SPRING_PROFILES_ACTIVE
               value: prod
-            # No k3d, o banco que roda fora do cluster pode ser acessado via host.k3d.internal.
+            # URL do banco vem do Secret para evitar host fixo no manifesto.
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:postgresql://host.k3d.internal:5432/kitnet
+              valueFrom:
+                secretKeyRef:
+                  name: sis-kitnet-backend-secret
+                  key: SPRING_DATASOURCE_URL
             # As proximas variaveis vem de Secret no cluster (sem hardcode no YAML).
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:

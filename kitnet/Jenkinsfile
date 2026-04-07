@@ -120,7 +120,22 @@ pipeline {
                                                         # Cria/atualiza o Secret com credenciais vindas do Jenkins.
                                                         # --dry-run=client -o yaml gera o YAML sem aplicar direto.
                                                         # O pipe para kubectl apply torna o comando idempotente (create ou update).
+                                                        K3D_NETWORK=$(docker network ls --format '{{.Name}}' | grep '^k3d-' | head -n1)
+                                                        K3D_GATEWAY=''
+                                                        if [ -n "$K3D_NETWORK" ]; then
+                                                            K3D_GATEWAY=$(docker network inspect "$K3D_NETWORK" -f '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || true)
+                                                        fi
+                                                        if [ -n "$SPRING_DATASOURCE_URL" ]; then
+                                                            SPRING_DATASOURCE_URL_VALUE="$SPRING_DATASOURCE_URL"
+                                                        elif [ -n "$K3D_GATEWAY" ]; then
+                                                            SPRING_DATASOURCE_URL_VALUE="jdbc:postgresql://$K3D_GATEWAY:5432/kitnet"
+                                                        else
+                                                            echo "Nao foi possivel detectar gateway da rede k3d. Configure SPRING_DATASOURCE_URL no Jenkins."
+                                                            exit 1
+                                                        fi
+
                             kubectl create secret generic sis-kitnet-backend-secret \
+                                                            --from-literal=SPRING_DATASOURCE_URL="$SPRING_DATASOURCE_URL_VALUE" \
                               --from-literal=SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
                               --from-literal=SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
                               --from-literal=JWT_SECRET="$JWT_SECRET" \
