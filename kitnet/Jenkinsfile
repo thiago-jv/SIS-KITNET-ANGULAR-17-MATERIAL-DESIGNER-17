@@ -3,15 +3,12 @@ def dockerapp
 pipeline {
     agent any
 
-    parameters {
-        string(name: 'SPRING_DATASOURCE_HOST', defaultValue: '', description: 'Hostname do banco externo (ex.: db.kitnet.internal)')
-        string(name: 'SPRING_DATASOURCE_PORT', defaultValue: '5432', description: 'Porta do banco externo')
-    }
-
     environment {
         K8S_NAMESPACE = 'default'
         K8S_DEPLOYMENT = 'sis-kitnet-backend'
         K8S_CONTAINER = 'sis-kitnet-backend'
+        K8S_DB_HOSTNAME = 'db.kitnet.internal'
+        K8S_DB_PORT = '5432'
         KUBECONFIG_CREDENTIALS_ID = 'kubeconfig'
         DOCKERHUB_REPO = 'docjv/sis_kitnet_backend'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
@@ -97,13 +94,8 @@ pipeline {
                             export KUBECONFIG="$KUBECONFIG_TMP"
                             trap "rm -f $KUBECONFIG_TMP" EXIT
 
-                            if [ -z "$SPRING_DATASOURCE_HOST" ] || [ -z "$SPRING_DATASOURCE_PORT" ]; then
-                                echo "Parametros obrigatorios ausentes: SPRING_DATASOURCE_HOST e SPRING_DATASOURCE_PORT."
-                                exit 1
-                            fi
-
-                            DB_HOSTNAME="$SPRING_DATASOURCE_HOST"
-                            DB_PORT="$SPRING_DATASOURCE_PORT"
+                            DB_HOSTNAME="$K8S_DB_HOSTNAME"
+                            DB_PORT="$K8S_DB_PORT"
                             SPRING_DATASOURCE_URL_VALUE="jdbc:postgresql://$DB_HOSTNAME:$DB_PORT/kitnet"
 
                             K3D_NETWORK=$(docker network ls --format '{{.Name}}' | grep '^k3d-' | head -n1)
