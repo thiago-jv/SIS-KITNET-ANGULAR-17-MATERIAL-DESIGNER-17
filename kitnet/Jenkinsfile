@@ -3,6 +3,11 @@ def dockerapp
 pipeline {
     agent any
 
+    parameters {
+        string(name: 'SPRING_DATASOURCE_HOST', defaultValue: '', description: 'Hostname do banco externo (ex.: db.kitnet.internal)')
+        string(name: 'SPRING_DATASOURCE_PORT', defaultValue: '5432', description: 'Porta do banco externo')
+    }
+
     environment {
         K8S_NAMESPACE = 'default'
         K8S_DEPLOYMENT = 'sis-kitnet-backend'
@@ -81,132 +86,51 @@ pipeline {
 
         stage('Deploy Kubernetes') {
             steps {
-                                // Carrega o kubeconfig salvo como credencial (arquivo) no Jenkins.
-                                // Isso evita depender do ~/.kube/config da maquina do agente.
                 withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
-                                        // Garante que os comandos rodem na pasta do projeto onde estao os manifests.
                     dir('kitnet') {
                         sh '''
-                                                        # Copia o kubeconfig para um arquivo temporario editavel em /tmp.
-                                                        # Em alguns ambientes k3d, o server vem como 0.0.0.0, o que quebra o kubectl no Jenkins.
+                            set -e
+
                             KUBECONFIG_TMP=$(mktemp /tmp/kubeconfig-jenkins-XXXXXX.yaml)
                             cp "$KUBECONFIG_FILE" "$KUBECONFIG_TMP"
-                            # Substitui 0.0.0.0 por 127.0.0.1 para ambientes k3d onde o server fica no host local.
                             sed -i 's#https://0.0.0.0:#https://127.0.0.1:#g' "$KUBECONFIG_TMP"
                             export KUBECONFIG="$KUBECONFIG_TMP"
                             trap "rm -f $KUBECONFIG_TMP" EXIT
 
-                            kubectl version --client
-                            kubectl config current-context
-                            echo "Endpoint do API server: $(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')"
+                            if [ -z "$SPRING_DATASOURCE_HOST" ] || [ -z "$SPRING_DATASOURCE_PORT" ]; then
+                                echo "Parametros obrigatorios ausentes: SPRING_DATASOURCE_HOST e SPRING_DATASOURCE_PORT."
+                                exit 1
+                            fi
 
-                            # Aguarda o API server ficar saudavel (ate 120s).
-                            echo "Aguardando API server do k3d ficar disponivel..."
-                            for i in $(seq 1 24); do
-                                CLUSTER_INFO=$(kubectl cluster-info --request-timeout=5s 2>&1) && {
-                                    echo "API server disponivel: $CLUSTER_INFO"
-                                    break
-                                }
-                                echo "Tentativa $i/24 — Erro: $CLUSTER_INFO"
-                                sleep 5
-                                if [ "$i" -eq 24 ]; then
-                                    echo "API server nao ficou saudavel apos 120s. Diagnostico:"
-                                    kubectl get nodes -o wide || true
-                                    kubectl get cs || true
-                                    exit 1
-                                fi
-                            done
+                            DB_HOSTNAME="$SPRING_DATASOURCE_HOST"
+                            DB_PORT="$SPRING_DATASOURCE_PORT"
+                            SPRING_DATASOURCE_URL_VALUE="jdbc:postgresql://$DB_HOSTNAME:$DB_PORT/kitnet"
 
-                                                        # Cria/atualiza o Secret com credenciais vindas do Jenkins.
-                                                        # --dry-run=client -o yaml gera o YAML sem aplicar direto.
-                                                        # O pipe para kubectl apply torna o comando idempotente (create ou update).
-                                                        K3D_NETWORK=$(docker network ls --format '{{.Name}}' | grep '^k3d-' | head -n1)
-                                                        K3D_GATEWAY=''
-                                                        if [ -n "$K3D_NETWORK" ]; then
-                                                            K3D_GATEWAY=$(docker network inspect "$K3D_NETWORK" -f '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || true)
-                                                        fi
-                                                        if [ -n "$SPRING_DATASOURCE_URL" ]; then
-                                                            SPRING_DATASOURCE_URL_VALUE="$SPRING_DATASOURCE_URL"
-                                                        elif [ -n "$K3D_GATEWAY" ]; then
-                                                            SPRING_DATASOURCE_URL_VALUE="jdbc:postgresql://$K3D_GATEWAY:5432/kitnet"
-                                                        else
-                                                            echo "Nao foi possivel detectar gateway da rede k3d. Configure SPRING_DATASOURCE_URL no Jenkins."
-                                                            exit 1
-                                                        fi
+                            K3D_NETWORK=$(docker network ls --format '{{.Name}}' | grep '^k3d-' | head -n1)
+                            K3D_GATEWAY=''
+                            if [ -n "$K3D_NETWORK" ]; then
+                                K3D_GATEWAY=$(docker network inspect "$K3D_NETWORK" -f '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || true)
+                            fi
 
                             kubectl create secret generic sis-kitnet-backend-secret \
-                                                            --from-literal=SPRING_DATASOURCE_URL="$SPRING_DATASOURCE_URL_VALUE" \
+                              --from-literal=SPRING_DATASOURCE_URL="$SPRING_DATASOURCE_URL_VALUE" \
                               --from-literal=SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
                               --from-literal=SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
                               --from-literal=JWT_SECRET="$JWT_SECRET" \
-                                                            --dry-run=client -o yaml -n $K8S_NAMESPACE | kubectl apply --validate=false -f -
+                              --dry-run=client -o yaml -n $K8S_NAMESPACE | kubectl apply -f -
 
-                                                        # Aplica Deployment + Service definidos no manifesto.
-                                                        kubectl apply --validate=false -f k8s/deployment.yaml -n $K8S_NAMESPACE
-
-                                                        # Atualiza a imagem para a tag imutavel do build atual.
-                                                        # Isso evita depender de latest para deploy.
+                            kubectl apply -f k8s/deployment.yaml -n $K8S_NAMESPACE
+                                                        if [ -n "$K3D_GATEWAY" ]; then
+                                                                kubectl patch deployment/$K8S_DEPLOYMENT -n $K8S_NAMESPACE --type='merge' \
+                                                                    -p "{\"spec\":{\"template\":{\"spec\":{\"hostAliases\":[{\"ip\":\"$K3D_GATEWAY\",\"hostnames\":[\"$DB_HOSTNAME\"]}]}}}}"
+                                                        fi
                             kubectl set image deployment/$K8S_DEPLOYMENT \
                               $K8S_CONTAINER=$DOCKERHUB_REPO:$BUILD_ID \
                               -n $K8S_NAMESPACE
-
-                                                                                                                # Aguarda rollout terminar. Se falhar por timeout,
-                                                                                                                # coleta diagnostico detalhado para troubleshooting.
-                                                        set +e
-                                                        kubectl rollout status deployment/$K8S_DEPLOYMENT -n $K8S_NAMESPACE --timeout=420s
-                                                        ROLLOUT_EXIT_CODE=$?
-                                                        set -e
-
-                                                        if [ $ROLLOUT_EXIT_CODE -ne 0 ]; then
-                                                            echo "Rollout nao concluiu no tempo limite. Coletando diagnostico..."
-                                                            kubectl get deployment $K8S_DEPLOYMENT -n $K8S_NAMESPACE -o wide || true
-                                                            kubectl describe deployment $K8S_DEPLOYMENT -n $K8S_NAMESPACE || true
-                                                            kubectl get rs -n $K8S_NAMESPACE -l app=sis-kitnet-backend -o wide || true
-                                                            kubectl get pods -n $K8S_NAMESPACE -l app=sis-kitnet-backend -o wide || true
-                                                            kubectl describe pods -n $K8S_NAMESPACE -l app=sis-kitnet-backend || true
-
-                                                            for pod in $(kubectl get pods -n $K8S_NAMESPACE -l app=sis-kitnet-backend -o name); do
-                                                                echo "=== Logs de $pod (ultimas 150 linhas) ==="
-                                                                kubectl logs -n $K8S_NAMESPACE "$pod" --tail=150 --all-containers=true || true
-                                                            done
-
-                                                            exit $ROLLOUT_EXIT_CODE
-                                                        fi
+                            kubectl rollout status deployment/$K8S_DEPLOYMENT -n $K8S_NAMESPACE --timeout=300s
 
                             kubectl get pods -n $K8S_NAMESPACE -l app=sis-kitnet-backend -o wide
                             kubectl get svc -n $K8S_NAMESPACE sis-kitnet-backend
-                        '''
-                    }
-                }
-            }
-        }
-
-        stage('Health Check Post-Deploy') {
-            steps {
-                withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
-                    dir('kitnet') {
-                        sh '''
-                            KUBECONFIG_TMP=$(mktemp /tmp/kubeconfig-jenkins-XXXXXX.yaml)
-                            cp "$KUBECONFIG_FILE" "$KUBECONFIG_TMP"
-                            sed -i 's#https://0.0.0.0:#https://127.0.0.1:#g' "$KUBECONFIG_TMP"
-                            export KUBECONFIG="$KUBECONFIG_TMP"
-                            trap "rm -f $KUBECONFIG_TMP" EXIT
-                            
-                            # Aguarda 10 segundos para a aplicacao iniciar
-                            echo "Aguardando aplicacao iniciar..."
-                            sleep 10
-                            
-                            # Testa /actuator/health diretamente no cluster
-                            echo "Verificando saude da aplicacao..."
-                            kubectl run curltest-${BUILD_NUMBER} \
-                              --image=curlimages/curl:latest \
-                              --restart=Never \
-                              -n $K8S_NAMESPACE \
-                              -- curl -f http://${K8S_DEPLOYMENT}:8089/actuator/health || true
-                            
-                            # Aguarda a conclusao e limpa o pod de teste
-                            sleep 5
-                            kubectl delete pod curltest-${BUILD_NUMBER} -n $K8S_NAMESPACE --ignore-not-found=true
                         '''
                     }
                 }
