@@ -84,79 +84,15 @@ pipeline {
 
         stage('Deploy Kubernetes') {
             steps {
-                withCredentials([file(credentialsId: env.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
-                    dir('kitnet') {
-                        sh '''
-                            set -e
-
-                            KUBECONFIG_TMP=$(mktemp /tmp/kubeconfig-jenkins-XXXXXX.yaml)
-                            cp "$KUBECONFIG_FILE" "$KUBECONFIG_TMP"
-                            export KUBECONFIG="$KUBECONFIG_TMP"
-                            trap "rm -f $KUBECONFIG_TMP" EXIT
-
-                            echo "=== Preflight Kubernetes ==="
-                            kubectl config current-context || true
-                            API_SERVER=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}' 2>/dev/null || true)
-                            echo "API server do kubeconfig: $API_SERVER"
-
-                            if echo "$API_SERVER" | grep -Eq 'https?://(127\\.0\\.0\\.1|localhost)(:[0-9]+)?/?$'; then
-                                if [ -n "$K8S_API_SERVER_OVERRIDE" ]; then
-                                    CLUSTER_NAME=$(kubectl config view --minify -o jsonpath='{.clusters[0].name}' 2>/dev/null || true)
-                                    if [ -n "$CLUSTER_NAME" ]; then
-                                        echo "Aplicando override de API server no kubeconfig temporario: $K8S_API_SERVER_OVERRIDE"
-                                        kubectl config set-cluster "$CLUSTER_NAME" --server="$K8S_API_SERVER_OVERRIDE" >/dev/null
-                                        API_SERVER=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}' 2>/dev/null || true)
-                                        echo "API server apos override: $API_SERVER"
-                                    else
-                                        echo "Nao foi possivel identificar o cluster no kubeconfig para aplicar override."
-                                        exit 1
-                                    fi
-                                else
-                                    echo "Falha de conectividade: kubeconfig aponta para localhost/127.0.0.1 e nao ha override configurado."
-                                    echo "Defina K8S_API_SERVER_OVERRIDE no job Jenkins (ex.: https://<host-ou-ip-acessivel>:<porta>)."
-                                    exit 1
-                                fi
-                            fi
-
-                            if ! kubectl version --request-timeout=10s >/dev/null 2>&1; then
-                                echo "Falha de conectividade com o cluster Kubernetes."
-                                echo "Valide o kubeconfig no Jenkins (credencial: $KUBECONFIG_CREDENTIALS_ID)."
-                                echo "Endpoint atual no kubeconfig: $API_SERVER"
-                                echo "Dica: se vier 127.0.0.1/localhost, o Jenkins precisa estar no mesmo host do cluster."
-                                exit 1
-                            fi
-                            kubectl get ns --request-timeout=10s >/dev/null
-
-                            DB_HOSTNAME="$K8S_DB_HOSTNAME"
-                            DB_PORT="$K8S_DB_PORT"
-                            SPRING_DATASOURCE_URL_VALUE="jdbc:postgresql://$DB_HOSTNAME:$DB_PORT/kitnet"
-
-                            K3D_NETWORK=$(docker network ls --format '{{.Name}}' | grep '^k3d-' | head -n1)
-                            K3D_GATEWAY=''
-                            if [ -n "$K3D_NETWORK" ]; then
-                                K3D_GATEWAY=$(docker network inspect "$K3D_NETWORK" -f '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || true)
-                            fi
-
-                            kubectl create secret generic sis-kitnet-backend-secret \
-                              --from-literal=SPRING_DATASOURCE_URL="$SPRING_DATASOURCE_URL_VALUE" \
-                              --from-literal=SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
-                              --from-literal=SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
-                              --from-literal=JWT_SECRET="$JWT_SECRET" \
-                              --dry-run=client -o yaml -n $K8S_NAMESPACE | kubectl apply -f -
-
-                            kubectl apply -f k8s/deployment.yaml -n $K8S_NAMESPACE
-                                                        if [ -n "$K3D_GATEWAY" ]; then
-                                                                kubectl patch deployment/$K8S_DEPLOYMENT -n $K8S_NAMESPACE --type='merge' \
-                                                                    -p "{\"spec\":{\"template\":{\"spec\":{\"hostAliases\":[{\"ip\":\"$K3D_GATEWAY\",\"hostnames\":[\"$DB_HOSTNAME\"]}]}}}}"
-                                                        fi
-                            kubectl set image deployment/$K8S_DEPLOYMENT \
-                              $K8S_CONTAINER=$DOCKERHUB_REPO:$BUILD_ID \
-                              -n $K8S_NAMESPACE
-                            kubectl rollout status deployment/$K8S_DEPLOYMENT -n $K8S_NAMESPACE --timeout=300s
-
-                            kubectl get pods -n $K8S_NAMESPACE -l app=sis-kitnet-backend -o wide
-                            kubectl get svc -n $K8S_NAMESPACE sis-kitnet-backend
-                        '''
+                script {
+                    def tag_version = env.BUILD_ID
+                    dir('kitnet/k8s') {
+                        withKubeConfig([credentialsId: env.KUBECONFIG_CREDENTIALS_ID]) {
+                            sh "kubectl create secret generic sis-kitnet-backend-secret --from-literal=SPRING_DATASOURCE_URL=jdbc:postgresql://${env.K8S_DB_HOSTNAME}:${env.K8S_DB_PORT}/kitnet --from-literal=SPRING_DATASOURCE_USERNAME=${env.SPRING_DATASOURCE_USERNAME} --from-literal=SPRING_DATASOURCE_PASSWORD=${env.SPRING_DATASOURCE_PASSWORD} --from-literal=JWT_SECRET=${env.JWT_SECRET} --dry-run=client -o yaml -n ${env.K8S_NAMESPACE} | kubectl apply -f -"
+                            sh "sed -i 's|{{TAG}}|${tag_version}|g' deployment.yaml"
+                            sh "kubectl apply -f deployment.yaml -n ${env.K8S_NAMESPACE}"
+                            sh "kubectl rollout status deployment/${env.K8S_DEPLOYMENT} -n ${env.K8S_NAMESPACE} --timeout=300s"
+                        }
                     }
                 }
             }

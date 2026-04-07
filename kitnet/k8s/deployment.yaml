@@ -45,7 +45,7 @@ spec:
           name: sis-kitnet-backend
           # Imagem do container no registry.
           # Em CI/CD, a pipeline pode sobrescrever essa tag para BUILD_ID.
-          image: docjv/sis_kitnet_backend:latest
+          image: docjv/sis_kitnet_backend:{{TAG}}
           # Always garante sempre fazer pull da imagem (importante para :latest tag).
           imagePullPolicy: Always
           env:
