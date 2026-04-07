@@ -86,9 +86,21 @@ pipeline {
             steps {
                 script {
                     def tag_version = env.BUILD_ID
+                    def kubeConfigArgs = [credentialsId: env.KUBECONFIG_CREDENTIALS_ID]
+                    if (env.K8S_API_SERVER_OVERRIDE?.trim()) {
+                        kubeConfigArgs.serverUrl = env.K8S_API_SERVER_OVERRIDE
+                    }
                     dir('kitnet/k8s') {
-                        withKubeConfig([credentialsId: env.KUBECONFIG_CREDENTIALS_ID]) {
-                            sh "kubectl create secret generic sis-kitnet-backend-secret --from-literal=SPRING_DATASOURCE_URL=jdbc:postgresql://${env.K8S_DB_HOSTNAME}:${env.K8S_DB_PORT}/kitnet --from-literal=SPRING_DATASOURCE_USERNAME=${env.SPRING_DATASOURCE_USERNAME} --from-literal=SPRING_DATASOURCE_PASSWORD=${env.SPRING_DATASOURCE_PASSWORD} --from-literal=JWT_SECRET=${env.JWT_SECRET} --dry-run=client -o yaml -n ${env.K8S_NAMESPACE} | kubectl apply -f -"
+                        withKubeConfig([kubeConfigArgs]) {
+                            sh '''
+                                set -e
+                                kubectl create secret generic sis-kitnet-backend-secret \
+                                  --from-literal=SPRING_DATASOURCE_URL="jdbc:postgresql://$K8S_DB_HOSTNAME:$K8S_DB_PORT/kitnet" \
+                                  --from-literal=SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
+                                  --from-literal=SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
+                                  --from-literal=JWT_SECRET="$JWT_SECRET" \
+                                  --dry-run=client -o yaml -n "$K8S_NAMESPACE" | kubectl apply -f -
+                            '''
                             sh "sed -i 's|{{TAG}}|${tag_version}|g' deployment.yaml"
                             sh "kubectl apply -f deployment.yaml -n ${env.K8S_NAMESPACE}"
                             sh "kubectl rollout status deployment/${env.K8S_DEPLOYMENT} -n ${env.K8S_NAMESPACE} --timeout=300s"
