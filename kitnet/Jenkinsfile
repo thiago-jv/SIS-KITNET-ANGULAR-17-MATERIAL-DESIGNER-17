@@ -91,7 +91,7 @@ pipeline {
                         kubeConfigArgs.serverUrl = env.K8S_API_SERVER_OVERRIDE
                     }
                     dir('kitnet/k8s') {
-                        withKubeConfig([kubeConfigArgs]) {
+                        withKubeConfig(kubeConfigArgs) {
                             sh '''
                                 set -e
                                 kubectl create secret generic sis-kitnet-backend-secret \
