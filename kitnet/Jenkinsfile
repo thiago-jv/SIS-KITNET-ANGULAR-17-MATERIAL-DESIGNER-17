@@ -9,6 +9,7 @@ pipeline {
         K8S_CONTAINER = 'sis-kitnet-backend'
         K8S_DB_HOSTNAME = 'db.kitnet.internal'
         K8S_DB_PORT = '5432'
+        K8S_API_SERVER_OVERRIDE = ''
         KUBECONFIG_CREDENTIALS_ID = 'kubeconfig'
         DOCKERHUB_REPO = 'docjv/sis_kitnet_backend'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
@@ -97,6 +98,26 @@ pipeline {
                             kubectl config current-context || true
                             API_SERVER=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}' 2>/dev/null || true)
                             echo "API server do kubeconfig: $API_SERVER"
+
+                            if echo "$API_SERVER" | grep -Eq 'https?://(127\\.0\\.0\\.1|localhost)(:[0-9]+)?/?$'; then
+                                if [ -n "$K8S_API_SERVER_OVERRIDE" ]; then
+                                    CLUSTER_NAME=$(kubectl config view --minify -o jsonpath='{.clusters[0].name}' 2>/dev/null || true)
+                                    if [ -n "$CLUSTER_NAME" ]; then
+                                        echo "Aplicando override de API server no kubeconfig temporario: $K8S_API_SERVER_OVERRIDE"
+                                        kubectl config set-cluster "$CLUSTER_NAME" --server="$K8S_API_SERVER_OVERRIDE" >/dev/null
+                                        API_SERVER=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}' 2>/dev/null || true)
+                                        echo "API server apos override: $API_SERVER"
+                                    else
+                                        echo "Nao foi possivel identificar o cluster no kubeconfig para aplicar override."
+                                        exit 1
+                                    fi
+                                else
+                                    echo "Falha de conectividade: kubeconfig aponta para localhost/127.0.0.1 e nao ha override configurado."
+                                    echo "Defina K8S_API_SERVER_OVERRIDE no job Jenkins (ex.: https://<host-ou-ip-acessivel>:<porta>)."
+                                    exit 1
+                                fi
+                            fi
+
                             if ! kubectl version --request-timeout=10s >/dev/null 2>&1; then
                                 echo "Falha de conectividade com o cluster Kubernetes."
                                 echo "Valide o kubeconfig no Jenkins (credencial: $KUBECONFIG_CREDENTIALS_ID)."
