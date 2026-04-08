@@ -24,7 +24,7 @@ pipeline {
         stage('Prepare Project Path') {
             steps {
                 script {
-                    env.PROJECT_DIR = fileExists('sis-kitnet/package-lock.json') ? 'sis-kitnet' : '.'
+                    env.PROJECT_DIR = fileExists('sis-kitnet/package.json') ? 'sis-kitnet' : '.'
                     echo "Diretorio do projeto: ${env.PROJECT_DIR}"
                 }
             }
@@ -40,7 +40,7 @@ pipeline {
                   -v $PWD:/app \
                                     -w /app/$PROJECT_DIR \
                   node:18 \
-                  sh -c "npm ci && npm run build -- --configuration production"
+                                    sh -c "if [ -f package-lock.json ]; then npm ci; else npm install; fi && npm run build -- --configuration production"
                 '''
             }
         }
