@@ -9,7 +9,7 @@ pipeline {
         K8S_CONTAINER = 'sis-kitnet-backend'
         K8S_DB_HOSTNAME = 'db.kitnet.internal'
         K8S_DB_PORT = '5432'
-        K8S_API_SERVER_OVERRIDE = ''
+        K8S_API_SERVER_OVERRIDE = 'https://192.168.0.4:33321'
         KUBECONFIG_CREDENTIALS_ID = 'kubeconfig'
         DOCKERHUB_REPO = 'docjv/sis_kitnet_backend'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
@@ -94,6 +94,22 @@ pipeline {
                         withKubeConfig(kubeConfigArgs) {
                             sh '''
                                 set -e
+
+                                                                API_SERVER=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}' 2>/dev/null || true)
+                                                                if echo "$API_SERVER" | grep -Eq 'https?://(127\\.0\\.0\\.1|localhost)(:[0-9]+)?/?$'; then
+                                                                    if [ -n "$K8S_API_SERVER_OVERRIDE" ]; then
+                                                                        CLUSTER_NAME=$(kubectl config view --minify -o jsonpath='{.clusters[0].name}' 2>/dev/null || true)
+                                                                        if [ -n "$CLUSTER_NAME" ]; then
+                                                                            kubectl config set-cluster "$CLUSTER_NAME" --server="$K8S_API_SERVER_OVERRIDE" >/dev/null
+                                                                        fi
+                                                                    else
+                                                                        echo "Kubeconfig aponta para localhost/127.0.0.1 e K8S_API_SERVER_OVERRIDE nao foi definido."
+                                                                        echo "Defina K8S_API_SERVER_OVERRIDE no job Jenkins com endpoint acessivel pelo agente."
+                                                                        exit 1
+                                                                    fi
+                                                                fi
+
+                                                                kubectl version --request-timeout=10s >/dev/null
                                 kubectl create secret generic sis-kitnet-backend-secret \
                                   --from-literal=SPRING_DATASOURCE_URL="jdbc:postgresql://$K8S_DB_HOSTNAME:$K8S_DB_PORT/kitnet" \
                                   --from-literal=SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
