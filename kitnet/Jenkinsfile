@@ -6,10 +6,9 @@ pipeline {
     environment {
         K8S_NAMESPACE = 'default'
         K8S_DEPLOYMENT = 'sis-kitnet-backend'
-        K8S_CONTAINER = 'sis-kitnet-backend'
         K8S_DB_HOSTNAME = 'db-kitnet'
         K8S_DB_PORT = '5432'
-        K8S_API_SERVER_OVERRIDE = 'https://192.168.0.4:33321'
+        K8S_API_SERVER_OVERRIDE = ''
         KUBECONFIG_CREDENTIALS_ID = 'kubeconfig'
         DOCKERHUB_REPO = 'docjv/sis_kitnet_backend'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
@@ -85,41 +84,31 @@ pipeline {
         stage('Deploy Kubernetes') {
             steps {
                 script {
-                    def tag_version = env.BUILD_ID
                     def kubeConfigArgs = [credentialsId: env.KUBECONFIG_CREDENTIALS_ID]
                     if (env.K8S_API_SERVER_OVERRIDE?.trim()) {
                         kubeConfigArgs.serverUrl = env.K8S_API_SERVER_OVERRIDE
                     }
                     dir('kitnet/k8s') {
-                        withKubeConfig(kubeConfigArgs) {
-                            sh '''
-                                set -e
+                        withEnv(["TAG_VERSION=${env.BUILD_ID}"]) {
+                            withKubeConfig(kubeConfigArgs) {
+                                sh '''
+                                    set -e
 
-                                                                API_SERVER=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}' 2>/dev/null || true)
-                                                                if echo "$API_SERVER" | grep -Eq 'https?://(127\\.0\\.0\\.1|localhost)(:[0-9]+)?/?$'; then
-                                                                    if [ -n "$K8S_API_SERVER_OVERRIDE" ]; then
-                                                                        CLUSTER_NAME=$(kubectl config view --minify -o jsonpath='{.clusters[0].name}' 2>/dev/null || true)
-                                                                        if [ -n "$CLUSTER_NAME" ]; then
-                                                                            kubectl config set-cluster "$CLUSTER_NAME" --server="$K8S_API_SERVER_OVERRIDE" >/dev/null
-                                                                        fi
-                                                                    else
-                                                                        echo "Kubeconfig aponta para localhost/127.0.0.1 e K8S_API_SERVER_OVERRIDE nao foi definido."
-                                                                        echo "Defina K8S_API_SERVER_OVERRIDE no job Jenkins com endpoint acessivel pelo agente."
-                                                                        exit 1
-                                                                    fi
-                                                                fi
+                                    kubectl version --request-timeout=10s >/dev/null
 
-                                                                kubectl version --request-timeout=10s >/dev/null
-                                kubectl create secret generic sis-kitnet-backend-secret \
-                                  --from-literal=SPRING_DATASOURCE_URL="jdbc:postgresql://$K8S_DB_HOSTNAME:$K8S_DB_PORT/kitnet" \
-                                  --from-literal=SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
-                                  --from-literal=SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
-                                  --from-literal=JWT_SECRET="$JWT_SECRET" \
-                                  --dry-run=client -o yaml -n "$K8S_NAMESPACE" | kubectl apply -f -
-                            '''
-                            sh "sed -i 's|{{TAG}}|${tag_version}|g' deployment.yaml"
-                            sh "kubectl apply -f db-service.yaml -f service.yaml -f deployment.yaml -n ${env.K8S_NAMESPACE}"
-                            sh "kubectl rollout status deployment/${env.K8S_DEPLOYMENT} -n ${env.K8S_NAMESPACE} --timeout=300s"
+                                    kubectl create secret generic sis-kitnet-backend-secret \
+                                      --from-literal=SPRING_DATASOURCE_URL="jdbc:postgresql://$K8S_DB_HOSTNAME:$K8S_DB_PORT/kitnet" \
+                                      --from-literal=SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
+                                      --from-literal=SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
+                                      --from-literal=JWT_SECRET="$JWT_SECRET" \
+                                      --dry-run=client -o yaml -n "$K8S_NAMESPACE" | kubectl apply -f -
+
+                                    cp deployment.yaml deployment.rendered.yaml
+                                    sed -i "s|{{TAG}}|$TAG_VERSION|g" deployment.rendered.yaml
+                                    kubectl apply -f db-service.yaml -f service.yaml -f deployment.rendered.yaml -n "$K8S_NAMESPACE"
+                                    kubectl rollout status deployment/"$K8S_DEPLOYMENT" -n "$K8S_NAMESPACE" --timeout=300s
+                                '''
+                            }
                         }
                     }
                 }
