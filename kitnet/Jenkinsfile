@@ -8,7 +8,7 @@ pipeline {
         K8S_DEPLOYMENT = 'sis-kitnet-backend'
         K8S_DB_HOSTNAME = 'db-kitnet'
         K8S_DB_PORT = '5432'
-        K8S_API_SERVER_OVERRIDE = ''
+        K8S_API_SERVER_OVERRIDE = 'https://127.0.0.1:33321'
         KUBECONFIG_CREDENTIALS_ID = 'kubeconfig'
         DOCKERHUB_REPO = 'docjv/sis_kitnet_backend'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub'
