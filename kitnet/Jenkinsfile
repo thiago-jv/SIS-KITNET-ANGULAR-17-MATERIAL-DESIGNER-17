@@ -6,7 +6,7 @@ pipeline {
     environment {
         K8S_NAMESPACE = 'default'
         K8S_DEPLOYMENT = 'sis-kitnet-backend'
-        K8S_DB_HOSTNAME = 'db-kitnet'
+        K8S_DB_HOSTNAME = 'host.docker.internal'
         K8S_DB_PORT = '5432'
         K8S_API_SERVER_OVERRIDE = 'https://127.0.0.1:33321'
         KUBECONFIG_CREDENTIALS_ID = 'kubeconfig'
@@ -105,7 +105,7 @@ pipeline {
 
                                     cp deployment.yaml deployment.rendered.yaml
                                     sed -i "s|{{TAG}}|$TAG_VERSION|g" deployment.rendered.yaml
-                                    kubectl apply -f db-service.yaml -f service.yaml -f deployment.rendered.yaml -n "$K8S_NAMESPACE"
+                                    kubectl apply -f service.yaml -f deployment.rendered.yaml -n "$K8S_NAMESPACE"
                                     kubectl rollout status deployment/"$K8S_DEPLOYMENT" -n "$K8S_NAMESPACE" --timeout=300s
                                 '''
                             }
