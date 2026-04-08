@@ -24,7 +24,23 @@ pipeline {
         stage('Prepare Project Path') {
             steps {
                 script {
-                    env.PROJECT_DIR = fileExists('sis-kitnet/package.json') ? 'sis-kitnet' : '.'
+                                        env.PROJECT_DIR = sh(
+                                                script: '''
+                                                if [ -f package.json ]; then
+                                                    echo "."
+                                                elif [ -f sis-kitnet/package.json ]; then
+                                                    echo "sis-kitnet"
+                                                else
+                                                    echo "__NOT_FOUND__"
+                                                fi
+                                                ''',
+                                                returnStdout: true
+                                        ).trim()
+
+                                        if (env.PROJECT_DIR == '__NOT_FOUND__') {
+                                                error 'package.json nao encontrado nem na raiz nem em sis-kitnet/'
+                                        }
+
                     echo "Diretorio do projeto: ${env.PROJECT_DIR}"
                 }
             }
