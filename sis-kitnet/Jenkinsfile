@@ -8,7 +8,6 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'kitnet-frontend'
-        PROJECT_DIR = '.'
         SONAR_QUBE_URL = 'http://localhost:9000'
         DSONAR_LOGIN = credentials('DSONAR_LOGIN_SIS_KITNET_FRONTEND')
     }
@@ -24,40 +23,49 @@ pipeline {
         stage('Prepare Project Path') {
             steps {
                 script {
-                                        env.PROJECT_DIR = sh(
-                                                script: '''
-                                                if [ -f package.json ]; then
-                                                    echo "."
-                                                elif [ -f sis-kitnet/package.json ]; then
-                                                    echo "sis-kitnet"
-                                                else
-                                                    echo "__NOT_FOUND__"
-                                                fi
-                                                ''',
-                                                returnStdout: true
-                                        ).trim()
+                    def projectDir = sh(
+                        script: '''
+                        if [ -f package.json ]; then
+                          echo "."
+                        elif [ -f sis-kitnet/package.json ]; then
+                          echo "sis-kitnet"
+                        else
+                          echo "__NOT_FOUND__"
+                        fi
+                        ''',
+                        returnStdout: true
+                    ).trim()
 
-                                        if (env.PROJECT_DIR == '__NOT_FOUND__') {
-                                                error 'package.json nao encontrado nem na raiz nem em sis-kitnet/'
-                                        }
+                    if (projectDir == '__NOT_FOUND__') {
+                        error 'package.json nao encontrado nem na raiz nem em sis-kitnet/'
+                    }
 
-                    echo "Diretorio do projeto: ${env.PROJECT_DIR}"
+                    echo "Diretorio do projeto: ${projectDir}"
                 }
             }
         }
 
         stage('Build Frontend (Node via Docker)') {
             steps {
-                sh '''
-                docker run --rm \
-                  --user "$(id -u):$(id -g)" \
-                                    -e HOME=/tmp \
-                                    -e npm_config_cache=/tmp/.npm \
-                  -v $PWD:/app \
-                                    -w /app/$PROJECT_DIR \
-                  node:18 \
-                                    sh -c "if [ -f package-lock.json ]; then npm ci; else npm install; fi && npm run build -- --configuration production"
-                '''
+                script {
+                    def projectDir = fileExists('package.json') ? '.' : (fileExists('sis-kitnet/package.json') ? 'sis-kitnet' : '__NOT_FOUND__')
+                    if (projectDir == '__NOT_FOUND__') {
+                        error 'package.json nao encontrado nem na raiz nem em sis-kitnet/'
+                    }
+
+                    dir(projectDir) {
+                        sh '''
+                        docker run --rm \
+                          --user "$(id -u):$(id -g)" \
+                          -e HOME=/tmp \
+                          -e npm_config_cache=/tmp/.npm \
+                          -v $PWD:/app \
+                          -w /app \
+                          node:18 \
+                          sh -c "if [ -f package-lock.json ]; then npm ci; else npm install; fi && npm run build -- --configuration production"
+                        '''
+                    }
+                }
             }
         }
 
@@ -65,8 +73,13 @@ pipeline {
             steps {
                 withSonarQubeEnv('SONAR_LOCAL') {
                     script {
+                        def projectDir = fileExists('package.json') ? '.' : (fileExists('sis-kitnet/package.json') ? 'sis-kitnet' : '__NOT_FOUND__')
+                        if (projectDir == '__NOT_FOUND__') {
+                            error 'package.json nao encontrado nem na raiz nem em sis-kitnet/'
+                        }
+
                         def scannerHome = tool 'SONAR_SCANNER'
-                        dir(env.PROJECT_DIR) {
+                        dir(projectDir) {
                             sh """
                         ${scannerHome}/bin/sonar-scanner \\
                         -Dsonar.projectKey=SIS_KITNET_FRONTEND \\
@@ -95,11 +108,18 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                dir(env.PROJECT_DIR) {
-                    sh '''
-                    docker build -t $IMAGE_NAME:latest \
-                                 -t $IMAGE_NAME:$BUILD_NUMBER .
-                    '''
+                script {
+                    def projectDir = fileExists('package.json') ? '.' : (fileExists('sis-kitnet/package.json') ? 'sis-kitnet' : '__NOT_FOUND__')
+                    if (projectDir == '__NOT_FOUND__') {
+                        error 'package.json nao encontrado nem na raiz nem em sis-kitnet/'
+                    }
+
+                    dir(projectDir) {
+                        sh '''
+                        docker build -t $IMAGE_NAME:latest \
+                                     -t $IMAGE_NAME:$BUILD_NUMBER .
+                        '''
+                    }
                 }
             }
         }
