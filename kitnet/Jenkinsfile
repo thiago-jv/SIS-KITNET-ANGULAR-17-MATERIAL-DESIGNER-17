@@ -96,8 +96,14 @@ pipeline {
 
                                     kubectl version --request-timeout=10s >/dev/null
 
+                                                                        DB_HOSTNAME="$K8S_DB_HOSTNAME"
+                                                                        KIND_GATEWAY=$(docker network inspect kind -f '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || true)
+                                                                        if [ -n "$KIND_GATEWAY" ]; then
+                                                                            DB_HOSTNAME="$KIND_GATEWAY"
+                                                                        fi
+
                                     kubectl create secret generic sis-kitnet-backend-secret \
-                                      --from-literal=SPRING_DATASOURCE_URL="jdbc:postgresql://$K8S_DB_HOSTNAME:$K8S_DB_PORT/kitnet" \
+                                                                            --from-literal=SPRING_DATASOURCE_URL="jdbc:postgresql://$DB_HOSTNAME:$K8S_DB_PORT/kitnet" \
                                       --from-literal=SPRING_DATASOURCE_USERNAME="$SPRING_DATASOURCE_USERNAME" \
                                       --from-literal=SPRING_DATASOURCE_PASSWORD="$SPRING_DATASOURCE_PASSWORD" \
                                       --from-literal=JWT_SECRET="$JWT_SECRET" \
